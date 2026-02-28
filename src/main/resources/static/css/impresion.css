@@ -1,0 +1,60 @@
+
+body {
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    color: #333;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+.header {
+    text-align: center;
+    border-bottom: 2px solid #333;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+.header h1 { margin: 0; font-size: 24px; text-transform: uppercase; }
+.header p { margin: 2px 0; font-size: 14px; color: #666; }
+
+.info-section {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+.info-box { width: 48%; }
+.label { font-weight: bold; font-size: 12px; color: #666; display: block; }
+.value { font-size: 16px; margin-bottom: 10px; display: block; }
+
+.financial-summary {
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: space-around;
+    text-align: center;
+}
+.fin-item h3 { margin: 0; font-size: 14px; color: #555; }
+.fin-item p { margin: 5px 0 0; font-size: 20px; font-weight: bold; }
+.deuda { color: #dc3545; }
+.pagado { color: #28a745; }
+
+table { width: 100%; border-collapse: collapse; margin-bottom: 40px; }
+th { background-color: #333; color: #fff; padding: 10px; text-align: left; font-size: 14px; }
+td { border-bottom: 1px solid #ddd; padding: 10px; font-size: 14px; }
+
+.footer {
+    text-align: center;
+    font-size: 12px;
+    color: #777;
+    margin-top: 50px;
+    border-top: 1px solid #ddd;
+    padding-top: 10px;
+}
+
+/* Ocultar botones al imprimir */
+@media print {
+    .no-print { display: none !important; }
+    body { padding: 0; }
+    .financial-summary { background-color: #fff !important; border: 1px solid #000; }
+}

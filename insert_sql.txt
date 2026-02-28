@@ -1,0 +1,34 @@
+
+INSERT INTO TIPOS_PRODUCTO (id, activo, nombre, descripcion, icono, fecha_creacion) VALUES 
+(1, true, 'Armazón', 'Armazon para montura', 'fas fa-glasses', NOW()),
+(2, true, 'Lente de contacto', 'Lentes de contacto', 'fas fa-eye', NOW()),
+(3, true, 'Correa', 'Correa para lentes', 'fas fa-link', NOW());
+
+INSERT INTO RAZONES_VISITA (id, activo, nombre) VALUES 
+(1, true, 'Primera consulta'),
+(2, true, 'Revisión anual'),
+(3, true, 'Urgencia'),
+(4, true, 'Renovación de Lentes');
+
+INSERT INTO OPCIONES_LENTE (categoria, nombre, precio_base) VALUES 
+('MATERIAL', 'Policarbonato', 500.00),
+('TRATAMIENTO', 'Antirreflejante basico', 500.00),
+('TINTE', 'Gris 50%', 300.00),
+('TINTE', 'Morado 60%', 500.00),
+('TIPO_ARMAZON', 'Completo', 1000.00);
+
+INSERT INTO PRODUCTOS (activo, nombre, marca, modelo, color, talla, sub_tipo, precio, stock, tipo_id, fecha_registro) VALUES 
+(true, 'Louis Vuitton LV1234 - Dorado', 'Louis Vuitton', 'LV1234', 'Dorado', '160 14 50', 'Completo', 2500.00, 8, 1, NOW());
+
+INSERT INTO PRODUCTOS (activo, nombre, marca, modelo, color, talla, sub_tipo, precio, stock, tipo_id, fecha_registro) VALUES 
+(true, 'Prada PR1414 - Negro Mate', 'Prada', 'PR1414', 'Negro Mate', '50-22-150', NULL, 3500.00, 5, 1, NOW());
+
+INSERT INTO PRODUCTOS (activo, nombre, marca, modelo, color, talla, sub_tipo, precio, stock, tipo_id, fecha_registro) VALUES 
+(true, 'Simi SIMI1414', 'Simi', 'SIMI1414', NULL, NULL, NULL, 1000.00, 10, 2, NOW());
+
+INSERT INTO PRODUCTOS (activo, nombre, marca, modelo, color, talla, sub_tipo, precio, stock, tipo_id, fecha_registro) VALUES 
+(true, 'Generico CORREA1 - ROJA', 'Generico', 'CORREA1', 'ROJA', NULL, NULL, 100.00, 20, 3, NOW());
+
+INSERT INTO CLIENTES (activo, nombre, telefono, email, fecha_nacimiento, fecha_registro, motivo, graduacion_actual, mensaje, ultimo_lente_id) VALUES 
+(true, 'Juan Gonzales', '7721234567', 'juan_g@ejemplo.com', '2000-06-06', NOW(), 'Renovación de Lentes', 'Por actualizar', 'Pendiente examen', NULL),
+(true, 'Maria Perez', '5512345678', 'maria.p@ejemplo.com', '1995-03-15', NOW(), 'Primera consulta', 'N/A', 'Viene recomendada', NULL);

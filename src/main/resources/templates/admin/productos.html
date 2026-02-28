@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/layout :: layout(~{::content}, ~{::scripts})}">
+
+<head>
+    </head>
+
+<body>
+    <div th:fragment="content">
+        
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-primary fw-bold">
+                <i class="fas fa-boxes me-2"></i>Catálogo Productos
+            </h2>
+            <button class="btn btn-success shadow-sm" onclick="abrirModalNuevo()">
+                <i class="fas fa-plus-circle me-2"></i>Nuevo Producto
+            </button>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-3 bg-light rounded">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0"><i class="fas fa-filter text-muted"></i></span>
+                            <select id="filtroTipo" class="form-select border-start-0 ps-0">
+                                <option value="">Todos los tipos</option>
+                                </select>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                            <input type="text" id="buscarNombre" class="form-control border-start-0 ps-0" placeholder="Buscar por nombre, marca o modelo..." />
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-end">
+                        <button class="btn btn-outline-secondary w-100" onclick="dataTable.ajax.reload()">
+                            <i class="fas fa-sync-alt me-1"></i> Actualizar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive shadow-sm border rounded-3 bg-white">
+            <table id="tablaProductos" class="table table-hover align-middle mb-0" style="width: 100%">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="text-center text-muted small py-3" style="width: 5%">ID</th>
+                        <th style="width: 35%" class="py-3">Producto</th> <th style="width: 25%" class="py-3">Detalles</th> <th class="text-end py-3" style="width: 15%">Precio</th>
+                        <th class="text-center py-3" style="width: 10%">Stock</th>
+                        <th class="text-center py-3" style="width: 10%">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="border-top-0">
+                    </tbody>
+            </table>
+        </div>
+
+        <div class="modal fade" id="modalProducto" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title fw-bold" id="modalTitulo">
+                            <i class="fas fa-box-open me-2"></i>Nuevo Producto
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    
+                    <div class="modal-body p-4">
+                        <form id="formProducto">
+                            <input type="hidden" id="productoId">
+
+                            <h6 class="text-primary border-bottom pb-2 mb-3 fw-bold small text-uppercase">
+                                1. Clasificación
+                            </h6>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small text-muted">Categoría *</label>
+                                    <select id="categoria" class="form-select" required onchange="verificarSubtipo()">
+                                        <option value="">Cargando...</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6" id="divSubtipo" style="display:none;">
+                                    <label class="form-label fw-bold small text-primary">Estilo / Montura</label>
+                                    <select id="subTipo" class="form-select border-primary">
+                                        <option value="">Seleccionar...</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <h6 class="text-primary border-bottom pb-2 mb-3 fw-bold small text-uppercase">
+                                2. Identidad del Producto
+                            </h6>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small text-muted">Marca *</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light"><i class="fas fa-tag text-muted"></i></span>
+                                        <input type="text" id="marca" class="form-control" placeholder="Ej. Ray-Ban" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small text-muted">Modelo *</label>
+                                    <input type="text" id="modelo" class="form-control" placeholder="Ej. Wayfarer RB2140" required>
+                                </div>
+                            </div>
+
+                            <h6 class="text-primary border-bottom pb-2 mb-3 fw-bold small text-uppercase">
+                                3. Detalles y Venta
+                            </h6>
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-bold text-muted">Color</label>
+                                    <input type="text" id="color" class="form-control" placeholder="Ej. Negro Mate">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-bold text-muted">Talla / Medidas</label>
+                                    <input type="text" id="talla" class="form-control" placeholder="Ej. 50-22-150">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-bold text-success">Precio Venta *</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-success text-white border-success">$</span>
+                                        <input type="number" id="precio" class="form-control border-success fw-bold text-success" step="0.01" min="0" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-bold text-muted">Stock Inicial</label>
+                                    <input type="number" id="stock" class="form-control" min="0" value="1">
+                                </div>
+                            </div>
+
+                            <div class="alert alert-light border d-flex align-items-center p-2 mb-0">
+                                <i class="fas fa-info-circle text-primary me-2 fs-4"></i>
+                                <div>
+                                    <span class="small text-muted d-block">Nombre generado automáticamente:</span>
+                                    <strong id="nombrePreview" class="text-dark">...</strong>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary px-4" onclick="guardarProducto()">
+                            <i class="fas fa-save me-2"></i>Guardar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div th:fragment="scripts">
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        
+        <script src="/js/admin-productos.js"></script>
+    </div>
+
+</body>
+</html>

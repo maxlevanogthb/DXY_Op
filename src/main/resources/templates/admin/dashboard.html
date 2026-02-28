@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/layout :: layout(~{::content}, ~{::scripts})}">
+<head>
+</head>
+<body>
+
+<div th:fragment="content">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary fw-bold"><i class="fas fa-tachometer-alt me-2"></i> Panel de Control</h2>
+        <span class="text-muted small border rounded px-3 py-2 bg-white shadow-sm" id="fechaActualizacion">
+            <i class="fas fa-sync-alt me-1"></i> Actualizado: Hoy
+        </span>
+    </div>
+
+    <div class="row g-3 mb-4">
+        
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1 small fw-bold">INGRESOS DEL MES</p>
+                            <h3 class="mb-0 text-dark fw-bold" id="kpiIngresos">...</h3>
+                        </div>
+                        <div class="bg-success bg-opacity-10 p-3 rounded-circle">
+                            <i class="fas fa-wallet text-success fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1 small fw-bold">CUENTAS POR COBRAR</p>
+                            <h3 class="mb-0 text-dark fw-bold" id="kpiDeudas">...</h3>
+                        </div>
+                        <div class="bg-danger bg-opacity-10 p-3 rounded-circle">
+                            <i class="fas fa-hand-holding-usd text-danger fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1 small fw-bold">PACIENTES ATENDIDOS</p>
+                            <h3 class="mb-0 text-dark fw-bold" id="kpiPacientes">...</h3>
+                        </div>
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
+                            <i class="fas fa-users text-primary fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1 small fw-bold">TRABAJOS PENDIENTES</p>
+                            <h3 class="mb-0 text-dark fw-bold" id="kpiPendientes">...</h3>
+                        </div>
+                        <div class="bg-warning bg-opacity-10 p-3 rounded-circle">
+                            <i class="fas fa-glasses text-warning fs-4 text-dark"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    
+    <div class="row g-3" id="contenedorGraficas">
+        
+        <div class="col-12 col-lg-8">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 pt-4 pb-0">
+                    <h6 class="fw-bold text-dark mb-0"><i class="fas fa-chart-bar text-primary me-2"></i>Ingresos (Últimos 7 días)</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="graficaIngresos" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 pt-4 pb-0">
+                    <h6 class="fw-bold text-dark mb-0"><i class="fas fa-chart-pie text-success me-2"></i>Ventas por Categoría</h6>
+                </div>
+                <div class="card-body d-flex justify-content-center align-items-center">
+                    <canvas id="graficaCategorias" height="250"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row mt-4 mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 pt-4 pb-2 d-flex justify-content-between align-items-center">
+                    <h6 class="fw-bold text-danger mb-0">
+                        <i class="fas fa-exclamation-circle me-2"></i>Top 5 Cuentas por Cobrar
+                    </h6>
+                    <a href="/admin/ventas" class="btn btn-sm btn-outline-secondary">Ver cobranza completa</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">Paciente</th>
+                                    <th>Fecha Visita</th>
+                                    <th>Teléfono</th>
+                                    <th>Correo</th>
+                                    <th>Deuda Actual</th>
+                                    <th class="text-center pe-4">Cobranza</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaDeudoresBody">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div th:fragment="scripts">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/js/admin-dashboard.js"></script>
+</div>
+
+</body>
+</html>

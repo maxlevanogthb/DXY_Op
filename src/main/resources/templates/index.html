@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Exámenes de la vista, lentes y armazones de calidad. Agenda tu cita hoy.">
+    <title th:text="${!#strings.isEmpty(appConfig.nombreComercial) ? appConfig.nombreComercial + ' | Cuidamos tu visión' : 'Óptica DXY | Cuidamos tu visión'}">Óptica DXY</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <style>
+        .wa-card { background: #fff; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; max-width: 500px; margin: 0 auto; }
+        .wa-btn { display: inline-block; background: #25D366; color: white; padding: 15px 30px; border-radius: 50px; font-weight: 600; font-size: 1.1rem; text-decoration: none; transition: transform 0.3s; margin-top: 20px; }
+        .wa-btn:hover { transform: translateY(-3px); color: white; background: #128C7E;}
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container navbar">
+            <a href="#" class="logo">
+                <img th:if="${!#strings.isEmpty(appConfig.logoSistema)}" th:src="${appConfig.logoSistema}" alt="Logo" style="max-height: 40px; margin-right: 10px;">
+                <span th:unless="${!#strings.isEmpty(appConfig.logoSistema)}">Optica <span>DXY</span></span>
+            </a>
+            <div class="mobile-menu-btn" onclick="toggleMenu()">
+                <i class="fas fa-bars"></i>
+            </div>
+            <nav>
+                <ul class="nav-links" id="navLinks">
+                    <li><a href="#inicio" onclick="closeMenu()">Inicio</a></li>
+                    <li><a href="#servicios" onclick="closeMenu()">Servicios</a></li>
+                    <li><a href="#catalogo" onclick="closeMenu()">Catálogo</a></li>
+                    <li><a href="#nosotros" onclick="closeMenu()">Nosotros</a></li>
+                    <li><a href="#cita" class="btn btn-primary" onclick="closeMenu()">Agendar Cita</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section id="inicio" class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <div class="hero-text">
+                        <h1 th:text="${!#strings.isEmpty(appConfig.textoHero) ? appConfig.textoHero : 'Cuidamos tu visión con experiencia profesional certificada'}"></h1>
+                        <p th:text="${!#strings.isEmpty(appConfig.subtituloHero) ? appConfig.subtituloHero : 'Combinamos tecnología avanzada y atención personalizada para garantizar la salud visual de tu familia.'}"></p>
+                        <a href="#cita" class="btn btn-primary">Agendar cita ahora</a>
+                    </div>
+                    <div class="hero-image">
+                        <img src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Examen de la vista profesional">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="servicios" class="section-padding">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Nuestros Servicios</h2>
+                    <p>Soluciones integrales para tu salud visual</p>
+                </div>
+                <div class="services-grid">
+                    <div class="service-card">
+                        <div class="service-icon"><i class="fas fa-user-md"></i></div>
+                        <h3>Examen de la Vista</h3>
+                        <p>Evaluación completa computarizada para determinar tu graduación exacta y detectar problemas visuales a tiempo.</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-icon"><i class="fas fa-glasses"></i></div>
+                        <h3>Lentes Oftálmicos</h3>
+                        <p>Gran variedad de armazones de marca y económicos con micas antirreflejantes, blue block y fotocromáticas.</p>
+                    </div>
+                    <div class="service-card">
+                        <div class="service-icon"><i class="fas fa-eye"></i></div>
+                        <h3>Lentes de Contacto</h3>
+                        <p>Adaptación profesional de lentes de contacto blandos, rígidos y cosméticos para tu comodidad diaria.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="catalogo" class="section-padding" style="background-color: #f8f9fa;">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Productos Destacados</h2>
+                    <p>Mira el mundo con estilo y claridad</p>
+                </div>
+                <div class="catalog-grid">
+                    <div class="product-card">
+                        <div class="product-img"><img src="https://images.unsplash.com/photo-1577803645773-f96470509666?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60" alt="Armazón"></div>
+                        <div class="product-info">
+                            <h3>Armazón Estilo Wayfarer</h3>
+                            <p>Diseño clásico y resistente, ideal para todo tipo de rostro.</p>
+                            <a href="#cita" class="btn btn-outline btn-sm">Me interesa</a>
+                        </div>
+                    </div>
+                    <div class="product-card">
+                        <div class="product-img"><img src="https://images.unsplash.com/photo-1511499767150-a48a237f0083?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60" alt="Sol"></div>
+                        <div class="product-info">
+                            <h3>Gafas de Sol Polarizadas</h3>
+                            <p>Protección UV400 completa con un diseño elegante.</p>
+                            <a href="#cita" class="btn btn-outline btn-sm">Me interesa</a>
+                        </div>
+                    </div>
+                    <div class="product-card">
+                        <div class="product-img"><img src="https://images.unsplash.com/photo-1591076482161-42ce6da69f67?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60" alt="Metal"></div>
+                        <div class="product-info">
+                            <h3>Armazón Metálico Gold</h3>
+                            <p>Ligero, minimalista y sofisticado. Material hipoalergénico.</p>
+                            <a href="#cita" class="btn btn-outline btn-sm">Me interesa</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="cita" class="section-padding">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Agenda tu Cita Rápido</h2>
+                    <p>La forma más rápida y directa de comunicarte con nosotros.</p>
+                </div>
+                
+                <div class="wa-card">
+                    <i class="fab fa-whatsapp" style="font-size: 4rem; color: #25D366; margin-bottom: 20px;"></i>
+                    <h3>¡Hablemos por WhatsApp!</h3>
+                    <p class="text-muted mb-4">Haz clic en el botón de abajo para enviarnos un mensaje directo. Te responderemos al instante para confirmar el horario que mejor te quede.</p>
+                    
+                    <a th:if="${!#strings.isEmpty(appConfig.telefonoPrincipal)}" 
+                       th:href="'https://wa.me/52' + ${#strings.replace(appConfig.telefonoPrincipal, ' ', '')} + '?text=Hola,%20me%20gustar%C3%ADa%20agendar%20una%20cita%20para%20un%20examen%20de%20la%20vista.'" 
+                       target="_blank" class="wa-btn">
+                       <i class="fab fa-whatsapp me-2"></i> Agendar por WhatsApp
+                    </a>
+                    
+                    <p th:unless="${!#strings.isEmpty(appConfig.telefonoPrincipal)}" class="text-danger mt-3">
+                        <i class="fas fa-exclamation-triangle"></i> Teléfono no configurado.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section id="nosotros" class="section-padding" style="background-color: #f8f9fa;">
+            <div class="container">
+                <div class="about-content">
+                    <div class="about-text">
+                        <h2>Sobre Nosotros</h2>
+                        <p th:text="${!#strings.isEmpty(appConfig.descripcionNosotros) ? appConfig.descripcionNosotros : 'Somos una óptica comprometida con tu salud visual. Contamos con amplia experiencia brindando diagnósticos precisos.'}"></p>
+                    </div>
+                    <div class="about-img">
+                        <img src="https://images.unsplash.com/photo-1589156229687-496a31ad1d1f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Interior de la óptica">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contacto" class="section-padding">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Visítanos</h2>
+                </div>
+                <div class="contact-wrapper">
+                    <div class="contact-details">
+                        <div class="contact-info-item">
+                            <div class="contact-icon"><i class="fas fa-map-marker-alt"></i></div>
+                            <div>
+                                <h4>Dirección</h4>
+                                <p th:text="${!#strings.isEmpty(appConfig.direccionCorta) ? appConfig.direccionCorta : 'Dirección no configurada'}"></p>
+                            </div>
+                        </div>
+                        <div class="contact-info-item">
+                            <div class="contact-icon"><i class="fas fa-phone-alt"></i></div>
+                            <div>
+                                <h4>Teléfono / WhatsApp</h4>
+                                <p th:text="${!#strings.isEmpty(appConfig.telefonoPrincipal) ? appConfig.telefonoPrincipal : 'Teléfono no configurado'}"></p>
+                            </div>
+                        </div>
+                        <div class="contact-info-item">
+                            <div class="contact-icon"><i class="fas fa-clock"></i></div>
+                            <div>
+                                <h4>Horario</h4>
+                                <p>
+                                    Apertura: <span th:text="${appConfig.horaApertura}"></span> <br>
+                                    Cierre: <span th:text="${appConfig.horaCierre}"></span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4 class="logo" style="margin-bottom: 15px;" th:text="${!#strings.isEmpty(appConfig.nombreComercial) ? appConfig.nombreComercial : 'Óptica DXY'}"></h4>
+                    <p style="color: #aaa; font-size: 0.9rem;">Cuidando tu salud visual con profesionalismo y calidad.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Enlaces Rápidos</h4>
+                    <ul class="footer-links">
+                        <li><a href="#inicio">Inicio</a></li>
+                        <li><a href="#servicios">Servicios</a></li>
+                        <li><a href="#catalogo">Catálogo</a></li>
+                        <li><a href="#cita">Agendar Cita</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Síguenos</h4>
+                    <div class="social-links">
+                        <a th:if="${!#strings.isEmpty(appConfig.facebook)}" 
+                           th:href="'https://facebook.com/' + ${appConfig.facebook}" target="_blank">
+                           <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a th:if="${!#strings.isEmpty(appConfig.instagram)}" 
+                           th:href="'https://instagram.com/' + ${#strings.replace(appConfig.instagram, '@', '')}" target="_blank">
+                           <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; <span th:text="${#dates.year(#dates.createNow())}"></span> <span th:text="${!#strings.isEmpty(appConfig.nombreComercial) ? appConfig.nombreComercial : 'Óptica DXY'}"></span>. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            document.getElementById("navLinks").classList.toggle("active");
+        }
+        function closeMenu() {
+            document.getElementById("navLinks").classList.remove("active");
+        }
+    </script>
+</body>
+</html>

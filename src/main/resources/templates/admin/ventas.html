@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{admin/layout :: layout(~{::content}, ~{::scripts})}">
+
+<head>
+    <title>Ventas y Finanzas</title>
+</head>
+
+<body>
+
+<div th:fragment="content">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary fw-bold">
+            <i class="fas fa-cash-register me-2"></i>Control de Ventas y Cobranza
+        </h2>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card border-0 shadow-sm border-start border-success border-5 h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted text-uppercase mb-1 small fw-bold">Ingresos de Hoy (Caja)</h6>
+                            <h3 class="fw-bold text-success mb-0" id="kpiVentaHoy">$0.00</h3>
+                        </div>
+                        <div class="bg-success bg-opacity-10 p-3 rounded-circle text-success">
+                            <i class="fas fa-coins fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card border-0 shadow-sm border-start border-danger border-5 h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted text-uppercase mb-1 small fw-bold">Total por Cobrar</h6>
+                            <h3 class="fw-bold text-danger mb-0" id="kpiPorCobrar">$0.00</h3>
+                        </div>
+                        <div class="bg-danger bg-opacity-10 p-3 rounded-circle text-danger">
+                            <i class="fas fa-file-invoice-dollar fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white border-bottom-0 pt-3 ps-3">
+            <ul class="nav nav-tabs card-header-tabs" id="ventasTabs" role="tablist">
+                
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active fw-bold text-danger" id="pendientes-tab" data-bs-toggle="tab" data-bs-target="#pendientes-pane" type="button">
+                        <i class="fas fa-clock me-2"></i>Cuentas por Cobrar
+                    </button>
+                </li>
+
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold text-success" id="finalizadas-tab" data-bs-toggle="tab" data-bs-target="#finalizadas-pane" type="button">
+                        <i class="fas fa-check-circle me-2"></i>Ventas Finalizadas
+                    </button>
+                </li>
+
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold text-dark" id="caja-tab" data-bs-toggle="tab" data-bs-target="#caja-pane" type="button">
+                        <i class="fas fa-receipt me-2"></i>Corte de Caja (Hoy)
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="card-body">
+            <div class="tab-content" id="myTabContent">
+                
+                <div class="tab-pane fade show active" id="pendientes-pane">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle w-100" id="tablaPendientes">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Fecha Venta</th>
+                                    <th>Cliente</th>
+                                    <th class="text-end">Total Venta</th>
+                                    <th class="text-center bg-warning bg-opacity-10">Último Abono</th>
+                                    <th class="text-end text-danger fw-bold">Deuda Actual</th>
+                                    <th class="text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="finalizadas-pane">
+                    <div class="alert alert-success bg-opacity-10 border-success d-flex align-items-center">
+                        <i class="fas fa-info-circle me-2 text-success"></i>
+                        <div>Aquí se muestran las ventas liquidadas al 100%.</div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle w-100" id="tablaFinalizadas">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Fecha Cierre</th>
+                                    <th>Cliente</th>
+                                    <th>Concepto</th>
+                                    <th class="text-end fw-bold">Total Cobrado</th>
+                                    <th class="text-center">Historial</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="caja-pane">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="text-muted mb-0">Movimientos registrados hoy</h5>
+                        <button class="btn btn-sm btn-outline-primary" onclick="cargarCorteCaja()">
+                            <i class="fas fa-sync-alt me-1"></i> Actualizar
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-sm w-100" id="tablaCorteCaja">
+                            <thead class="table-dark text-white">
+                                <tr>
+                                    <th>Hora</th>
+                                    <th>Cliente</th>
+                                    <th>Tipo / Nota</th>
+                                    <th>Método</th>
+                                    <th class="text-end">Entrada ($)</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalAbono" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title"><i class="fas fa-hand-holding-usd me-2"></i>Registrar Pago</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formAbono">
+                        <input type="hidden" id="abono_consultaId">
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-muted small fw-bold">CLIENTE</label>
+                            <input type="text" class="form-control fw-bold bg-light" id="abono_clienteNombre" readonly>
+                        </div>
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <div class="p-2 border rounded bg-light text-center">
+                                    <small class="text-muted d-block">Total Venta</small>
+                                    <span class="fw-bold" id="abono_totalDisplay">$0.00</span>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-2 border rounded bg-danger bg-opacity-10 text-center">
+                                    <small class="text-danger d-block fw-bold">Deuda Pendiente</small>
+                                    <span class="fw-bold text-danger" id="abono_deudaDisplay">$0.00</span>
+                                    <input type="hidden" id="abono_deudaReal"> </div>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-success">Monto a Recibir ($)</label>
+                            <div class="input-group input-group-lg shadow-sm">
+                                <span class="input-group-text bg-success text-white border-success">$</span>
+                                <input type="number" class="form-control fw-bold text-success border-success" id="abono_monto" step="0.50" min="1" required placeholder="0.00">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Método de Pago</label>
+                            <select class="form-select" id="abono_metodo">
+                                <option value="Efectivo" selected>Efectivo</option>
+                                <option value="Tarjeta">Tarjeta Débito/Crédito</option>
+                                <option value="Transferencia">Transferencia</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Notas (Opcional)</label>
+                            <textarea class="form-control" id="abono_notas" rows="2" placeholder="Ej: Pago parcial, lo trajo su familiar..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success fw-bold" onclick="guardarAbono()">
+                        <i class="fas fa-check me-2"></i>Confirmar Pago
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalHistorialPagos" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="fas fa-history me-2"></i>Historial de Pagos</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex justify-content-between mb-3">
+                        <h6 class="fw-bold text-secondary" id="historial_cliente">Cliente: -</h6>
+                        <h6 class="fw-bold text-dark" id="historial_total">Total Venta: $0.00</h6>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Método</th>
+                                    <th>Notas</th>
+                                    <th class="text-end">Monto</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaHistorialBody">
+                                </tbody>
+                            <tfoot class="table-light fw-bold">
+                                <tr>
+                                    <td colspan="3" class="text-end">TOTAL ABONADO:</td>
+                                    <td class="text-end text-success" id="historial_sumaAbonos">$0.00</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="text-end text-danger">RESTANTE:</td>
+                                    <td class="text-end text-danger" id="historial_restante">$0.00</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+            </div>
+        </div>
+    </div>
+
+</div> <div th:fragment="scripts">
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script src="/js/admin-ventas.js"></script>
+</div>
+
+</body>
+</html>

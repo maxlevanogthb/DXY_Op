@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/layout :: layout(~{::content}, ~{::scripts})}">
+
+<head>
+</head>
+
+<body>
+
+    <div th:fragment="content">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-primary fw-bold">
+                <i class="fas fa-user-injured me-2"></i>Gestión de Pacientes
+            </h2>
+            <button class="btn btn-success shadow-sm" onclick="abrirModalNuevo()">
+                <i class="fas fa-user-plus me-2"></i>Nuevo Paciente
+            </button>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-3 bg-light rounded">
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0"><i
+                                    class="fas fa-search text-muted"></i></span>
+                            <input type="text" id="buscarPaciente" class="form-control border-start-0 ps-0"
+                                placeholder="Buscar por nombre, teléfono o email..." />
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <button class="btn btn-outline-secondary w-100" onclick="dataTable.ajax.reload()">
+                            <i class="fas fa-sync-alt me-1"></i> Actualizar Lista
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive shadow-sm border rounded-3 bg-white">
+            <table id="tablaPacientes" class="table table-hover align-middle mb-0" style="width:100%">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="text-center text-muted small py-3">ID</th>
+                        <th class="py-3">Nombre</th>
+                        <th class="py-3">Teléfono</th>
+                        <th class="py-3">Email</th>
+                        <th class="py-3">Graduación</th>
+                        <th class="py-3">Motivo</th>
+                        <th class="py-3">Fecha de Registro</th>
+                        <th class="text-center py-3">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="border-top-0">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="modal fade" id="pacienteModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title fw-bold" id="modalTitulo">
+                            <i class="fas fa-user me-2"></i>Nuevo Paciente
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <form id="formPaciente">
+                            <input type="hidden" id="pacienteId">
+
+                            <h6 class="text-primary border-bottom pb-2 mb-3 fw-bold small text-uppercase">
+                                1. Información del Paciente
+                            </h6>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-12">
+                                    <label for="nombre" class="form-label fw-bold small text-muted">Nombre Completo
+                                        *</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light"><i
+                                                class="fas fa-user text-muted"></i></span>
+                                        <input type="text" class="form-control" id="nombre" required
+                                            placeholder="Ej. Juan Pérez">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="fechaNacimiento" class="form-label fw-bold small text-muted">Fecha de
+                                        Nacimiento</label>
+                                    <input type="date" class="form-control" id="fechaNacimiento">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="telefono" class="form-label fw-bold small text-muted">Teléfono *</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light"><i
+                                                class="fas fa-phone text-muted"></i></span>
+                                        <input type="tel" class="form-control" id="telefono" required
+                                            placeholder="55 1234 5678">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <label for="email" class="form-label fw-bold small text-muted">Email</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light"><i
+                                                class="fas fa-envelope text-muted"></i></span>
+                                        <input type="email" class="form-control" id="email"
+                                            placeholder="cliente@email.com">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h6 class="text-primary border-bottom pb-2 mb-3 fw-bold small text-uppercase">
+                                2. Registro Inicial
+                            </h6>
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label for="motivo" class="form-label small fw-bold text-muted">Motivo
+                                        Visita</label>
+                                    <select class="form-select" id="motivo">
+                                        <option value="Consulta General">Cargando motivos...</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="fecha" class="form-label small fw-bold text-muted">Fecha
+                                        Registro</label>
+                                    <input type="date" class="form-control" id="fecha">
+                                </div>
+                                <div class="col-md-12">
+                                    <label for="graduacion" class="form-label small fw-bold text-muted">Graduación
+                                        Previa (Referencia)</label>
+                                    <input type="text" class="form-control" id="graduacion"
+                                        placeholder="Opcional: Si trae receta anterior">
+                                </div>
+                                <div class="col-12">
+                                    <label for="mensaje"
+                                        class="form-label small fw-bold text-muted">Observaciones</label>
+                                    <textarea class="form-control" id="mensaje" rows="2"
+                                        placeholder="Notas adicionales..."></textarea>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary px-4" onclick="guardarPaciente()">
+                            <i class="fas fa-save me-2"></i>Guardar Paciente
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="modalConsulta" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header bg-info text-white">
+                        <h5 class="modal-title fw-bold">
+                            <i class="fas fa-notes-medical me-2"></i>Hoja Clínica
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body bg-light">
+                        <form id="formConsulta">
+                            <input type="hidden" id="consulta_clienteId">
+                            <input type="hidden" id="consulta_id">
+
+                            <div class="row mb-3 p-3 bg-white rounded shadow-sm mx-1">
+
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label small fw-bold text-muted">FECHA</label>
+                                    <input type="date" id="fechaVisita" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-8 mb-3">
+                                    <label class="form-label small fw-bold text-muted">RAZÓN VISITA</label>
+                                    <select id="razonVisita" class="form-select form-select-sm">
+                                        <option value="">Cargando motivos...</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-4 mb-3" id="cajaEstadoEntrega">
+                                    <label class="form-label small fw-bold text-primary">ESTADO LENTES</label>
+                                    <select id="estadoEntrega"
+                                        class="form-select form-select-sm fw-bold border-primary text-dark">
+                                        <option value="PENDIENTE">🔴 Pendiente (En Laboratorio/Pedir)</option>
+                                        <option value="RECIBIDO">🟡 Recibido (Listo en Óptica)</option>
+                                        <option value="ENTREGADO">🟢 Entregado al Paciente</option>
+                                        <option value="NO_APLICA">⚪ No Aplica (Solo Consulta)</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-12 mb-3 border-top pt-3">
+                                    <label for="diagnosticoOftalmologo" class="form-label small fw-bold text-dark">
+                                        <i class="fas fa-user-md me-1 text-info"></i> DIAGNÓSTICO CLÍNICO
+                                    </label>
+                                    <textarea id="diagnosticoOftalmologo"
+                                        class="form-control border-info border-opacity-25" rows="2"
+                                        placeholder="Describa detalladamente el diagnóstico del paciente..."></textarea>
+                                </div>
+
+                                <div class="col-12 border-top pt-3">
+                                    <label for="tratamientoMedico" class="form-label small fw-bold text-primary">
+                                        <i class="fas fa-prescription-bottle-alt me-1"></i> RECETA / TRATAMIENTO MÉDICO
+                                        (Para Farmacia)
+                                    </label>
+                                    <textarea id="tratamientoMedico"
+                                        class="form-control border-primary border-opacity-25" rows="2"
+                                        placeholder="Ej. Aplicar 1 gota de Hyabak cada 8 horas por 7 días..."></textarea>
+                                </div>
+
+                            </div>
+
+                            <div class="mb-3 p-3 border rounded bg-white mx-1 shadow-sm">
+                                <h6 class="mb-3 pb-2 border-bottom border-primary fw-bold text-primary">
+                                    <i class="fas fa-eye me-2"></i>AGUDEZA VISUAL
+                                </h6>
+                                <div class="row g-3">
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="card border-0 bg-light h-100">
+                                            <div
+                                                class="card-header bg-secondary bg-opacity-10 text-center fw-bold text-dark py-1 small">
+                                                SIN GRADUACIÓN
+                                            </div>
+                                            <div class="card-body p-2">
+                                                <div class="input-group input-group-sm mb-1">
+                                                    <span class="input-group-text border-0 bg-white small text-muted"
+                                                        style="width: 70px;">Lejos OD</span>
+                                                    <input type="text" id="avSinLejosOD"
+                                                        class="form-control text-center" placeholder="20/20">
+                                                </div>
+                                                <div class="input-group input-group-sm mb-1">
+                                                    <span class="input-group-text border-0 bg-white small text-muted"
+                                                        style="width: 70px;">Lejos OI</span>
+                                                    <input type="text" id="avSinLejosOI"
+                                                        class="form-control text-center">
+                                                </div>
+                                                <div class="input-group input-group-sm mb-1">
+                                                    <span class="input-group-text border-0 bg-white small text-muted"
+                                                        style="width: 70px;">Cerca OD</span>
+                                                    <input type="text" id="avSinCercaOD"
+                                                        class="form-control text-center">
+                                                </div>
+                                                <div class="input-group input-group-sm">
+                                                    <span class="input-group-text border-0 bg-white small text-muted"
+                                                        style="width: 70px;">Cerca OI</span>
+                                                    <input type="text" id="avSinCercaOI"
+                                                        class="form-control text-center">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="card border border-primary border-opacity-25 h-100">
+                                            <div
+                                                class="card-header bg-primary bg-opacity-10 text-center fw-bold text-primary py-1 small">
+                                                GRAD. ACTUAL
+                                            </div>
+                                            <div class="card-body p-2">
+                                                <div class="input-group input-group-sm mb-1">
+                                                    <span
+                                                        class="input-group-text border-0 bg-white small text-primary fw-bold"
+                                                        style="width: 70px;">Lejos OD</span>
+                                                    <input type="text" id="avActualLejosOD"
+                                                        class="form-control text-center">
+                                                </div>
+                                                <div class="input-group input-group-sm mb-1">
+                                                    <span
+                                                        class="input-group-text border-0 bg-white small text-primary fw-bold"
+                                                        style="width: 70px;">Lejos OI</span>
+                                                    <input type="text" id="avActualLejosOI"
+                                                        class="form-control text-center">
+                                                </div>
+                                                <div class="input-group input-group-sm mb-1">
+                                                    <span
+                                                        class="input-group-text border-0 bg-white small text-primary fw-bold"
+                                                        style="width: 70px;">Cerca OD</span>
+                                                    <input type="text" id="avActualCercaOD"
+                                                        class="form-control text-center">
+                                                </div>
+                                                <div class="input-group input-group-sm">
+                                                    <span
+                                                        class="input-group-text border-0 bg-white small text-primary fw-bold"
+                                                        style="width: 70px;">Cerca OI</span>
+                                                    <input type="text" id="avActualCercaOI"
+                                                        class="form-control text-center">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="card border border-success border-opacity-25 h-100">
+                                            <div
+                                                class="card-header bg-success bg-opacity-10 text-center fw-bold text-success py-1 small">
+                                                NUEVA GRAD.
+                                            </div>
+                                            <div class="card-body p-2">
+                                                <div class="input-group input-group-sm mb-1">
+                                                    <span
+                                                        class="input-group-text border-0 bg-white small text-success fw-bold"
+                                                        style="width: 70px;">Lejos OD</span>
+                                                    <input type="text" id="avNuevaLejosOD"
+                                                        class="form-control text-center">
+                                                </div>
+                                                <div class="input-group input-group-sm mb-1">
+                                                    <span
+                                                        class="input-group-text border-0 bg-white small text-success fw-bold"
+                                                        style="width: 70px;">Lejos OI</span>
+                                                    <input type="text" id="avNuevaLejosOI"
+                                                        class="form-control text-center">
+                                                </div>
+                                                <div class="input-group input-group-sm mb-1">
+                                                    <span
+                                                        class="input-group-text border-0 bg-white small text-success fw-bold"
+                                                        style="width: 70px;">Cerca OD</span>
+                                                    <input type="text" id="avNuevaCercaOD"
+                                                        class="form-control text-center">
+                                                </div>
+                                                <div class="input-group input-group-sm">
+                                                    <span
+                                                        class="input-group-text border-0 bg-white small text-success fw-bold"
+                                                        style="width: 70px;">Cerca OI</span>
+                                                    <input type="text" id="avNuevaCercaOI"
+                                                        class="form-control text-center">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-6">
+                                        <div class="card border border-warning border-opacity-25 h-100">
+                                            <div
+                                                class="card-header bg-warning bg-opacity-10 text-center fw-bold text-dark py-1 small">
+                                                CAPACIDAD
+                                            </div>
+                                            <div class="card-body p-2 d-flex flex-column justify-content-center">
+                                                <div class="input-group input-group-sm mb-2">
+                                                    <span
+                                                        class="input-group-text border-0 bg-white small text-warning fw-bold"
+                                                        style="width: 50px;">OD</span>
+                                                    <input type="text" id="capacidadOD" class="form-control text-center"
+                                                        placeholder="100%">
+                                                </div>
+                                                <div class="input-group input-group-sm">
+                                                    <span
+                                                        class="input-group-text border-0 bg-white small text-warning fw-bold"
+                                                        style="width: 50px;">OI</span>
+                                                    <input type="text" id="capacidadOI"
+                                                        class="form-control text-center">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3 p-3 border rounded bg-white mx-1 shadow-sm">
+                                <h6 class="mb-3 pb-2 border-bottom border-info fw-bold text-info">
+                                    <i class="fas fa-search me-2"></i>REFRACCIÓN
+                                </h6>
+                                <div class="row g-3">
+                                    <div class="col-md-9">
+                                        <div class="card shadow-sm h-100 border-0">
+                                            <div class="card-header bg-info text-white fw-bold py-1 small"><i
+                                                    class="fas fa-table me-2"></i>MEDICIONES</div>
+                                            <div class="card-body p-0">
+                                                <div class="table-responsive">
+                                                    <table
+                                                        class="table table-sm table-bordered align-middle mb-0 text-center">
+                                                        <thead class="bg-light text-muted small">
+                                                            <tr>
+                                                                <th class="text-start ps-3" style="width: 25%;">Prueba
+                                                                </th>
+                                                                <th style="width: 25%;">Esfera</th>
+                                                                <th style="width: 25%;">Cilindro</th>
+                                                                <th style="width: 25%;">Eje</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <th class="text-start ps-3 text-secondary bg-light">
+                                                                    Bruta OD</th>
+                                                                <td class="p-0"><input type="text" id="brutaOdEsfera"
+                                                                        class="form-control form-control-sm border-0 text-center shadow-none py-2"
+                                                                        placeholder="-0.00"></td>
+                                                                <td class="p-0"><input type="text" id="brutaOdCilindro"
+                                                                        class="form-control form-control-sm border-0 text-center shadow-none py-2"
+                                                                        placeholder="-0.00"></td>
+                                                                <td class="p-0"><input type="number" id="brutaOdEje"
+                                                                        class="form-control form-control-sm border-0 text-center shadow-none py-2"
+                                                                        placeholder="0°"></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th class="text-start ps-3 text-secondary bg-light">
+                                                                    Bruta OI</th>
+                                                                <td class="p-0"><input type="text" id="brutaOiEsfera"
+                                                                        class="form-control form-control-sm border-0 text-center shadow-none py-2">
+                                                                </td>
+                                                                <td class="p-0"><input type="text" id="brutaOiCilindro"
+                                                                        class="form-control form-control-sm border-0 text-center shadow-none py-2">
+                                                                </td>
+                                                                <td class="p-0"><input type="number" id="brutaOiEje"
+                                                                        class="form-control form-control-sm border-0 text-center shadow-none py-2">
+                                                                </td>
+                                                            </tr>
+                                                            <tr class="table-primary border-primary">
+                                                                <th
+                                                                    class="text-start ps-3 text-primary bg-primary bg-opacity-10">
+                                                                    Subjetivo OD</th>
+                                                                <td class="p-0"><input type="text"
+                                                                        id="subjetivoOdEsfera"
+                                                                        class="form-control form-control-sm border-0 text-center fw-bold shadow-none py-2 text-primary">
+                                                                </td>
+                                                                <td class="p-0"><input type="text"
+                                                                        id="subjetivoOdCilindro"
+                                                                        class="form-control form-control-sm border-0 text-center fw-bold shadow-none py-2 text-primary">
+                                                                </td>
+                                                                <td class="p-0"><input type="number" id="subjetivoOdEje"
+                                                                        class="form-control form-control-sm border-0 text-center fw-bold shadow-none py-2 text-primary">
+                                                                </td>
+                                                            </tr>
+                                                            <tr class="table-primary border-primary">
+                                                                <th
+                                                                    class="text-start ps-3 text-primary bg-primary bg-opacity-10">
+                                                                    Subjetivo OI</th>
+                                                                <td class="p-0"><input type="text"
+                                                                        id="subjetivoOiEsfera"
+                                                                        class="form-control form-control-sm border-0 text-center fw-bold shadow-none py-2 text-primary">
+                                                                </td>
+                                                                <td class="p-0"><input type="text"
+                                                                        id="subjetivoOiCilindro"
+                                                                        class="form-control form-control-sm border-0 text-center fw-bold shadow-none py-2 text-primary">
+                                                                </td>
+                                                                <td class="p-0"><input type="number" id="subjetivoOiEje"
+                                                                        class="form-control form-control-sm border-0 text-center fw-bold shadow-none py-2 text-primary">
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="card shadow-sm h-100 border-0 bg-light">
+                                            <div
+                                                class="card-header bg-secondary text-white fw-bold text-center py-1 small">
+                                                ADICIONES</div>
+                                            <div class="card-body p-3">
+                                                <div class="mb-2">
+                                                    <label class="small fw-bold text-muted d-block">Adición
+                                                        (ADD)</label>
+                                                    <input id="adicion"
+                                                        class="form-control form-control-sm text-center fw-bold"
+                                                        placeholder="+2.00">
+                                                </div>
+                                                <div class="mb-2">
+                                                    <label class="small fw-bold text-muted d-block">Alt. Oblea</label>
+                                                    <input id="alturaOblea"
+                                                        class="form-control form-control-sm text-center">
+                                                </div>
+                                                <div class="mb-0">
+                                                    <label class="small fw-bold text-muted d-block">DIP</label>
+                                                    <input id="dip" class="form-control form-control-sm text-center">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="p-3 border rounded bg-white shadow-sm mx-1 mt-1">
+                                <h6 class="border-bottom border-success pb-2 text-success fw-bold">
+                                    <i class="fas fa-shopping-cart me-2"></i>COTIZADOR Y PRESUPUESTO
+                                </h6>
+
+                                <div class="text-center mb-4 mt-3">
+                                    <p class="text-muted small mb-2 fw-bold">¿Qué desea agregar a la venta?</p>
+                                    <div class="btn-group w-100 shadow-sm" role="group">
+                                        <input type="radio" class="btn-check" name="tipoProducto" id="optConsulta"
+                                            value="CONSULTA" autocomplete="off">
+                                        <label class="btn btn-outline-primary" for="optConsulta"><i
+                                                class="fas fa-user-md d-block mb-1 fs-5"></i>Consulta</label>
+
+                                        <input type="radio" class="btn-check" name="tipoProducto" id="optLente"
+                                            value="LENTE" autocomplete="off" checked>
+                                        <label class="btn btn-outline-primary" for="optLente"><i
+                                                class="fas fa-glasses d-block mb-1 fs-5"></i>Lentes</label>
+
+                                        <input type="radio" class="btn-check" name="tipoProducto" id="optContacto"
+                                            value="CONTACTO" autocomplete="off">
+                                        <label class="btn btn-outline-primary" for="optContacto"><i
+                                                class="fas fa-eye d-block mb-1 fs-5"></i>L. Contacto</label>
+
+                                        <input type="radio" class="btn-check" name="tipoProducto" id="optGotas"
+                                            value="GOTAS" autocomplete="off">
+                                        <label class="btn btn-outline-info" for="optGotas">
+                                            <i class="fas fa-tint d-block mb-1 fs-5"></i>Cuidado Ocular
+                                        </label>
+
+                                        <input type="radio" class="btn-check" name="tipoProducto" id="optAccesorio"
+                                            value="ACCESORIO" autocomplete="off">
+                                        <label class="btn btn-outline-primary" for="optAccesorio"><i
+                                                class="fas fa-spray-can d-block mb-1 fs-5"></i>Accesorios</label>
+                                    </div>
+                                </div>
+
+                                <div class="row g-3">
+                                    <div class="col-md-6" id="panelMicas">
+                                        <div class="card h-100 border-light bg-light">
+                                            <div class="card-body p-3">
+                                                <h6 class="text-muted mb-3 small fw-bold"><i
+                                                        class="fas fa-layer-group me-1"></i> MICAS / LENTES</h6>
+                                                <div class="mb-2">
+                                                    <label class="small text-muted">Material</label>
+                                                    <select id="material" class="form-select form-select-sm"></select>
+                                                </div>
+                                                <div class="mb-2">
+                                                    <label class="small text-muted">Tratamiento</label>
+                                                    <select id="tratamiento"
+                                                        class="form-select form-select-sm"></select>
+                                                </div>
+                                                <div class="mb-2">
+                                                    <label class="small text-muted">Tinte</label>
+                                                    <select id="tinte" class="form-select form-select-sm"></select>
+                                                </div>
+                                                <input type="hidden" id="precioMaterial" value="0">
+                                                <input type="hidden" id="precioTratamiento" value="0">
+                                                <input type="hidden" id="precioTinte" value="0">
+
+                                                <div class="d-flex justify-content-between mt-3 border-top pt-2">
+                                                    <span class="small fw-bold">Subtotal Micas:</span>
+                                                    <span class="fw-bold text-success"
+                                                        id="displaySubtotalMicas">$0.00</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6" id="panelInventario">
+                                        <div class="card h-100 border-light bg-light">
+                                            <div class="card-body p-3">
+                                                <h6 class="text-muted mb-3 small fw-bold" id="tituloInventario"><i
+                                                        class="fas fa-box-open me-1"></i> SELECCIONAR PRODUCTO</h6>
+
+                                                <input type="hidden" id="busqTipo" value="">
+                                                <div class="row g-2 mb-2">
+                                                    <div class="col-6"><select id="busqMarca"
+                                                            class="form-select form-select-sm" disabled>
+                                                            <option>Marca...</option>
+                                                        </select></div>
+                                                    <div class="col-6"><select id="busqModelo"
+                                                            class="form-select form-select-sm" disabled>
+                                                            <option>Modelo...</option>
+                                                        </select></div>
+                                                    <div class="col-6"><select id="busqColor"
+                                                            class="form-select form-select-sm" disabled>
+                                                            <option>Color...</option>
+                                                        </select></div>
+                                                    <div class="col-6"><select id="busqTalla"
+                                                            class="form-select form-select-sm" disabled>
+                                                            <option>Talla...</option>
+                                                        </select></div>
+                                                </div>
+
+                                                <input type="hidden" id="selectProducto" value="">
+
+                                                <div class="input-group input-group-sm mb-2 mt-3">
+                                                    <span class="input-group-text bg-white text-muted">Desc.</span>
+                                                    <input type="text" id="armazonModelo"
+                                                        class="form-control bg-white fw-bold" readonly placeholder="-">
+                                                </div>
+                                                <div class="input-group input-group-sm">
+                                                    <span class="input-group-text bg-white fw-bold text-success">Precio
+                                                        $</span>
+                                                    <input type="number" id="precioArmazon"
+                                                        class="form-control text-end fw-bold text-success"
+                                                        placeholder="0.00">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 d-none" id="panelConsulta">
+                                        <div
+                                            class="alert alert-info d-flex align-items-center mb-0 border-info border-opacity-25">
+                                            <i class="fas fa-stethoscope me-3 fs-3"></i>
+                                            <div class="flex-grow-1">
+                                                <strong>Costo de la Consulta / Examen Visual</strong>
+                                                <p class="small mb-2 text-muted">Ingrese el valor a cobrar (Deje en 0.00
+                                                    si no tiene costo).</p>
+                                                <div class="input-group input-group-sm" style="max-width: 250px;">
+                                                    <span class="input-group-text fw-bold">$</span>
+                                                    <input type="number" class="form-control fw-bold"
+                                                        id="precioConsulta" value="0.00">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-grid mt-3 mb-4">
+                                    <button type="button" class="btn btn-outline-success border-2 shadow-sm fw-bold"
+                                        onclick="agregarItemAlCarrito()">
+                                        <i class="fas fa-cart-plus me-2"></i>AÑADIR A LA VENTA
+                                    </button>
+                                </div>
+
+                                <h6 class="small fw-bold text-secondary border-bottom pb-2"><i
+                                        class="fas fa-receipt me-1"></i> RESUMEN DE LA VENTA</h6>
+                                <div class="table-responsive border rounded mb-3"
+                                    style="max-height: 200px; overflow-y: auto;">
+                                    <table class="table table-sm table-hover mb-0" id="tablaCarrito">
+                                        <thead class="table-light sticky-top small text-muted">
+                                            <tr>
+                                                <th style="width: 55%">Artículo</th>
+                                                <th class="text-center">Categoría</th>
+                                                <th class="text-end">Importe</th>
+                                                <th class="text-center" style="width: 40px"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="carritoBody">
+                                            <tr>
+                                                <td colspan="4" class="text-center text-muted py-3 small"><i
+                                                        class="fas fa-shopping-basket mb-1 fs-5 d-block"></i>Lista vacía
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="col-12 mt-2 border-top pt-3">
+                                    <div class="row text-center align-items-center">
+                                        <div class="col-4 border-end">
+                                            <label class="small fw-bold text-muted d-block">TOTAL VENTA</label>
+                                            <h4 class="text-dark mb-0" id="displayTotal">$0.00</h4>
+                                            <input type="hidden" id="totalPresupuesto">
+                                        </div>
+                                        <div class="col-4 border-end">
+                                            <label class="small fw-bold text-success d-block">A CUENTA</label>
+                                            <input type="number" id="aCuenta"
+                                                class="form-control text-center fw-bold text-success border-0 bg-success bg-opacity-10 fs-5 precio-calc"
+                                                placeholder="$0.00">
+                                        </div>
+                                        <div class="col-4">
+                                            <label class="small fw-bold text-danger d-block">RESTANTE</label>
+                                            <h4 class="text-danger mb-0" id="displayRestante">$0.00</h4>
+                                            <input type="hidden" id="restante">
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </form>
+                    </div>
+
+                    <div class="modal-footer bg-light">
+                        <div id="accionesPostGuardado" class="me-auto d-none">
+                            <button type="button" class="btn btn-outline-secondary btn-sm me-1"
+                                onclick="imprimirDocumento('receta')">
+                                <i class="fas fa-file-prescription me-1"></i>Imprimir Receta
+                            </button>
+                            <button type="button" class="btn btn-outline-primary btn-sm"
+                                onclick="imprimirDocumento('recibo')">
+                                <i class="fas fa-receipt me-1"></i>Imprimir Recibo
+                            </button>
+                        </div>
+
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="button" id="btnGuardarConsulta" class="btn btn-primary"
+                            onclick="guardarConsulta()">
+                            <i class="fas fa-save me-1"></i>Guardar Consulta
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="modalHistorial" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-info text-white">
+                        <h5 class="modal-title"><i class="fas fa-history me-2"></i>Historial de Visitas</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <h6 class="text-muted mb-3">Paciente: <span id="historialPacienteNombre"
+                                class="fw-bold text-dark"></span></h6>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover table-bordered table-sm align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Motivo</th>
+                                        <th>Diagnóstico</th>
+                                        <th>Estado</th>
+                                        <th class="text-end">Total</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaHistorialBody">
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div id="sinHistorialMsg" class="alert alert-warning text-center d-none">
+                            Este paciente no tiene consultas registradas.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div th:fragment="scripts">
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="/js/admin-pacientes.js"></script>
+        <script src="/js/admin-consultas.js"></script>
+    </div>
+
+</body>
+
+</html>

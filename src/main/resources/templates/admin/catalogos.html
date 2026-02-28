@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/layout :: layout(~{::content}, ~{::scripts})}">
+<head>
+</head>
+<body>
+
+<div th:fragment="content">
+    
+    <h2 class="text-primary mb-4"><i class="fas fa-cogs"></i> Configuración de Catálogos</h2>
+
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="material-tab" data-bs-toggle="tab" data-bs-target="#panel-material" type="button" onclick="cargarTabla('MATERIAL')">
+                <i class="fas fa-layer-group me-2"></i>Materiales
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tratamiento-tab" data-bs-toggle="tab" data-bs-target="#panel-tratamiento" type="button" onclick="cargarTabla('TRATAMIENTO')">
+                <i class="fas fa-magic me-2"></i>Tratamientos
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tinte-tab" data-bs-toggle="tab" data-bs-target="#panel-tinte" type="button" onclick="cargarTabla('TINTE')">
+                <i class="fas fa-fill-drip me-2"></i>Tintes
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content p-4 border border-top-0 bg-white shadow-sm" id="myTabContent">
+        
+        <div class="row g-3 align-items-end mb-4 pb-4 border-bottom">
+            <div class="col-md-5">
+                <label class="form-label fw-bold">Nombre / Descripción</label>
+                <input type="text" id="nuevoNombre" class="form-control" placeholder="Ej. Hi-Index 1.67">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-bold">Precio Base ($)</label>
+                <input type="number" id="nuevoPrecio" class="form-control" placeholder="0.00">
+            </div>
+            <div class="col-md-4">
+                <button class="btn btn-success w-100" onclick="guardarOpcion()">
+                    <i class="fas fa-plus-circle me-2"></i>Agregar al Catálogo
+                </button>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Precio Sugerido</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaCuerpo">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <input type="hidden" id="categoriaActual" value="MATERIAL">
+
+</div>
+
+<div th:fragment="scripts">
+    <script src="/js/admin-catalogos.js"></script>
+</div>
+
+</body>
+</html>

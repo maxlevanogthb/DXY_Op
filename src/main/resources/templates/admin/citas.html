@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{admin/layout :: layout(~{::content}, ~{::scripts})}">
+
+<head>
+</head>
+
+<body>
+
+    <div th:fragment="content">
+        <link href="/css/citas.css" rel="stylesheet">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-primary fw-bold"><i class="fas fa-calendar-alt me-2"></i> Agenda de Citas</h2>
+            <button class="btn btn-success" onclick="abrirModalNuevaCita()">
+                <i class="fas fa-plus-circle"></i> Nueva Cita
+            </button>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <div id="calendario"></div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="citaModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title" id="modalCitaTitulo">Detalles de la Cita</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="formCita">
+                            <input type="hidden" id="citaId">
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label text-primary fw-bold"><i class="fas fa-user me-1"></i>
+                                        Paciente</label>
+                                    <input type="text" class="form-control" id="citaNombre"
+                                        placeholder="Nombre completo" required>
+                                    <small class="text-muted">Si es paciente nuevo, escribe su nombre aquí.</small>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-primary fw-bold"><i class="fas fa-phone me-1"></i>
+                                        Teléfono</label>
+                                    <input type="tel" class="form-control" id="citaTelefono"
+                                        placeholder="Ej. 5512345678" required>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold"><i class="fas fa-calendar-day me-1"></i>
+                                        Fecha</label>
+                                    <input type="date" class="form-control" id="citaFecha" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold"><i class="fas fa-clock me-1"></i> Hora
+                                        Inicio</label>
+                                    <input type="time" class="form-control" id="citaHoraInicio" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold"><i class="fas fa-stopwatch me-1"></i> Hora
+                                        Fin</label>
+                                    <input type="time" class="form-control" id="citaHoraFin" required>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold"><i class="fas fa-clipboard-list me-1"></i> Tipo de
+                                        Cita</label>
+                                    <select class="form-select" id="citaTipo" required>
+                                        <option value="Examen Visual">Examen Visual</option>
+                                        <option value="Entrega de Lentes">Entrega de Lentes</option>
+                                        <option value="Ajuste / Garantía">Ajuste / Garantía</option>
+                                        <option value="Revisión Rápida">Revisión Rápida</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold"><i class="fas fa-info-circle me-1"></i>
+                                        Estado</label>
+                                    <select class="form-select" id="citaEstado" required>
+                                        <option value="PENDIENTE">Pendiente</option>
+                                        <option value="CONFIRMADA">Confirmada</option>
+                                        <option value="ATENDIDA">Atendida</option>
+                                        <option value="CANCELADA">Cancelada</option>
+                                        <option value="NO ASISTIÓ">No Asistió</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label fw-bold"><i class="fas fa-comment-medical me-1"></i> Notas
+                                        para el Doctor</label>
+                                    <textarea class="form-control" id="citaNotas" rows="2"
+                                        placeholder="Motivo de la visita o indicaciones especiales..."></textarea>
+                                </div>
+                            </div>
+                        </form>
+
+                        <div id="seccionAccionesCita" class="mt-4 pt-3 border-top d-none">
+                            <h6 class="text-muted small fw-bold mb-2">ACCIONES RÁPIDAS:</h6>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-outline-success btn-sm" id="btnWaCita"><i
+                                        class="fab fa-whatsapp me-1"></i> Enviar Recordatorio</button>
+                                <button class="btn btn-outline-danger btn-sm ms-auto" id="btnEliminarCita"><i
+                                        class="fas fa-trash-alt me-1"></i> Eliminar Cita</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary" onclick="guardarCita()"><i
+                                class="fas fa-save me-1"></i> Guardar Cita</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:fragment="scripts">
+        <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.11/locales/es.global.min.js"></script>
+
+        <script src="/js/admin-citas.js"></script>
+    </div>
+
+</body>
+
+</html>

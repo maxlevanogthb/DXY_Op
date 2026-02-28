@@ -1,0 +1,62 @@
+/* 1. CONTENEDOR PRINCIPAL: Sombra más pronunciada */
+    #calendario {
+        background: #ffffff;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important; 
+    }
+
+    /* 2. LÍNEAS DE LA CUADRÍCULA: Imposibles de ignorar */
+    .fc-theme-standard td, .fc-theme-standard th, .fc-theme-standard .fc-scrollgrid {
+        border: 1px solid #adb5bd !important; /* Gris oscuro y sólido */
+    }
+
+    /* 3. ENCABEZADOS DE LOS DÍAS: Azul fuerte tipo tabla corporativa */
+    .fc-col-header-cell {
+        background-color: #1e3a8a !important; 
+        border-color: #172554 !important;
+    }
+    .fc-col-header-cell-cushion {
+        color: #ffffff !important; /* Letras blancas para contraste total */
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 12px !important;
+    }
+
+    /* 4. CABECERA DEL CALENDARIO: Título y botones */
+    .fc-toolbar.fc-header-toolbar {
+        margin-bottom: 1.5em !important;
+        padding-bottom: 15px;
+        border-bottom: 3px solid #0d6efd; /* Una línea azul gruesa que enmarca el título */
+    }
+    .fc-toolbar-title {
+        color: #1e3a8a !important; 
+        font-weight: 800;
+        text-transform: capitalize;
+    }
+
+    /* 5. EL DÍA DE "HOY": Resalte definitivo */
+    .fc-day-today {
+        background-color: #f8f9fa !important; 
+        box-shadow: inset 0 0 0 3px #1e3a8a !important; 
+    }
+    .fc-daygrid-day-number {
+        font-weight: bold;
+        color: #212529 !important; /* Números en casi negro */
+        font-size: 1.1em;
+    }
+
+    /* 6. EVENTOS (LAS CITAS) */
+    .fc-event {
+        border: none !important;
+        padding: 4px 6px !important;
+        font-size: 0.95rem !important;
+        border-radius: 4px !important;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    }
+    .fc-event:hover {
+        opacity: 0.9;
+    }

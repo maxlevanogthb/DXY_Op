@@ -1,0 +1,971 @@
+const API_CONSULTAS = "/api/consultas";
+const API_PRODUCTOS_SEARCH = "/api/productos";
+const API_TIPO_PRODUCTO = "/api/tipos-producto";
+const API_OPCIONES_LENTE = "/api/opciones-lente";
+
+let catalogoGlobal = [];
+let carritoVenta = [];
+let configGeneral = { porcentajeImpuesto: 16 };
+
+document.addEventListener("DOMContentLoaded", () => {
+  // --- NUEVA LÓGICA: CARGAR CONFIGURACIÓN ---
+  fetch('/api/configuracion')
+    .then(res => res.json())
+    .then(data => {
+        configGeneral = data;
+        console.log("Configuración cargada:", configGeneral);
+    })
+    .catch(err => console.warn("Usando IVA por defecto (16%)", err));
+  // 1. Inicializar Modal si existe
+  const el = document.getElementById("modalHistorial");
+  if (el) {
+    modalHistorialInstancia = new bootstrap.Modal(el);
+  }
+
+  // 2. Cargar datos en segundo plano
+  cargarDatosBuscador();
+  cargarCatalogosLentes();
+
+  // 3. Listeners Generales de Precios
+  const inputsPrecio = document.querySelectorAll(".precio-calc");
+  inputsPrecio.forEach((input) => {
+    input.addEventListener("input", calcularTotales);
+    input.addEventListener("change", calcularTotales);
+  });
+
+  // 4. Listeners de Micas
+  ["material", "tratamiento", "tinte"].forEach((id) => {
+    const elId = document.getElementById(id);
+    if (elId) {
+      elId.addEventListener("change", function (e) {
+        const opt = e.target.options[e.target.selectedIndex];
+        const precio = opt.getAttribute("data-precio");
+        if (precio) {
+          const inputId = "precio" + id.charAt(0).toUpperCase() + id.slice(1);
+          $("#" + inputId).val(precio);
+          calcularTotales();
+        }
+      });
+    }
+  });
+
+  // 5. Listeners Buscador en Cascada
+  $("#busqMarca").on("change", filtrarModelos);
+  $("#busqModelo").on("change", filtrarColores);
+  $("#busqColor").on("change", filtrarTallas);
+  $("#busqTalla").on("change", seleccionarProductoFinal);
+
+  // 6. Listeners Botonera Cotizador
+  const radiosTipo = document.querySelectorAll('input[name="tipoProducto"]');
+  radiosTipo.forEach((radio) => {
+    radio.addEventListener("change", function () {
+      actualizarInterfazCotizador(this.value);
+    });
+  });
+
+  // 7. Listener de Pagos
+  $("#aCuenta").on("input change", function () {
+    dibujarCarrito();
+  });
+});
+
+// ==========================================
+// LÓGICA DE NUEVA CONSULTA (Hoja Clínica)
+// ==========================================
+function abrirModalConsulta(idPaciente, nombrePaciente) {
+  // 1. Limpiar todo rastro de consultas anteriores (Matar Fantasmas)
+  $("#formConsulta")[0].reset();
+  $("#consulta_id").val("");
+  $("#consulta_clienteId").val(idPaciente);
+
+  // Matar fantasma de la Receta Médica
+  $("#tratamientoMedico").val("");
+
+  // Matar fantasma del Carrito de Compras
+  carritoVenta = [];
+  dibujarCarrito();
+
+  $("#cajaEstadoEntrega").addClass("d-none");
+
+  // 2. Valores por defecto (Fecha de hoy)
+  const hoy = new Date().toISOString().split("T")[0];
+  $("#fechaVisita").val(hoy);
+
+  // 3. Forzar inicio en el cotizador de Lentes
+  $("#optLente").prop("checked", true);
+  actualizarInterfazCotizador("LENTE");
+
+  // 4. UX: Botones
+  $("#btnGuardarConsulta").removeClass("d-none"); // Mostrar botón Guardar
+  $("#accionesPostGuardado").addClass("d-none"); // Ocultar botones Imprimir
+
+  // 5. Abrir Modal
+  const modalEl = document.getElementById("modalConsulta");
+  const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+  modal.show();
+}
+
+// ==========================================
+// A. CÁLCULOS (PREVIEW DEL ITEM ACTUAL)
+// ==========================================
+function calcularTotales() {
+  const pMaterial = parseFloat($("#precioMaterial").val()) || 0;
+  const pTratamiento = parseFloat($("#precioTratamiento").val()) || 0;
+  const pTinte = parseFloat($("#precioTinte").val()) || 0;
+
+  const subtotalMicas = pMaterial + pTratamiento + pTinte;
+
+  const lblSubtotal = document.getElementById("displaySubtotalMicas");
+  if (lblSubtotal) {
+    lblSubtotal.textContent = "$" + subtotalMicas.toFixed(2);
+  }
+}
+
+// ==========================================
+// B. BUSCADOR DE INVENTARIO INTELIGENTE
+// ==========================================
+async function cargarDatosBuscador() {
+  try {
+    const resProd = await fetch(API_PRODUCTOS_SEARCH);
+    catalogoGlobal = await resProd.json();
+    console.log(`Inventario cargado: ${catalogoGlobal.length} productos.`);
+
+    // ¡LA MAGIA ESTÁ AQUÍ!
+    // Iniciamos la interfaz SOLO cuando los datos ya se descargaron
+    const tipoInicial =
+      $('input[name="tipoProducto"]:checked').val() || "LENTE";
+    actualizarInterfazCotizador(tipoInicial);
+  } catch (err) {
+    console.error("Error cargando buscador:", err);
+  }
+}
+
+// Función auxiliar para buscar independientemente de si dice "Armazon", "Armazón" o "Lente"
+function coincideCategoria(producto, tipoCategoria) {
+  const t = (
+    producto.tipo && typeof producto.tipo === "object"
+      ? producto.tipo.nombre
+      : producto.tipo || ""
+  ).toLowerCase();
+
+  if (tipoCategoria === "LENTE" && (t.includes("armaz") || t.includes("lente")))
+    return true;
+  if (tipoCategoria === "CONTACTO" && t.includes("contacto")) return true;
+  if (tipoCategoria === "ACCESORIO" && t.includes("accesorio")) return true;
+  if (
+    tipoCategoria === "GOTAS" &&
+    (t.includes("gota") ||
+      t.includes("liquido") ||
+      t.includes("líquido") ||
+      t.includes("cuidado") ||
+      t.includes("solucion") ||
+      t.includes("solución"))
+  )
+    return true;
+
+  return false;
+}
+
+function filtrarMarcas() {
+  const tipoCategoria = $("#busqTipo").val(); // LENTE, CONTACTO, ACCESORIO
+
+  resetSelect("busqMarca", "Marca...");
+  resetSelect("busqModelo", "Modelo...");
+  resetSelect("busqColor", "Color...");
+  resetSelect("busqTalla", "Talla...");
+  limpiarCamposFinales();
+
+  if (
+    !tipoCategoria ||
+    tipoCategoria === "CONSULTA" ||
+    catalogoGlobal.length === 0
+  )
+    return;
+
+  const productosDelTipo = catalogoGlobal.filter((p) =>
+    coincideCategoria(p, tipoCategoria),
+  );
+
+  if (productosDelTipo.length === 0) return;
+
+  const marcas = [...new Set(productosDelTipo.map((p) => p.marca))].sort();
+  const select = document.getElementById("busqMarca");
+  marcas.forEach((m) => select.add(new Option(m, m)));
+
+  $("#busqMarca").prop("disabled", false);
+}
+
+function filtrarModelos() {
+  const tipoCategoria = $("#busqTipo").val();
+  const marca = $("#busqMarca").val();
+
+  resetSelect("busqModelo", "Modelo...");
+  resetSelect("busqColor", "Color...");
+  resetSelect("busqTalla", "Talla...");
+
+  if (!marca) return;
+
+  const modelos = [
+    ...new Set(
+      catalogoGlobal
+        .filter((p) => coincideCategoria(p, tipoCategoria) && p.marca === marca)
+        .map((p) => p.modelo),
+    ),
+  ].sort();
+
+  const select = document.getElementById("busqModelo");
+  modelos.forEach((m) => select.add(new Option(m, m)));
+  $("#busqModelo").prop("disabled", false);
+}
+
+function filtrarColores() {
+  const tipoCategoria = $("#busqTipo").val();
+  const marca = $("#busqMarca").val();
+  const modelo = $("#busqModelo").val();
+
+  resetSelect("busqColor", "Color...");
+  resetSelect("busqTalla", "Talla...");
+
+  if (!modelo) return;
+
+  let colores = [
+    ...new Set(
+      catalogoGlobal
+        .filter(
+          (p) =>
+            coincideCategoria(p, tipoCategoria) &&
+            p.marca === marca &&
+            p.modelo === modelo,
+        )
+        .map((p) => (p.color && p.color.trim() !== "" ? p.color : "N/A")),
+    ),
+  ].sort();
+
+  const select = document.getElementById("busqColor");
+  colores.forEach((c) => select.add(new Option(c, c)));
+
+  const unicoValor = colores[0];
+  const esNA =
+    unicoValor === "N/A" ||
+    unicoValor === "No Aplica" ||
+    unicoValor === "Sin Color";
+
+  if (colores.length === 1 && esNA) {
+    select.selectedIndex = 1;
+    select.disabled = true;
+    filtrarTallas();
+  } else {
+    select.disabled = false;
+  }
+}
+
+function filtrarTallas() {
+  const tipoCategoria = $("#busqTipo").val();
+  const marca = $("#busqMarca").val();
+  const modelo = $("#busqModelo").val();
+  let color = $("#busqColor").val();
+
+  resetSelect("busqTalla", "Talla...");
+
+  if (!color) return;
+
+  const productos = catalogoGlobal.filter((p) => {
+    const pColor = p.color && p.color.trim() !== "" ? p.color : "N/A";
+    return (
+      coincideCategoria(p, tipoCategoria) &&
+      p.marca === marca &&
+      p.modelo === modelo &&
+      pColor === color
+    );
+  });
+
+  const select = document.getElementById("busqTalla");
+  productos.forEach((p) => {
+    const nombreTalla = p.talla && p.talla.trim() !== "" ? p.talla : "Única";
+    const opt = new Option(nombreTalla, p.id);
+    opt.dataset.precio = p.precioVenta;
+    select.add(opt);
+  });
+
+  const unicaOpcion = select.options[1] ? select.options[1].text : "";
+  const esUnica =
+    unicaOpcion === "Única" || unicaOpcion === "N/A" || unicaOpcion === "U";
+
+  if (productos.length === 1 && esUnica) {
+    select.selectedIndex = 1;
+    select.disabled = true;
+    seleccionarProductoFinal();
+  } else {
+    select.disabled = false;
+  }
+}
+
+function seleccionarProductoFinal() {
+  const prodId = $("#busqTalla").val();
+  if (!prodId) return;
+
+  const producto = catalogoGlobal.find((p) => p.id == prodId);
+
+  if (producto) {
+    $("#selectProducto").val(producto.id);
+
+    const tipoNombre =
+      producto.tipo && typeof producto.tipo === "object"
+        ? producto.tipo.nombre
+        : producto.tipo;
+    let desc = `${tipoNombre} ${producto.marca} ${producto.modelo}`;
+
+    if (
+      producto.color &&
+      producto.color !== "N/A" &&
+      producto.color !== "No Aplica"
+    ) {
+      desc += ` - ${producto.color}`;
+    }
+    if (
+      producto.talla &&
+      producto.talla !== "Única" &&
+      producto.talla !== "N/A"
+    ) {
+      desc += ` (${producto.talla})`;
+    }
+
+    $("#armazonModelo").val(desc);
+    $("#precioArmazon").val(producto.precioVenta || 0);
+
+    calcularTotales();
+
+    $("#armazonModelo").addClass("bg-success text-white");
+    setTimeout(
+      () => $("#armazonModelo").removeClass("bg-success text-white"),
+      500,
+    );
+  }
+}
+
+function resetSelect(id, placeholder) {
+  const s = document.getElementById(id);
+  if (s) {
+    s.innerHTML = `<option value="">${placeholder}</option>`;
+    s.disabled = true;
+  }
+}
+
+function limpiarCamposFinales() {
+  $("#armazonModelo").val("-");
+  $("#precioArmazon").val("0.00");
+  $("#selectProducto").val("");
+  calcularTotales();
+}
+
+// ==========================================
+// C. CATÁLOGOS MICAS
+// ==========================================
+function cargarCatalogosLentes() {
+  const llenarSelect = (categoria, selectId) => {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+
+    fetch(`${API_OPCIONES_LENTE}?categoria=${categoria}`)
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => {
+        select.innerHTML =
+          '<option value="" data-precio="0">Seleccionar...</option>';
+        data.forEach((item) => {
+          const option = document.createElement("option");
+          option.value = item.nombre;
+          option.text = item.nombre;
+          option.setAttribute("data-precio", item.precioBase || 0);
+          select.appendChild(option);
+        });
+        select.disabled = false;
+      })
+      .catch(console.warn);
+  };
+
+  llenarSelect("MATERIAL", "material");
+  llenarSelect("TRATAMIENTO", "tratamiento");
+  llenarSelect("TINTE", "tinte");
+}
+
+// ==========================================
+// D. LÓGICA DE INTERFAZ DEL COTIZADOR
+// ==========================================
+function actualizarInterfazCotizador(tipo) {
+  $("#panelMicas").addClass("d-none");
+  $("#panelInventario").addClass("d-none");
+  $("#panelConsulta").addClass("d-none");
+
+  switch (tipo) {
+    case "CONSULTA":
+      $("#panelConsulta").removeClass("d-none");
+      $("#precioConsulta").focus();
+      $("#busqTipo").val("CONSULTA");
+      break;
+
+    case "LENTE":
+      $("#panelMicas").removeClass("d-none");
+      $("#panelInventario").removeClass("d-none");
+      $("#tituloInventario").html(
+        '<i class="fas fa-glasses me-1"></i> SELECCIONAR ARMAZÓN',
+      );
+      $("#busqTipo").val("LENTE");
+      filtrarMarcas();
+      break;
+
+    case "CONTACTO":
+      $("#panelInventario").removeClass("d-none");
+      $("#tituloInventario").html(
+        '<i class="fas fa-eye me-1"></i> LENTES DE CONTACTO',
+      );
+      $("#busqTipo").val("CONTACTO");
+      filtrarMarcas();
+      break;
+
+    case "GOTAS":
+      $("#panelInventario").removeClass("d-none");
+      $("#tituloInventario").html(
+        '<i class="fas fa-tint me-1"></i> LÍQUIDOS Y CUIDADO OCULAR',
+      );
+      $("#busqTipo").val("GOTAS");
+      filtrarMarcas();
+      break;
+
+    case "ACCESORIO":
+      $("#panelInventario").removeClass("d-none");
+      $("#tituloInventario").html(
+        '<i class="fas fa-spray-can me-1"></i> ACCESORIOS',
+      );
+      $("#busqTipo").val("ACCESORIO");
+      filtrarMarcas();
+      break;
+  }
+}
+
+// ==========================================
+// E. CARRITO DE COMPRAS
+// ==========================================
+function agregarItemAlCarrito() {
+  const tipo = $('input[name="tipoProducto"]:checked').val();
+  let item = null;
+
+  if (tipo === "CONSULTA") {
+    const precio = parseFloat($("#precioConsulta").val()) || 0;
+    if (precio <= 0) {
+      Swal.fire("Atención", "Ingrese el costo de la consulta.", "warning");
+      return;
+    }
+    item = {
+      tipoItem: "CONSULTA",
+      descripcion: "Consulta Optométrica / Examen de la Vista",
+      cantidad: 1,
+      precioUnitario: precio,
+      subtotal: precio,
+      material: null,
+      tratamiento: null,
+      tinte: null,
+      productoInventarioId: null,
+    };
+  } else {
+    const precioInv = parseFloat($("#precioArmazon").val()) || 0;
+    const precioMicas =
+      tipo === "LENTE"
+        ? (parseFloat($("#precioMaterial").val()) || 0) +
+          (parseFloat($("#precioTratamiento").val()) || 0) +
+          (parseFloat($("#precioTinte").val()) || 0)
+        : 0;
+
+    let descripcion = $("#armazonModelo").val();
+
+    if (!descripcion || descripcion === "" || descripcion === "-") {
+      Swal.fire(
+        "Atención",
+        "Debe seleccionar un producto del inventario.",
+        "warning",
+      );
+      return;
+    }
+
+    const mat = $("#material").val();
+    const trat = $("#tratamiento").val();
+    const tinte = $("#tinte").val();
+
+    if (tipo === "LENTE") {
+      if (mat) descripcion += ` + Mica ${mat}`;
+      if (trat) descripcion += ` (${trat})`;
+      if (tinte) descripcion += ` [Tinte: ${tinte}]`;
+    }
+
+    const subtotal = precioInv + precioMicas;
+
+    item = {
+      tipoItem: tipo,
+      descripcion: descripcion,
+      cantidad: 1,
+      precioUnitario: subtotal,
+      subtotal: subtotal,
+      material: tipo === "LENTE" ? mat : null,
+      tratamiento: tipo === "LENTE" ? trat : null,
+      tinte: tipo === "LENTE" ? tinte : null,
+      productoInventarioId: $("#selectProducto").val()
+        ? parseInt($("#selectProducto").val())
+        : null,
+    };
+  }
+
+  carritoVenta.push(item);
+  dibujarCarrito();
+
+  Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    timer: 1500,
+  }).fire({ icon: "success", title: "Agregado a la lista" });
+
+  // Limpiar para el siguiente
+  if (tipo !== "CONSULTA") {
+    $("#armazonModelo").val("");
+    $("#precioArmazon").val("0.00");
+    $("#selectProducto").val("");
+    $("#material").val("").trigger("change");
+    $("#tratamiento").val("").trigger("change");
+    $("#tinte").val("").trigger("change");
+    calcularTotales();
+  } else {
+    $("#precioConsulta").val("0.00");
+  }
+}
+
+function dibujarCarrito() {
+  const tbody = $("#carritoBody");
+  tbody.empty();
+
+  let sumaArticulos = 0; // Suma pura de los precios de los productos
+
+  carritoVenta.forEach((item, index) => {
+    sumaArticulos += item.subtotal;
+
+    let badgeColor = "bg-secondary";
+    if (item.tipoItem === "LENTE") badgeColor = "bg-primary";
+    if (item.tipoItem === "CONSULTA") badgeColor = "bg-info text-dark";
+    if (item.tipoItem === "ACCESORIO") badgeColor = "bg-warning text-dark";
+    if (item.tipoItem === "GOTAS") badgeColor = "bg-success";
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+            <td class="small align-middle">${item.descripcion}</td>
+            <td class="text-center align-middle"><span class="badge ${badgeColor}">${item.tipoItem}</span></td>
+            <td class="text-end align-middle fw-bold">$${item.subtotal.toFixed(2)}</td>
+            <td class="text-center align-middle">
+                <button type="button" class="btn btn-sm text-danger px-2" onclick="eliminarItemCarrito(${index})">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </td>
+        `;
+    tbody.append(tr);
+  });
+
+  if (carritoVenta.length === 0) {
+    tbody.append(
+      '<tr><td colspan="4" class="text-center text-muted py-3 small"><i class="fas fa-shopping-basket mb-1 fs-5 d-block"></i>Lista vacía</td></tr>',
+    );
+  }
+
+  // --- NUEVOS CÁLCULOS DINÁMICOS ---
+  const porcentajeIva = configGeneral.porcentajeImpuesto || 0;
+  const montoIva = sumaArticulos * (porcentajeIva / 100);
+  const totalConIva = sumaArticulos + montoIva;
+
+  // Actualizamos los campos ocultos que se van al servidor
+  $("#totalPresupuesto").val(totalConIva.toFixed(2));
+  
+  // Actualizamos los displays visuales
+  // (Nota: Asegúrate de tener un ID 'displayIva' en tu HTML si quieres mostrarlo separado)
+  $("#displayTotal").text("$" + totalConIva.toFixed(2));
+
+  const aCuenta = parseFloat($("#aCuenta").val()) || 0;
+  const restante = totalConIva - aCuenta;
+
+  $("#restante").val(restante.toFixed(2));
+  $("#displayRestante").text("$" + restante.toFixed(2));
+
+  const elRestante = document.getElementById("displayRestante");
+  if (elRestante) {
+    if (restante > 0.1) elRestante.className = "text-danger fw-bold";
+    else elRestante.className = "text-success fw-bold";
+  }
+}
+
+function eliminarItemCarrito(index) {
+  carritoVenta.splice(index, 1);
+  dibujarCarrito();
+}
+
+// ==========================================
+// F. GUARDAR Y CARGAR DATOS (BACKEND)
+// ==========================================
+function guardarConsulta() {
+  const clienteId = $("#consulta_clienteId").val();
+
+  if (!clienteId) {
+    Swal.fire("Atención", "Seleccione un paciente.", "warning");
+    return;
+  }
+
+  const anticipoIngresado = parseFloat($("#aCuenta").val()) || 0;
+  const totalPresupuesto = parseFloat($("#totalPresupuesto").val()) || 0;
+  const restanteCalculado = parseFloat($("#restante").val()) || 0;
+
+  const consultaDto = {
+    clienteId: parseInt(clienteId),
+    detalles: carritoVenta,
+
+    fechaVisita:
+      $("#fechaVisita").val() || new Date().toISOString().split("T")[0],
+    razonVisita: $("#razonVisita").val(),
+    diagnosticoOftalmologo: $("#diagnosticoOftalmologo").val(),
+    tratamientoMedico: $("#tratamientoMedico").val(),
+
+    estadoEntrega: $("#cajaEstadoEntrega").hasClass("d-none")
+      ? null
+      : $("#estadoEntrega").val(),
+
+    avLejosOd: $("#avSinLejosOD").val(),
+    avLejosOi: $("#avSinLejosOI").val(),
+    avCercaOd: $("#avSinCercaOD").val(),
+    avCercaOi: $("#avSinCercaOI").val(),
+
+    avActualLejosOd: $("#avActualLejosOD").val(),
+    avActualLejosOi: $("#avActualLejosOI").val(),
+    avActualCercaOd: $("#avActualCercaOD").val(),
+    avActualCercaOi: $("#avActualCercaOI").val(),
+
+    avNuevaLejosOd: $("#avNuevaLejosOD").val(),
+    avNuevaLejosOi: $("#avNuevaLejosOI").val(),
+    avNuevaCercaOd: $("#avNuevaCercaOD").val(),
+    avNuevaCercaOi: $("#avNuevaCercaOI").val(),
+
+    capacidadVisualOd: $("#capacidadOD").val(),
+    capacidadVisualOi: $("#capacidadOI").val(),
+
+    brutaOdEsfera: $("#brutaOdEsfera").val(),
+    brutaOdCilindro: $("#brutaOdCilindro").val(),
+    brutaOdEje: $("#brutaOdEje").val(),
+
+    brutaOiEsfera: $("#brutaOiEsfera").val(),
+    brutaOiCilindro: $("#brutaOiCilindro").val(),
+    brutaOiEje: $("#brutaOiEje").val(),
+
+    subjetivoOdEsfera: $("#subjetivoOdEsfera").val(),
+    subjetivoOdCilindro: $("#subjetivoOdCilindro").val(),
+    subjetivoOdEje: $("#subjetivoOdEje").val(),
+
+    subjetivoOiEsfera: $("#subjetivoOiEsfera").val(),
+    subjetivoOiCilindro: $("#subjetivoOiCilindro").val(),
+    subjetivoOiEje: $("#subjetivoOiEje").val(),
+
+    adicion: $("#adicion").val(),
+    alturaOblea: $("#alturaOblea").val(),
+    dip: $("#dip").val(),
+
+    totalPresupuesto: totalPresupuesto,
+    aCuenta: 0,
+    restante: restanteCalculado,
+  };
+
+  const idConsulta = $("#consulta_id").val();
+  const method = idConsulta ? "PUT" : "POST";
+  const url = API_CONSULTAS + (idConsulta ? "/" + idConsulta : "");
+
+  fetch(url, {
+    method: method,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(consultaDto),
+  })
+    .then(async (res) => {
+      if (!res.ok) throw new Error((await res.text()) || "Error de servidor");
+      return res.json();
+    })
+    .then((consultaGuardada) => {
+      if (method === "POST" && anticipoIngresado > 0) {
+        return fetch("/api/pagos", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            consultaId: consultaGuardada.id,
+            monto: anticipoIngresado,
+            metodoPago: "Efectivo",
+            notas: "Anticipo - Apertura",
+            fechaPago: new Date().toISOString(),
+          }),
+        }).then(() => consultaGuardada);
+      }
+      return consultaGuardada;
+    })
+    .then((data) => {
+      $("#consulta_id").val(data.id);
+
+      Swal.fire({
+        icon: "success",
+        title: "¡Éxito!",
+        text: "Guardado correctamente.",
+        timer: 2500,
+        showConfirmButton: false,
+      });
+
+      $("#btnGuardarConsulta").addClass("d-none");
+      $("#accionesPostGuardado").removeClass("d-none");
+
+      if (typeof dataTable !== "undefined") {
+        dataTable.ajax.reload(null, false);
+      }
+
+      // Limpiamos carrito para futuras operaciones sin recargar
+      carritoVenta = [];
+      dibujarCarrito();
+    })
+    .catch((err) => {
+      Swal.fire("Error", err.message, "error");
+    });
+}
+
+function cargarConsultaParaEditar(consultaId) {
+  if (modalHistorialInstancia) {
+    modalHistorialInstancia.hide();
+  }
+
+  Swal.fire({
+    title: "Cargando...",
+    allowOutsideClick: false,
+    didOpen: () => Swal.showLoading(),
+  });
+
+  fetch(`${API_CONSULTAS}/${consultaId}`)
+    .then((res) => {
+      if (!res.ok) throw new Error();
+      return res.json();
+    })
+    .then((data) => {
+      Swal.close();
+      $("#formConsulta")[0].reset();
+
+      $("#consulta_id").val(data.id);
+      $("#consulta_clienteId").val(data.cliente.id);
+
+      $("#fechaVisita").val(data.fechaVisita);
+      $("#razonVisita").val(data.razonVisita);
+      // --- NUEVAS LÍNEAS: Mostrar control y cargar estado ---
+      $("#cajaEstadoEntrega").removeClass("d-none");
+      // Si viene nulo o vacío, lo ponemos por defecto en NO_APLICA
+      $("#estadoEntrega").val(data.estadoEntrega || "NO_APLICA");
+      $("#diagnosticoOftalmologo").val(data.diagnosticoOftalmologo);
+      $("#tratamientoMedico").val(data.tratamientoMedico || "");
+
+      $("#avSinLejosOD").val(data.avLejosOd);
+      $("#avSinLejosOI").val(data.avLejosOi);
+      $("#avSinCercaOD").val(data.avCercaOd);
+      $("#avSinCercaOI").val(data.avCercaOi);
+
+      $("#avActualLejosOD").val(data.avActualLejosOd);
+      $("#avActualLejosOI").val(data.avActualLejosOi);
+      $("#avActualCercaOD").val(data.avActualCercaOd);
+      $("#avActualCercaOI").val(data.avActualCercaOi);
+
+      $("#avNuevaLejosOD").val(data.avNuevaLejosOd);
+      $("#avNuevaLejosOI").val(data.avNuevaLejosOi);
+      $("#avNuevaCercaOD").val(data.avNuevaCercaOd);
+      $("#avNuevaCercaOI").val(data.avNuevaCercaOi);
+
+      $("#capacidadOD").val(data.capacidadVisualOd);
+      $("#capacidadOI").val(data.capacidadVisualOi);
+
+      $("#brutaOdEsfera").val(data.brutaOdEsfera);
+      $("#brutaOdCilindro").val(data.brutaOdCilindro);
+      $("#brutaOdEje").val(data.brutaOdEje);
+
+      $("#brutaOiEsfera").val(data.brutaOiEsfera);
+      $("#brutaOiCilindro").val(data.brutaOiCilindro);
+      $("#brutaOiEje").val(data.brutaOiEje);
+
+      $("#subjetivoOdEsfera").val(data.subjetivoOdEsfera);
+      $("#subjetivoOdCilindro").val(data.subjetivoOdCilindro);
+      $("#subjetivoOdEje").val(data.subjetivoOdEje);
+
+      $("#subjetivoOiEsfera").val(data.subjetivoOiEsfera);
+      $("#subjetivoOiCilindro").val(data.subjetivoOiCilindro);
+      $("#subjetivoOiEje").val(data.subjetivoOiEje);
+
+      $("#adicion").val(data.adicion);
+      $("#alturaOblea").val(data.alturaOblea);
+      $("#dip").val(data.dip);
+
+      // Reconstruimos el carrito con los detalles si existen
+      if (data.detalles && data.detalles.length > 0) {
+        carritoVenta = data.detalles;
+      } else {
+        // Modo retro-compatibilidad para consultas hechas antes del carrito
+        carritoVenta = [];
+        if (
+          data.armazonModelo &&
+          data.armazonModelo !== "Solo Consulta / Sin Producto"
+        ) {
+          carritoVenta.push({
+            tipoItem: "LENTE",
+            descripcion: data.armazonModelo,
+            subtotal: data.precioArmazon || 0,
+            material: data.material,
+            tratamiento: data.tratamiento,
+            tinte: data.tinte,
+          });
+        }
+      }
+
+      $("#aCuenta").val(data.aCuenta);
+      dibujarCarrito();
+
+      $("#btnGuardarConsulta").removeClass("d-none");
+      $("#accionesPostGuardado").removeClass("d-none");
+
+      new bootstrap.Modal(document.getElementById("modalConsulta")).show();
+    })
+    .catch(() => {
+      Swal.fire("Error", "Error al cargar la consulta", "error");
+    });
+}
+
+// ==========================================
+// G. IMPRESIÓN Y RUTINAS TABLA PACIENTES
+// ==========================================
+function imprimirDocumento(tipo) {
+  window.open(
+    `/imprimir/${tipo}/${$("#consulta_id").val()}`,
+    "PDF",
+    "width=1000,height=800",
+  );
+}
+
+function imprimirDesdeHistorial(id, tipo) {
+  window.open(`/imprimir/${tipo}/${id}`, "PDF", "width=1000,height=800");
+}
+
+function abrirHistorial(clienteId, nombrePaciente) {
+  document.getElementById("historialPacienteNombre").textContent = nombrePaciente;
+  const tbody = document.getElementById("tablaHistorialBody");
+  const msg = document.getElementById("sinHistorialMsg");
+
+  // Aumentamos el colspan a 6 por la nueva columna de estado
+  tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-secondary"><i class="fas fa-spinner fa-spin me-2"></i>Cargando historial...</td></tr>';
+  msg.classList.add("d-none");
+
+  if (modalHistorialInstancia) {
+    modalHistorialInstancia.show();
+  }
+
+  fetch(`/api/consultas/cliente/${clienteId}`)
+    .then((res) => {
+      if (res.status === 204) return [];
+      return res.json();
+    })
+    .then((consultas) => {
+      tbody.innerHTML = "";
+
+      if (consultas.length === 0) {
+        msg.classList.remove("d-none");
+        return;
+      }
+
+      consultas.forEach((c) => {
+        const fecha = new Date(c.fechaVisita + "T00:00:00").toLocaleDateString();
+        const total = parseFloat(c.totalPresupuesto || 0).toFixed(2);
+
+        // --- 1. LÓGICA DE ESTADO DE ENTREGA ---
+        let badgeEstado = '<span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary">No Aplica</span>';
+        
+        if (c.estadoEntrega === "PENDIENTE") {
+            badgeEstado = '<span class="badge bg-danger bg-opacity-10 text-danger border border-danger"><i class="fas fa-clock me-1"></i>Pendiente</span>';
+        } else if (c.estadoEntrega === "RECIBIDO") {
+            badgeEstado = '<span class="badge bg-warning bg-opacity-10 text-dark border border-warning"><i class="fas fa-box me-1"></i>Recibido</span>';
+        } else if (c.estadoEntrega === "ENTREGADO") {
+            badgeEstado = '<span class="badge bg-success bg-opacity-10 text-success border border-success"><i class="fas fa-check me-1"></i>Entregado</span>';
+        }
+
+        // --- 2. CREACIÓN DE LA FILA ---
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td class="align-middle">${fecha}</td>
+            <td class="align-middle">${c.razonVisita || "-"}</td>
+            <td class="small text-muted align-middle text-truncate" style="max-width: 150px;">${c.diagnosticoOftalmologo || "Sin diagnóstico"}</td>
+            
+            <td class="text-center align-middle">${badgeEstado}</td>
+            
+            <td class="text-end fw-bold align-middle">$${total}</td>
+            <td class="text-center align-middle">
+                <div class="btn-group btn-group-sm shadow-sm">
+                    <button class="btn btn-warning text-dark px-2" title="Editar / Actualizar Estado" onclick="cargarConsultaParaEditar(${c.id})">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-outline-secondary px-2" title="Imprimir Receta Médica" onclick="imprimirDesdeHistorial(${c.id}, 'receta')">
+                        <i class="fas fa-file-prescription"></i>
+                    </button>
+                    <button class="btn btn-outline-primary px-2" title="Imprimir Recibo de Venta" onclick="imprimirDesdeHistorial(${c.id}, 'recibo')">
+                        <i class="fas fa-receipt"></i>
+                    </button>
+                    <button class="btn btn-outline-dark px-2" title="Estado de Cuenta / Pagos" onclick="imprimirDesdeHistorial(${c.id}, 'estado-cuenta')">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                    </button>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    })
+    .catch(() => {
+      // Aumentamos el colspan a 6 aquí también
+      tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger py-3"><i class="fas fa-exclamation-triangle me-2"></i>Error al cargar el historial</td></tr>';
+    });
+}
+
+function enviarReciboPorCorreo(idConsulta) {
+    Swal.fire({
+        title: 'Enviar Recibo por Correo',
+        input: 'email',
+        inputLabel: 'Correo electrónico del paciente',
+        inputPlaceholder: 'ejemplo@correo.com',
+        showCancelButton: true,
+        confirmButtonText: '<i class="fas fa-paper-plane me-1"></i> Enviar',
+        cancelButtonText: 'Cancelar',
+        showLoaderOnConfirm: true,
+        preConfirm: (correo) => {
+            if (!correo) {
+                Swal.showValidationMessage('Por favor ingrese un correo');
+                return false;
+            }
+            return fetch(`/api/correos/enviar-recibo/${idConsulta}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ correo: correo })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw new Error(err.error || 'Error al enviar'); });
+                }
+                return response.json();
+            })
+            .catch(error => {
+                Swal.showValidationMessage(`Error: ${error.message}`);
+            });
+        },
+        allowOutsideClick: () => !Swal.isLoading()
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                icon: 'success',
+                title: '¡Enviado!',
+                text: 'El recibo ha sido enviado al correo del paciente.',
+                timer: 2500,
+                showConfirmButton: false
+            });
+        }
+    });
+}

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Estado de Cuenta</title>
+    <link rel="stylesheet" th:href="@{/css/impresion.css}">
+</head>
+<body>
+
+    <div class="no-print" style="margin-bottom: 20px; text-align: right;">
+        <button onclick="window.print()" style="padding: 10px 20px; background: #333; color: white; border: none; cursor: pointer;">
+            🖨️ Imprimir Documento
+        </button>
+    </div>
+
+    <div class="header">
+        <h1>Clínica Óptica DxyOp</h1>
+        <p>Av. Principal #123, Ciudad de México</p>
+        <p>Tel: (55) 1234-5678 | Email: contacto@dxyop.com</p>
+    </div>
+
+    <div class="info-section">
+        <div class="info-box">
+            <span class="label">PACIENTE:</span>
+            <span class="value" th:text="${cliente.nombre}">Juan Pérez</span>
+            
+            <span class="label">TELÉFONO:</span>
+            <span class="value" th:text="${cliente.telefono}">555-555-555</span>
+        </div>
+        <div class="info-box" style="text-align: right;">
+            <span class="label">FOLIO CONSULTA:</span>
+            <span class="value" th:text="'# ' + ${consulta.id}"># 1024</span>
+            
+            <span class="label">FECHA DE EMISIÓN:</span>
+            <span class="value" th:text="${#temporals.format(consulta.fechaVisita, 'dd/MM/yyyy')}">18/02/2026</span>
+        </div>
+    </div>
+
+    <div class="financial-summary">
+        <div class="fin-item">
+            <h3>TOTAL PRESUPUESTO</h3>
+            <p th:text="'$' + ${#numbers.formatDecimal(consulta.totalPresupuesto, 1, 'COMMA', 2, 'POINT')}">$4,500.00</p>
+        </div>
+        <div class="fin-item">
+            <h3>TOTAL PAGADO</h3>
+            <p class="pagado" th:text="'$' + ${#numbers.formatDecimal(consulta.aCuenta, 1, 'COMMA', 2, 'POINT')}">$1,500.00</p>
+        </div>
+        <div class="fin-item">
+            <h3>SALDO PENDIENTE</h3>
+            <p class="deuda" th:text="'$' + ${#numbers.formatDecimal(consulta.restante, 1, 'COMMA', 2, 'POINT')}">$3,000.00</p>
+        </div>
+    </div>
+
+    <h3>Historial de Pagos</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Concepto / Nota</th>
+                <th>Método</th>
+                <th style="text-align: right;">Monto</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="pago : ${pagos}">
+                <td th:text="${#temporals.format(pago.fechaPago, 'dd/MM/yyyy HH:mm')}">18/02/2026</td>
+                <td th:text="${pago.notas}">Anticipo</td>
+                <td th:text="${pago.metodoPago}">Efectivo</td>
+                <td style="text-align: right;" th:text="'$' + ${#numbers.formatDecimal(pago.monto, 1, 'COMMA', 2, 'POINT')}">$1,500.00</td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(pagos)}">
+                <td colspan="4" style="text-align: center; color: #999;">No hay pagos registrados.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div style="margin-top: 60px; display: flex; justify-content: space-between;">
+        <div style="text-align: center; width: 40%;">
+            <div style="border-top: 1px solid #333; padding-top: 5px;">Firma del Paciente</div>
+            <small style="color: #999;">Reconozco el adeudo presente</small>
+        </div>
+        <div style="text-align: center; width: 40%;">
+            <div style="border-top: 1px solid #333; padding-top: 5px;">Firma de la Clínica</div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Gracias por su preferencia. Este documento sirve como comprobante de los pagos aquí detallados.</p>
+    </div>
+
+</body>
+</html>
