@@ -53,7 +53,7 @@ async function submitForm(event) {
     };
     
     try {
-        // NUEVA: ENVIAR A TU API /api/clientes
+        // NUEVA: ENVIAR A TU API /api/pacientes
         const response = await fetch('/api/potenciales', {
             method: 'POST',
             headers: { 

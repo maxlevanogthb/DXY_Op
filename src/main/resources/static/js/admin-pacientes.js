@@ -1,7 +1,7 @@
 // ==========================================
 // 1. CONSTANTES Y VARIABLES
 // ==========================================
-const API_PACIENTES = "/api/clientes";
+const API_PACIENTES = "/api/pacientes";
 let dataTable;
 let modalHistorialInstancia; // Instancia para el modal de historial
 

@@ -97,7 +97,7 @@ public class PdfService {
         document.add(headerTable);
         document.add(Chunk.NEWLINE);
 
-        document.add(new Paragraph("Cliente: " + consulta.getCliente().getNombre(), FONT_CUERPO));
+        document.add(new Paragraph("Cliente: " + consulta.getPaciente().getNombre(), FONT_CUERPO));
         document.add(new Paragraph("Fecha Visita: " + consulta.getFechaVisita().format(FORMATO_FECHA), FONT_CUERPO));
         document.add(new Paragraph("Fecha Emisión: " + java.time.LocalDateTime.now().format(FORMATO_FECHA_HORA), FONT_CUERPO));
         document.add(Chunk.NEWLINE);
@@ -191,7 +191,7 @@ public class PdfService {
         document.add(new LineSeparator());
         document.add(Chunk.NEWLINE);
 
-        Paciente p = consulta.getCliente();
+        Paciente p = consulta.getPaciente();
         PdfPTable datosPaciente = new PdfPTable(2);
         datosPaciente.setWidthPercentage(100);
         datosPaciente.addCell(new PdfPCell(new Phrase("Paciente: " + p.getNombre(), FONT_CUERPO_BOLD)) {{ setBorder(Rectangle.NO_BORDER); }});
@@ -313,8 +313,8 @@ public class PdfService {
         PdfPCell colCliente = new PdfPCell();
         colCliente.setBorder(Rectangle.NO_BORDER);
         colCliente.addElement(new Phrase("PACIENTE:", FONT_CUERPO_BOLD));
-        colCliente.addElement(new Phrase(consulta.getCliente().getNombre(), FONT_TITULO));
-        colCliente.addElement(new Phrase("Tel: " + (consulta.getCliente().getTelefono() != null ? consulta.getCliente().getTelefono() : "-"), FONT_CUERPO));
+        colCliente.addElement(new Phrase(consulta.getPaciente().getNombre(), FONT_TITULO));
+        colCliente.addElement(new Phrase("Tel: " + (consulta.getPaciente().getTelefono() != null ? consulta.getPaciente().getTelefono() : "-"), FONT_CUERPO));
 
         PdfPCell colSaldo = new PdfPCell();
         colSaldo.setBorder(Rectangle.NO_BORDER);

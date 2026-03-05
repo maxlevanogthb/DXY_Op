@@ -234,7 +234,7 @@ function convertirPaciente(id) {
                 
                 console.log('📤 POST:', JSON.stringify(pacienteData));
                 
-                return fetch('/api/clientes', {
+                return fetch('/api/pacientes', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(pacienteData)

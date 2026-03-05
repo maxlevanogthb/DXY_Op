@@ -11,7 +11,7 @@ public interface PacienteRepository extends JpaRepository<Paciente, Long> {
     
     List<Paciente> findByTelefonoContaining(String telefono);
     
-    @Query("SELECT c FROM Cliente c WHERE c.activo = true ORDER BY c.fechaRegistro DESC")
+    @Query("SELECT p FROM Paciente p WHERE p.activo = true") 
     List<Paciente> findAllActivos();
 }
 

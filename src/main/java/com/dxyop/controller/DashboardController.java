@@ -94,9 +94,9 @@ public class DashboardController {
         for(com.dxyop.model.Consulta c : topDeudoresRaw) {
             Map<String, Object> deudor = new HashMap<>();
             deudor.put("id", c.getId());
-            deudor.put("paciente", c.getCliente().getNombre());
-            deudor.put("telefono", c.getCliente().getTelefono());
-            deudor.put("email", c.getCliente().getEmail());
+            deudor.put("paciente", c.getPaciente().getNombre());
+            deudor.put("telefono", c.getPaciente().getTelefono());
+            deudor.put("email", c.getPaciente().getEmail());
             deudor.put("fecha", c.getFechaVisita());
             deudor.put("restante", c.getRestante());
             topDeudores.add(deudor);

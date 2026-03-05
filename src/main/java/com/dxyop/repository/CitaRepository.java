@@ -9,10 +9,12 @@ import java.util.List;
 
 @Repository
 public interface CitaRepository extends JpaRepository<Cita, Long> {
-    
-    // Busca las citas en un rango de fechas (usado por FullCalendar)
-    List<Cita> findByInicioBetween(LocalDateTime inicio, LocalDateTime fin);
-    
-    // (Opcional) Por si algún día quieres ver todas las citas de un paciente
-    List<Cita> findByClienteIdOrderByInicioDesc(Long clienteId);
+
+    // Otros métodos que ya tenías...
+    List<Cita> findByInicioBetween(LocalDateTime start, LocalDateTime end);
+
+    // ==========================================
+    // ¡CORREGIDO! Cambiamos ClienteId por PacienteId
+    // ==========================================
+    List<Cita> findByPacienteIdOrderByInicioDesc(Long id); 
 }

@@ -18,67 +18,64 @@ public class AdminController {
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
         model.addAttribute("titulo", "Dashboard Óptica DXY");
-        model.addAttribute("totalClientes", service.getAllClientes().size());
+        // CORREGIDO: Llamamos a getAllPacientes()
+        model.addAttribute("totalPacientes", service.getAllPacientes().size()); 
         return "admin/dashboard";
     }
 
-    // Lista clientes (tabla principal)
-    @GetMapping("/clientes")
-    public String clientes(Model model) {
+    // ==========================================
+    // UNIFICACIÓN: Todo es "Pacientes" ahora
+    // ==========================================
+    @GetMapping("/pacientes")
+    public String pacientes(Model model) {
         model.addAttribute("titulo", "Gestión de Pacientes");
-        return "admin/clientes";
+        return "admin/pacientes"; // ⚠️ OJO: Asegúrate de tener un archivo llamado pacientes.html
     }
 
-    // Form nuevo cliente (modal usa POST directo)
-    @GetMapping("/clientes/nuevo")
-    public String nuevoCliente(Model model) {
-        model.addAttribute("cliente", new Paciente());
+    @GetMapping("/pacientes/nuevo")
+    public String nuevoPaciente(Model model) {
+        model.addAttribute("paciente", new Paciente());
         model.addAttribute("titulo", "Nuevo Paciente");
-        return "admin/cliente-form";
+        return "admin/paciente-form"; // ⚠️ OJO: Renombra tu HTML a paciente-form.html
     }
 
-    // API endpoint para EDITAR (usado por JS)
-    @GetMapping("/clientes/{id}")
+    // ==========================================
+    // ENDPOINTS PARA JAVASCRIPT (CORREGIDOS)
+    // ==========================================
+    @GetMapping("/pacientes/{id}")
     @ResponseBody
-    public Paciente getClienteById(@PathVariable Long id) {
-        return service.getClienteById(id);
+    public Paciente getPacienteById(@PathVariable Long id) {
+        return service.getPacienteById(id); // CORREGIDO
     }
 
-    // Guardar/Actualizar cliente (usado por formulario JS)
-    @PostMapping("/clientes")
+    @PostMapping("/pacientes")
     @ResponseBody
-    public Paciente saveCliente(@RequestBody Paciente cliente) {
-        return service.saveCliente(cliente);
+    public Paciente savePaciente(@RequestBody Paciente paciente) {
+        return service.savePaciente(paciente); // CORREGIDO
     }
 
-    // Eliminar cliente (usado por JS)
-    @DeleteMapping("/clientes/{id}")
+    @DeleteMapping("/pacientes/{id}")
     @ResponseBody
-    public void deleteCliente(@PathVariable Long id) {
-        service.deleteCliente(id);
+    public void deletePaciente(@PathVariable Long id) {
+        service.deletePaciente(id); // CORREGIDO
     }
 
-    // Placeholder productos (futuro)
+    // ==========================================
+    // LAS DEMÁS VISTAS
+    // ==========================================
     @GetMapping("/productos")
     public String productos(Model model) {
         model.addAttribute("titulo", "Gestión de Productos");
         return "admin/productos";
     }
 
-    // Placeholder citas (futuro)
     @GetMapping("/citas")
     public String citas(Model model) {
         model.addAttribute("titulo", "Agenda de Citas");
         return "admin/citas";
     }
 
-    @GetMapping("/pacientes")
-    public String pacientes(Model model) {
-        model.addAttribute("titulo", "Pacientes Leales");
-        return "admin/pacientes";
-    }
-
-     @GetMapping("/configuracion")
+    @GetMapping("/configuracion")
     public String configuracion(Model model) {
         model.addAttribute("titulo", "Configuracion");
         return "admin/configuracion";  
@@ -89,7 +86,4 @@ public class AdminController {
         model.addAttribute("titulo", "Ventas");
         return "admin/ventas";  
     }
-
-    
-
 }

@@ -2,7 +2,7 @@ package com.dxyop.service;
 
 import com.dxyop.dto.ConsultaDto;
 import com.dxyop.dto.DetalleVentaDto;
-import com.dxyop.dto.PagoDto;
+//import com.dxyop.dto.PagoDto;
 import com.dxyop.model.Paciente;
 import com.dxyop.model.Consulta;
 import com.dxyop.model.DetalleVenta;
@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -39,12 +38,12 @@ public class ConsultaService {
     private PagoRepository pagoRepository;
 
     public List<Consulta> getByCliente(Long clienteId) {
-        return consultaRepository.findByClienteIdOrderByFechaVisitaDesc(clienteId);
+        return consultaRepository.findByPacienteIdOrderByFechaVisitaDesc(clienteId);
     }
 
     // En la clase ConsultaService
     public List<Consulta> getHistorialCliente(Long clienteId) {
-        return consultaRepository.findByClienteIdOrderByFechaVisitaDesc(clienteId);
+        return consultaRepository.findByPacienteIdOrderByFechaVisitaDesc(clienteId);
     }
 
     @Transactional(readOnly = true)
@@ -72,7 +71,7 @@ public class ConsultaService {
         // Vincular Cliente (Evitamos el NullPointer)
         Paciente cliente = clienteRepository.findById(clienteId)
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
-        consulta.setCliente(cliente);
+        consulta.setPaciente(cliente);
 
         // Lógica de Inventario (Solo si es NUEVA consulta y trae armazón)
         if (consulta.getId() == null && consulta.getProductoArmazon() != null
@@ -127,7 +126,7 @@ public class ConsultaService {
         // Relación con Cliente (Obligatorio)
         Paciente cliente = clienteRepository.findById(dto.getClienteId())
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
-        consulta.setCliente(cliente);
+        consulta.setPaciente(cliente);
 
         // Relación con Producto/Armazón (Opcional)
         if (dto.getProductoArmazonId() != null) {

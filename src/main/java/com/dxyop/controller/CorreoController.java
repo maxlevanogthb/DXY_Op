@@ -42,7 +42,7 @@ public class CorreoController {
             // 2. Preparar los textos del correo
             String asunto = "Recibo de Compra - Folio #" + consulta.getId();
             String cuerpoHtml = "<div style='font-family: Arial, sans-serif; padding: 20px;'>"
-                    + "<h2 style='color: #0d6efd;'>¡Hola " + consulta.getCliente().getNombre() + "!</h2>"
+                    + "<h2 style='color: #0d6efd;'>¡Hola " + consulta.getPaciente().getNombre() + "!</h2>"
                     + "<p>Adjunto a este correo encontrará el recibo detallado de su reciente visita.</p>"
                     + "<p>Gracias por confiar su salud visual con nosotros.</p>"
                     + "<hr>"

@@ -12,23 +12,28 @@ import com.dxyop.model.Consulta;
 
 @Repository
 public interface ConsultaRepository extends JpaRepository<Consulta, Long> {
-    List<Consulta> findByClienteIdOrderByFechaVisitaDesc(Long clienteId);
 
-    // 2. REPORTE DE VENTAS POR FECHA (Nuevo)
-    // Útil para: "¿Cuántas consultas hubo hoy?" o "Corte de caja del mes"
+    // ==========================================
+    // 1. CORREGIDO: De ClienteId a PacienteId
+    // ==========================================
+    List<Consulta> findByPacienteIdOrderByFechaVisitaDesc(Long pacienteId);
+
+    // 2. REPORTE DE VENTAS POR FECHA
     List<Consulta> findByFechaVisitaBetween(LocalDate fechaInicio, LocalDate fechaFin);
 
-    // 3. COBRANZA / DEUDORES (Nuevo)
-    // Útil para: "Múestrame todos los que deben dinero (restante > 0)"
+    // 3. COBRANZA / DEUDORES
     List<Consulta> findByRestanteGreaterThan(Double monto);
 
-    // Buscar todas las consultas donde se debe dinero (restante mayor a 0.1 para
-    // evitar errores de decimales)
-    @EntityGraph(attributePaths = {"cliente", "pagos"})
+    // ==========================================
+    // 4. CORREGIDO: attributePaths de "cliente" a "paciente"
+    // ==========================================
+    @EntityGraph(attributePaths = {"paciente", "pagos"})
     List<Consulta> findByRestanteGreaterThanOrderByFechaVisitaDesc(Double montoMinimo);
 
-    // 2. Para la pestaña "Ventas Finalizadas/Cobradas" (Deuda <= $0.50)
-    @EntityGraph(attributePaths = {"cliente", "pagos"})
+    // ==========================================
+    // 5. CORREGIDO: attributePaths de "cliente" a "paciente"
+    // ==========================================
+    @EntityGraph(attributePaths = {"paciente", "pagos"})
     List<Consulta> findByRestanteLessThanEqualOrderByFechaVisitaDesc(Double montoMinimo);
 
     // --- QUERYS PARA EL DASHBOARD ---
