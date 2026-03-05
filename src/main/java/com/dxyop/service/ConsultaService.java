@@ -3,12 +3,12 @@ package com.dxyop.service;
 import com.dxyop.dto.ConsultaDto;
 import com.dxyop.dto.DetalleVentaDto;
 import com.dxyop.dto.PagoDto;
-import com.dxyop.model.Cliente;
+import com.dxyop.model.Paciente;
 import com.dxyop.model.Consulta;
 import com.dxyop.model.DetalleVenta;
 import com.dxyop.model.Pago;
 import com.dxyop.model.Producto;
-import com.dxyop.repository.ClienteRepository;
+import com.dxyop.repository.PacienteRepository;
 import com.dxyop.repository.ConsultaRepository;
 import com.dxyop.repository.PagoRepository;
 import com.dxyop.repository.ProductoRepository;
@@ -30,7 +30,7 @@ public class ConsultaService {
     private ConsultaRepository consultaRepository;
 
     @Autowired
-    private ClienteRepository clienteRepository;
+    private PacienteRepository clienteRepository;
 
     @Autowired
     private ProductoRepository productoRepository;
@@ -70,7 +70,7 @@ public class ConsultaService {
     public Consulta save(Long clienteId, Consulta consulta) {
 
         // Vincular Cliente (Evitamos el NullPointer)
-        Cliente cliente = clienteRepository.findById(clienteId)
+        Paciente cliente = clienteRepository.findById(clienteId)
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
         consulta.setCliente(cliente);
 
@@ -125,7 +125,7 @@ public class ConsultaService {
         }
         
         // Relación con Cliente (Obligatorio)
-        Cliente cliente = clienteRepository.findById(dto.getClienteId())
+        Paciente cliente = clienteRepository.findById(dto.getClienteId())
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
         consulta.setCliente(cliente);
 

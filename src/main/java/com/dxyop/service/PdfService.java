@@ -2,7 +2,7 @@ package com.dxyop.service;
 
 import com.dxyop.model.Consulta;
 import com.dxyop.model.Pago;
-import com.dxyop.model.Cliente;
+import com.dxyop.model.Paciente;
 import com.dxyop.model.ConfiguracionGeneral;
 import com.dxyop.repository.ConfiguracionGeneralRepository;
 import com.lowagie.text.*;
@@ -191,7 +191,7 @@ public class PdfService {
         document.add(new LineSeparator());
         document.add(Chunk.NEWLINE);
 
-        Cliente p = consulta.getCliente();
+        Paciente p = consulta.getCliente();
         PdfPTable datosPaciente = new PdfPTable(2);
         datosPaciente.setWidthPercentage(100);
         datosPaciente.addCell(new PdfPCell(new Phrase("Paciente: " + p.getNombre(), FONT_CUERPO_BOLD)) {{ setBorder(Rectangle.NO_BORDER); }});

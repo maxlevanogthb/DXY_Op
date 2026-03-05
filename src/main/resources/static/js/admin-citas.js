@@ -9,45 +9,36 @@ let configGlobal = {};
 // INICIALIZACIÓN AL CARGAR LA PÁGINA
 // ==========================================
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. Vamos al servidor por la configuración
     fetch('/api/configuracion')
         .then(res => res.json())
         .then(config => {
-            configGlobal = config; // Guardamos los ajustes en memoria
-            
-            // 2. Inicializamos el calendario con los datos nuevos
+            configGlobal = config;
             inicializarCalendario();
-            
-            // 3. Cargamos los motivos de visita
             cargarRazonesVisita();
         })
         .catch(err => {
             console.error("Error cargando configuración, usando respaldo", err);
-            // Respaldo por si falla la base de datos
             configGlobal = { duracionCitaMinutos: 60, horaApertura: '08:00:00', horaCierre: '21:00:00' };
             inicializarCalendario();
             cargarRazonesVisita();
         });
 
-    // 4. Lógica para sumar la duración dinámica (calcula hora fin)
+    // Lógica para sumar la duración dinámica
     document.getElementById('citaHoraInicio').addEventListener('change', function() {
-        const horaInicio = this.value; // Formato esperado "HH:mm" (ej. "13:30")
+        const horaInicio = this.value; 
         if (horaInicio) {
-            // Usamos Date de JS para sumar minutos exactos
             let fechaTemp = new Date(`2000-01-01T${horaInicio}:00`);
-            
-            // Le sumamos los minutos que el doc haya puesto en Configuración
             let duracion = configGlobal.duracionCitaMinutos || 60;
             fechaTemp.setMinutes(fechaTemp.getMinutes() + duracion);
             
-            // Volvemos a formatear a 2 dígitos para HH:mm
             let horasFormateadas = fechaTemp.getHours().toString().padStart(2, '0');
             let minutosFormateados = fechaTemp.getMinutes().toString().padStart(2, '0');
-            
-            // Insertamos el resultado
             document.getElementById('citaHoraFin').value = `${horasFormateadas}:${minutosFormateados}`;
         }
     });
+
+    // --- NUEVO: EVENTO DE AUTOCOMPLETADO DE PACIENTES ---
+    inicializarBuscadorPacientes();
 });
 
 // ==========================================
@@ -55,8 +46,6 @@ document.addEventListener('DOMContentLoaded', function() {
 // ==========================================
 function inicializarCalendario() {
     var calendarEl = document.getElementById('calendario');
-
-    // Aseguramos que el formato sea "HH:mm:ss" para FullCalendar leyendo la configuración
     let apertura = configGlobal.horaApertura ? (configGlobal.horaApertura.substring(0,5) + ':00') : '08:00:00';
     let cierre = configGlobal.horaCierre ? (configGlobal.horaCierre.substring(0,5) + ':00') : '21:00:00';
 
@@ -68,15 +57,18 @@ function inicializarCalendario() {
             center: 'title',
             right: 'dayGridMonth,timeGridWeek,timeGridDay' 
         },
-        
-        // --- AQUÍ ESTÁ LA CONEXIÓN MÁGICA CON TU CONFIGURACIÓN ---
         slotMinTime: apertura, 
         slotMaxTime: cierre, 
-        
         expandRows: true,        
         contentHeight: 'auto',   
         allDaySlot: false, 
         events: '/api/citas', 
+
+        // Cuando el calendario termina de cargar los eventos, llenamos la tabla de abajo
+        eventSourceSuccess: function(content, response) {
+            actualizarTablaCitasDia(content);
+            return content;
+        },
 
         dateClick: function(info) {
             abrirModalNuevaCita(info.dateStr); 
@@ -95,47 +87,47 @@ function inicializarCalendario() {
 function abrirModalNuevaCita(fechaClic = null) {
     document.getElementById('formCita').reset();
     document.getElementById('citaId').value = '';
+    
+    // --- NUEVO: Limpiamos el ID oculto porque es una cita nueva ---
+    document.getElementById('citaPacienteId').value = '';
+    document.getElementById('sugerenciasPacientes').style.display = 'none';
+
     document.getElementById('modalCitaTitulo').textContent = 'Agendar Nueva Cita';
     document.getElementById('seccionAccionesCita').classList.add('d-none');
 
-    // Si le dio clic al calendario, pre-llenar la fecha y hora
     if (fechaClic) {
         const partes = fechaClic.split('T');
         document.getElementById('citaFecha').value = partes[0];
-        
         if (partes[1]) {
             document.getElementById('citaHoraInicio').value = partes[1].substring(0, 5);
-            
-            // Calculamos la hora final con la configuración
             let fin = new Date(fechaClic);
             let duracion = configGlobal.duracionCitaMinutos || 60;
             fin.setMinutes(fin.getMinutes() + duracion); 
             document.getElementById('citaHoraFin').value = fin.toTimeString().substring(0, 5);
         }
     }
-
     modalCita.show();
 }
 
 function abrirModalEditarCita(evento) {
     document.getElementById('modalCitaTitulo').textContent = 'Editar Cita';
     
-    // Sacar los datos desde FullCalendar
     document.getElementById('citaId').value = evento.id;
+    // --- NUEVO: Llenamos los datos reales del paciente ---
+    document.getElementById('citaPacienteId').value = evento.extendedProps.pacienteId;
     document.getElementById('citaNombre').value = evento.extendedProps.nombrePaciente || '';
     document.getElementById('citaTelefono').value = evento.extendedProps.telefono || '';
+    
     document.getElementById('citaTipo').value = evento.extendedProps.tipo;
     document.getElementById('citaEstado').value = evento.extendedProps.estado;
     document.getElementById('citaNotas').value = evento.extendedProps.notas || '';
 
-    // Manejo de fechas
     document.getElementById('citaFecha').value = evento.startStr.split('T')[0];
     document.getElementById('citaHoraInicio').value = evento.startStr.split('T')[1].substring(0, 5);
     if(evento.endStr) {
         document.getElementById('citaHoraFin').value = evento.endStr.split('T')[1].substring(0, 5);
     }
 
-    // Mostrar botones de acción y configurar WhatsApp
     document.getElementById('seccionAccionesCita').classList.remove('d-none');
     
     const btnWa = document.getElementById('btnWaCita');
@@ -162,20 +154,26 @@ function guardarCita() {
     const fecha = document.getElementById('citaFecha').value;
     const horaInicio = document.getElementById('citaHoraInicio').value;
     const horaFin = document.getElementById('citaHoraFin').value;
+    const pacienteId = document.getElementById('citaPacienteId').value;
 
     if (!fecha || !horaInicio || !horaFin) {
         Swal.fire('Error', 'Debes seleccionar fecha y horarios', 'error');
         return;
     }
 
+    // --- NUEVO: EL PAYLOAD MÁGICO PARA EL BACKEND ---
     const payload = {
-        nombreTemporal: document.getElementById('citaNombre').value,
-        telefonoTemporal: document.getElementById('citaTelefono').value,
         inicio: `${fecha}T${horaInicio}:00`,
         fin: `${fecha}T${horaFin}:00`,
         tipo: document.getElementById('citaTipo').value,
         estado: document.getElementById('citaEstado').value,
-        notas: document.getElementById('citaNotas').value
+        notas: document.getElementById('citaNotas').value,
+        // Agrupamos al paciente como lo pide Java
+        paciente: {
+            id: pacienteId ? parseInt(pacienteId) : null,
+            nombre: document.getElementById('citaNombre').value,
+            telefono: document.getElementById('citaTelefono').value
+        }
     };
 
     const citaId = document.getElementById('citaId').value;
@@ -190,7 +188,7 @@ function guardarCita() {
     .then(res => {
         if(res.ok) {
             modalCita.hide();
-            calendario.refetchEvents();
+            calendario.refetchEvents(); // Al recargar, también se actualizará la tabla
             Swal.fire({toast: true, position: 'top-end', icon: 'success', title: 'Cita guardada', showConfirmButton: false, timer: 3000});
         } else {
             throw new Error("Error al guardar");
@@ -217,6 +215,137 @@ function eliminarCita(id) {
                     Swal.fire({toast: true, position: 'top-end', icon: 'success', title: 'Cita eliminada', showConfirmButton: false, timer: 3000});
                 }
             });
+        }
+    });
+}
+
+// ==========================================
+// NUEVO: BUSCADOR DE PACIENTES
+// ==========================================
+function inicializarBuscadorPacientes() {
+    let timerBusqueda;
+    const inputNombre = document.getElementById('citaNombre');
+    const inputTelefono = document.getElementById('citaTelefono');
+    const inputId = document.getElementById('citaPacienteId');
+    const divSugerencias = document.getElementById('sugerenciasPacientes');
+
+    inputNombre.addEventListener('input', function(e) {
+        clearTimeout(timerBusqueda);
+        const texto = e.target.value.toLowerCase();
+
+        // Si el usuario modifica el nombre, asumimos que es alguien nuevo o diferente
+        inputId.value = '';
+
+        if (texto.length < 2) {
+            divSugerencias.style.display = 'none';
+            return;
+        }
+
+        timerBusqueda = setTimeout(() => {
+            // Buscamos en la base de datos
+            fetch('/api/pacientes')
+                .then(res => res.json())
+                .then(pacientes => {
+                    const filtrados = pacientes.filter(p => p.nombre.toLowerCase().includes(texto));
+                    divSugerencias.innerHTML = '';
+                    
+                    if (filtrados.length > 0) {
+                        filtrados.forEach(p => {
+                            const a = document.createElement('a');
+                            a.className = 'list-group-item list-group-item-action cursor-pointer';
+                            a.innerHTML = `<strong>${p.nombre}</strong> <small class="text-muted ms-2">📞 ${p.telefono}</small>`;
+                            
+                            // Al hacer clic en la sugerencia
+                            a.onclick = function() {
+                                inputNombre.value = p.nombre;
+                                inputTelefono.value = p.telefono;
+                                inputId.value = p.id;
+                                divSugerencias.style.display = 'none';
+                            };
+                            divSugerencias.appendChild(a);
+                        });
+                        divSugerencias.style.display = 'block';
+                    } else {
+                        divSugerencias.style.display = 'none';
+                    }
+                });
+        }, 300); // Pequeño retraso para no saturar el servidor al teclear rápido
+    });
+
+    // Ocultar sugerencias si se hace clic fuera
+    document.addEventListener('click', function(e) {
+        if (e.target.id !== 'citaNombre') {
+            divSugerencias.style.display = 'none';
+        }
+    });
+}
+
+// ==========================================
+// NUEVO: TABLA DE PACIENTES DEL DÍA
+// ==========================================
+function actualizarTablaCitasDia(todosLosEventos) {
+    const tbody = document.getElementById('bodyTablaCitasDia');
+    tbody.innerHTML = '';
+
+    // Filtramos solo las citas que son de HOY
+    const fechaHoyLocal = new Date().toLocaleDateString('sv-SE'); // Formato YYYY-MM-DD local
+    const citasHoy = todosLosEventos.filter(e => e.start.startsWith(fechaHoyLocal));
+
+    // Ordenamos por hora de inicio
+    citasHoy.sort((a, b) => new Date(a.start) - new Date(b.start));
+
+    if (citasHoy.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-4"><i class="fas fa-mug-hot fa-2x mb-3 text-light"></i><br>No hay citas programadas para el día de hoy.</td></tr>`;
+        return;
+    }
+
+    citasHoy.forEach(cita => {
+        const props = cita.extendedProps;
+        
+        // Asignamos colores a los estados
+        let badgeEstado = 'bg-secondary';
+        if (props.estado === 'PENDIENTE') badgeEstado = 'bg-warning text-dark';
+        if (props.estado === 'ATENDIDA') badgeEstado = 'bg-success';
+        if (props.estado === 'CANCELADA' || props.estado === 'NO ASISTIÓ') badgeEstado = 'bg-danger';
+        if (props.estado === 'CONFIRMADA') badgeEstado = 'bg-primary';
+
+        // Formateamos la hora a HH:mm
+        const horaInicio = cita.start.split('T')[1].substring(0, 5);
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td class="fw-bold text-primary"><i class="far fa-clock me-1"></i> ${horaInicio}</td>
+            <td class="fw-bold">${props.nombrePaciente}</td>
+            <td><a href="https://wa.me/52${props.telefono.replace(/\D/g, '')}" target="_blank" class="text-decoration-none text-success"><i class="fab fa-whatsapp"></i> ${props.telefono}</a></td>
+            <td>${props.tipo}</td>
+            <td><span class="badge ${badgeEstado} px-2 py-1">${props.estado}</span></td>
+            <td>
+                <button class="btn btn-sm btn-outline-primary" onclick="editarCitaDesdeTabla('${cita.id}')" title="Editar"><i class="fas fa-edit"></i></button>
+                ${props.estado === 'ATENDIDA' ? `<button class="btn btn-sm btn-success ms-1" onclick="convertirAPaciente(${props.pacienteId})" title="Convertir a Paciente"><i class="fas fa-user-check"></i></button>` : ''}
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function editarCitaDesdeTabla(idString) {
+    // Buscamos el evento en el calendario y abrimos su modal
+    const evento = calendario.getEventById(idString);
+    if(evento) abrirModalEditarCita(evento);
+}
+
+function convertirAPaciente(pacienteId) {
+    Swal.fire({
+        title: '¿Convertir a Paciente Oficial?',
+        text: "Este prospecto pasará a formar parte de tu base de datos clínica principal.",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#198754',
+        confirmButtonText: 'Sí, convertir'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Aquí haremos la magia en la Fase 3, por ahora mandamos un mensaje de éxito
+            Swal.fire('¡Convertido!', 'El prospecto ahora es un paciente oficial.', 'success');
         }
     });
 }

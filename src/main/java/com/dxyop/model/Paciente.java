@@ -2,8 +2,8 @@ package com.dxyop.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.ToString;             // <--- IMPORTAR
-import lombok.EqualsAndHashCode;    // <--- IMPORTAR
+import lombok.ToString;
+import lombok.EqualsAndHashCode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,9 +12,9 @@ import java.time.Period;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(name = "clientes")
+@Table(name = "pacientes") // <-- CAMBIO 1: Nueva tabla
 @Data
-public class Cliente {
+public class Paciente { // <-- CAMBIO 2: Nuevo nombre
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,6 +27,12 @@ public class Cliente {
     private String telefono;
 
     private String email;
+
+    // ==========================================
+    // CAMBIO 3: LA BANDERA DEL MINI-CRM
+    // ==========================================
+    @Column(name = "es_paciente_oficial", nullable = false)
+    private boolean esPacienteOficial = false; // false = Cliente Potencial, true = Paciente Oficial
 
     // FECHAS 
     @Column(name = "fecha_nacimiento")
@@ -45,7 +51,6 @@ public class Cliente {
 
     // DATOS CLÍNICOS BÁSICOS
     private String motivo;
-
     private String graduacionActual;
 
     @Column(columnDefinition = "TEXT")
@@ -53,14 +58,16 @@ public class Cliente {
 
     // RELACIONES Y ESTADO
     private Long ultimoLenteId;
-
     private boolean activo = true;
 
-    // --- RELACIÓN SEGURA ---
-    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnore // Para JSON: No enviar historial al pedir datos del cliente
-    @ToString.Exclude // Para JAVA: No imprimir historial en logs (Evita StackOverflow)
-    @EqualsAndHashCode.Exclude // Para JAVA: No usar historial para comparar objetos
+    // ==========================================
+    // CAMBIO 4: ARREGLAR LA RELACIÓN
+    // ==========================================
+    // mappedBy ahora debe apuntar a "paciente", no a "cliente"
+    @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore 
+    @ToString.Exclude 
+    @EqualsAndHashCode.Exclude 
     private List<Consulta> consultas = new ArrayList<>();
 
     // AUTOMATIZAR FECHA AL GUARDAR

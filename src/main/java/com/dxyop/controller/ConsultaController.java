@@ -9,10 +9,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.dxyop.dto.ConsultaDto;
-import com.dxyop.model.Cliente;
+import com.dxyop.model.Paciente;
 import com.dxyop.model.Consulta;
 import com.dxyop.model.Producto;
-import com.dxyop.repository.ClienteRepository;
+import com.dxyop.repository.PacienteRepository;
 import com.dxyop.repository.ConsultaRepository;
 import com.dxyop.repository.ProductoRepository;
 import com.dxyop.service.ConsultaService;
@@ -27,7 +27,7 @@ public class ConsultaController {
 
     // --- DEPENDENCIAS (Todas 'final' para que Lombok las inyecte) ---
     private final ConsultaService service;
-    private final ClienteRepository clienteRepository;
+    private final PacienteRepository clienteRepository;
     private final ProductoRepository productoRepository;
     private final ConsultaRepository consultaRepository;
     private final ConsultaService consultaService;

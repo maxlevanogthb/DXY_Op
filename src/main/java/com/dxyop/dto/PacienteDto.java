@@ -9,17 +9,22 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ClienteDto {
-private Long id;
+public class PacienteDto {
+    private Long id;
     private String nombre;
     private String telefono;
     private String email;
     
-    // AGREGA ESTOS DOS CAMPOS:
+    // ==========================================
+    // NUEVO: LA BANDERA DEL MINI-CRM
+    // ==========================================
+    private boolean esPacienteOficial; 
+    
+    // FECHAS
     private LocalDate fechaNacimiento;
     private LocalDate fechaRegistro;
     
-    // ... otros campos que tengas (motivo, graduacion, etc.)
+    // DATOS CLÍNICOS
     private String motivo;
     private String graduacionActual;
 }

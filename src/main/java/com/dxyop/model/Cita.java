@@ -13,17 +13,11 @@ public class Cita {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Relación opcional: Puede ser un paciente que ya existe en tu tabla Clientes
+    // --- LA RELACIÓN CORREGIDA ---
+    // Ahora TODA cita tendrá un paciente (ya sea oficial o prospecto/lead)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cliente_id")
-    private Cliente cliente;
-
-    // Opcional: Para pacientes nuevos ("Express") que llaman por teléfono
-    @Column(name = "nombre_temporal", length = 100)
-    private String nombreTemporal;
-    
-    @Column(name = "telefono_temporal", length = 20)
-    private String telefonoTemporal;
+    @JoinColumn(name = "paciente_id", nullable = false) // Cambiado a paciente_id y obligatorio
+    private Paciente paciente; // Cambiado a paciente
 
     // Fechas y bloque de tiempo
     @Column(nullable = false)

@@ -22,13 +22,11 @@ public class Consulta {
 
     // --- RELACIONES ---
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cliente_id", nullable = false)
-    // 1. Evita bucle JSON ("consultas")
-    // 2. Evita error de proxy Hibernate ("hibernateLazyInitializer", "handler")
+    @JoinColumn(name = "paciente_id", nullable = false) // <--- ¡Corregido!
     @JsonIgnoreProperties({"consultas", "hibernateLazyInitializer", "handler"}) 
-    @ToString.Exclude          // <--- IMPORTANTE: Evita bucle en logs
-    @EqualsAndHashCode.Exclude // <--- IMPORTANTE
-    private Cliente cliente;
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Paciente paciente;
 
     // --- DATOS GENERALES ---
     private LocalDate fechaVisita = LocalDate.now();

@@ -1,7 +1,7 @@
 package com.dxyop.controller;
 
-import com.dxyop.model.Cliente;
-import com.dxyop.service.ClienteService;
+import com.dxyop.model.Paciente;
+import com.dxyop.service.PacienteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AdminController {
 
-    private final ClienteService service;
+    private final PacienteService service;
 
     // Dashboard principal
     @GetMapping("/dashboard")
@@ -32,7 +32,7 @@ public class AdminController {
     // Form nuevo cliente (modal usa POST directo)
     @GetMapping("/clientes/nuevo")
     public String nuevoCliente(Model model) {
-        model.addAttribute("cliente", new Cliente());
+        model.addAttribute("cliente", new Paciente());
         model.addAttribute("titulo", "Nuevo Paciente");
         return "admin/cliente-form";
     }
@@ -40,14 +40,14 @@ public class AdminController {
     // API endpoint para EDITAR (usado por JS)
     @GetMapping("/clientes/{id}")
     @ResponseBody
-    public Cliente getClienteById(@PathVariable Long id) {
+    public Paciente getClienteById(@PathVariable Long id) {
         return service.getClienteById(id);
     }
 
     // Guardar/Actualizar cliente (usado por formulario JS)
     @PostMapping("/clientes")
     @ResponseBody
-    public Cliente saveCliente(@RequestBody Cliente cliente) {
+    public Paciente saveCliente(@RequestBody Paciente cliente) {
         return service.saveCliente(cliente);
     }
 
