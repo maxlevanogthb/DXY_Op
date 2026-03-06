@@ -172,7 +172,8 @@ function guardarCita() {
         paciente: {
             id: pacienteId ? parseInt(pacienteId) : null,
             nombre: document.getElementById('citaNombre').value,
-            telefono: document.getElementById('citaTelefono').value
+            telefono: document.getElementById('citaTelefono').value,
+            motivo: document.getElementById('citaTipo').value
         }
     };
 
@@ -321,7 +322,9 @@ function actualizarTablaCitasDia(todosLosEventos) {
             <td><span class="badge ${badgeEstado} px-2 py-1">${props.estado}</span></td>
             <td>
                 <button class="btn btn-sm btn-outline-primary" onclick="editarCitaDesdeTabla('${cita.id}')" title="Editar"><i class="fas fa-edit"></i></button>
-                ${props.estado === 'ATENDIDA' ? `<button class="btn btn-sm btn-success ms-1" onclick="convertirAPaciente(${props.pacienteId})" title="Convertir a Paciente"><i class="fas fa-user-check"></i></button>` : ''}
+                ${props.estado === 'ATENDIDA' && props.esPacienteOficial === false ? 
+                  `<button class="btn btn-sm btn-success ms-1" onclick="convertirAPaciente(${props.pacienteId})" title="Convertir a Paciente"><i class="fas fa-user-check"></i></button>` 
+                  : ''}
             </td>
         `;
         tbody.appendChild(tr);
@@ -344,8 +347,22 @@ function convertirAPaciente(pacienteId) {
         confirmButtonText: 'Sí, convertir'
     }).then((result) => {
         if (result.isConfirmed) {
-            // Aquí haremos la magia en la Fase 3, por ahora mandamos un mensaje de éxito
-            Swal.fire('¡Convertido!', 'El prospecto ahora es un paciente oficial.', 'success');
+            
+            // Hacemos la petición PATCH a nuestro nuevo endpoint
+            fetch(`/api/pacientes/${pacienteId}/convertir`, {
+                method: 'PATCH'
+            })
+            .then(res => {
+                if(res.ok) {
+                    Swal.fire('¡Convertido!', 'El prospecto ahora es un paciente oficial.', 'success');
+                    // Recargamos el calendario para que la tabla se actualice y el botón desaparezca
+                    calendario.refetchEvents(); 
+                } else {
+                    throw new Error("Error en el servidor");
+                }
+            })
+            .catch(err => Swal.fire('Error', 'No se pudo convertir al paciente.', 'error'));
+            
         }
     });
 }

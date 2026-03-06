@@ -45,4 +45,18 @@ public class PacienteService {
         return repository.findByNombreContainingIgnoreCase(nombre);
     }
 
+    // Para el módulo de Pacientes
+    public List<Paciente> getPacientesOficiales() {
+        List<Paciente> pacientes = repository.findAllOficialesActivos();
+        pacientes.forEach(p -> p.setConsultas(null));
+        return pacientes;
+    }
+
+    // Para el módulo de Clientes Potenciales
+    public List<Paciente> getProspectos() {
+        List<Paciente> prospectos = repository.findAllProspectosActivos();
+        prospectos.forEach(p -> p.setConsultas(null));
+        return prospectos;
+    }
+
 }

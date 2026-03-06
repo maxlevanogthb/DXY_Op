@@ -69,6 +69,8 @@ public class CitaController {
             extra.put("pacienteId", c.getPaciente().getId());
             extra.put("nombrePaciente", nombreMostrado);
             extra.put("tipo", c.getTipo());
+
+            extra.put("esPacienteOficial", c.getPaciente().isEsPacienteOficial());
             
             evento.put("extendedProps", extra);
             eventos.add(evento);

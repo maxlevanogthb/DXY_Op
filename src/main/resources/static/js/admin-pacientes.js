@@ -40,7 +40,8 @@ function inicializarTablaPacientes() {
   }
 
   dataTable = $("#tablaPacientes").DataTable({
-    ajax: { url: API_PACIENTES, dataSrc: "" },
+    ajax: { url: API_PACIENTES + "/oficiales", dataSrc: "" },
+    
     columns: [
       { data: "id", className: "text-center text-secondary small" },
       {
@@ -199,6 +200,7 @@ function guardarPaciente() {
     motivo: $("#motivo").val(),
     fechaRegistro: $("#fecha").val(),
     mensaje: $("#mensaje").val(),
+    esPacienteOficial: true
   };
 
   fetch(API_PACIENTES + (id ? `/${id}` : ""), {

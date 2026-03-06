@@ -1,21 +1,29 @@
-let dataTable;
-const API_URL = '/api/potenciales';
+// ==========================================
+// 1. CONSTANTES Y VARIABLES
+// ==========================================
+// Ahora tenemos dos rutas: una general para el CRUD y otra para la tabla
+const API_PACIENTES = '/api/pacientes';
+const API_PROSPECTOS = '/api/pacientes/prospectos';
 const API_RAZONES = '/api/razones-visita';
+let dataTable;
 
 document.addEventListener('DOMContentLoaded', () => {
     inicializarTabla();
     cargarMotivosVisita();
 });
 
-// 1. Cargar e Inicializar DataTable con Fetch
+// ==========================================
+// 2. TABLA DE PROSPECTOS (DataTables)
+// ==========================================
 function inicializarTabla() {
     if ($.fn.DataTable.isDataTable('#tablaClientes')) {
         $('#tablaClientes').DataTable().destroy();
     }
 
     dataTable = $('#tablaClientes').DataTable({
-        ajax: { url: API_URL, dataSrc: '' },
-        dom: 'rtip', // IMPORTANTE: Oculta el buscador viejo de DataTables
+        // Usamos la ruta que creamos específicamente para traer solo a los "false"
+        ajax: { url: API_PROSPECTOS, dataSrc: '' },
+        dom: 'rtip', 
         columns: [
             { data: 'id', className: "text-center text-secondary small" },
             { 
@@ -29,21 +37,24 @@ function inicializarTabla() {
             },
             { data: 'email', render: data => data || '-' },
             { 
+                data: 'graduacionActual',
+                render: data => data ? `<span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25">${data}</span>` : '<span class="text-muted small italic">N/A</span>'
+            },
+            { 
                 data: 'motivo',
                 render: data => `<span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-10">${data || 'General'}</span>`
             },
             { 
-                data: 'estado',
-                render: data => {
-                    let color = data === 'ATENDIDO' ? 'success' : (data === 'PENDIENTE' ? 'warning' : 'secondary');
-                    return `<span class="badge bg-${color}">${data}</span>`;
-                }
-            },
-            { 
-                data: 'fecha',
+                data: 'fechaRegistro',
                 render: data => {
                     if (!data) return '-';
-                    const [anio, mes, dia] = data.split("-");
+                    // Blindaje por si Java lo manda diferente
+                    let anio, mes, dia;
+                    if (Array.isArray(data)) {
+                        anio = data[0]; mes = data[1].toString().padStart(2, '0'); dia = data[2].toString().padStart(2, '0');
+                    } else {
+                        [anio, mes, dia] = data.split("T")[0].split("-");
+                    }
                     return `<div class="d-flex align-items-center text-secondary">
                                 <i class="far fa-calendar-alt me-2 text-primary opacity-50"></i>
                                 <span class="fw-medium">${dia}/${mes}/${anio}</span>
@@ -70,34 +81,33 @@ function inicializarTabla() {
                 }
             }
         ],
-        language: { url: "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json" },
+        language: { url: "https://cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json" },
         responsive: true,
         order: [[0, 'desc']]
     });
 
-    // ACTIVAR EL BUSCADOR DE LA TARJETA
     $("#buscarCliente").on("keyup", function () {
         dataTable.search(this.value).draw();
     });
 }
 
-// 2. Abrir Modal para Nuevo Cliente
+// ==========================================
+// 3. LÓGICA DE PROSPECTOS (CRUD)
+// ==========================================
 function abrirModalNuevo() {
     document.getElementById('formCliente').reset();
     document.getElementById('clienteId').value = '';
     document.getElementById('modalTitulo').innerText = 'Nuevo Cliente Potencial';
     
-    // Poner fecha de hoy por defecto
-    document.getElementById('fecha').valueAsDate = new Date();
+    // Asignamos la fecha de hoy
+    document.getElementById('fecha').value = new Date().toISOString().split("T")[0];
     
-    const modal = new bootstrap.Modal(document.getElementById('clienteModal'));
-    modal.show();
+    new bootstrap.Modal(document.getElementById('clienteModal')).show();
 }
 
-// 3. Abrir Modal para Editar (Fetch GET simple o usar datos de fila)
 function editarCliente(id) {
-    // Opción A: Fetch al servidor para obtener datos frescos
-    fetch(`${API_URL}/${id}`) // GET /api/potenciales/{id}
+    // Apuntamos al endpoint general de pacientes
+    fetch(`${API_PACIENTES}/${id}`) 
         .then(response => response.json())
         .then(cliente => {
             document.getElementById('clienteId').value = cliente.id;
@@ -105,65 +115,48 @@ function editarCliente(id) {
             document.getElementById('telefono').value = cliente.telefono;
             document.getElementById('email').value = cliente.email;
             document.getElementById('motivo').value = cliente.motivo;
-            document.getElementById('fecha').value = cliente.fecha ? cliente.fecha.split('T')[0] : ''; // Ajuste formato fecha
-            document.getElementById('mensaje').value = cliente.mensaje;
+            document.getElementById('fecha').value = cliente.fechaRegistro; 
+            // document.getElementById('mensaje').value = cliente.mensaje; // Descomentar si tienes este campo
 
-            document.getElementById('modalTitulo').innerText = 'Editar Cliente';
-            
-            const modal = new bootstrap.Modal(document.getElementById('clienteModal'));
-            modal.show();
+            document.getElementById('modalTitulo').innerText = 'Editar Cliente Potencial';
+            new bootstrap.Modal(document.getElementById('clienteModal')).show();
         })
         .catch(error => console.error('Error cargando cliente:', error));
 }
 
-// 4. Guardar (Crear o Actualizar)
 function guardarCliente() {
     const id = document.getElementById('clienteId').value;
-    const cliente = {
+    const prospecto = {
         nombre: document.getElementById('nombre').value,
         telefono: document.getElementById('telefono').value,
         email: document.getElementById('email').value,
         motivo: document.getElementById('motivo').value,
-        fecha: document.getElementById('fecha').value,
-        mensaje: document.getElementById('mensaje').value
+        fechaRegistro: document.getElementById('fecha').value,
+        // mensaje: document.getElementById('mensaje').value,
+        // ⭐ ESTO ES CLAVE: Le decimos a Java que este es un prospecto
+        esPacienteOficial: false 
     };
 
     const method = id ? 'PUT' : 'POST';
-    const url = id ? `${API_URL}/${id}` : API_URL;
+    const url = id ? `${API_PACIENTES}/${id}` : API_PACIENTES;
 
     fetch(url, {
         method: method,
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(cliente)
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(prospecto)
     })
     .then(response => {
         if (response.ok) {
-            // Cerrar modal
-            const modalEl = document.getElementById('clienteModal');
-            const modal = bootstrap.Modal.getInstance(modalEl);
-            modal.hide();
-            
-            // Recargar tabla
+            bootstrap.Modal.getInstance(document.getElementById('clienteModal')).hide();
             dataTable.ajax.reload();
-            
-            // Alerta éxito
-            Swal.fire({
-                icon: 'success',
-                title: 'Guardado',
-                text: 'El Cliente Potencial ha sido registrado correctamente.',
-                timer: 1500,
-                showConfirmButton: false
-            });
+            Swal.fire({ icon: 'success', title: 'Guardado', text: 'El prospecto ha sido registrado.', timer: 1500, showConfirmButton: false });
         } else {
-            Swal.fire('Error', 'No se pudo guardar el cliente', 'error');
+            Swal.fire('Error', 'No se pudo guardar el prospecto', 'error');
         }
     })
     .catch(error => console.error('Error:', error));
 }
 
-// 5. Eliminar Cliente
 function eliminarCliente(id) {
     Swal.fire({
         title: '¿Estás seguro?',
@@ -176,87 +169,52 @@ function eliminarCliente(id) {
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch(`${API_URL}/${id}`, {
-                method: 'DELETE'
-            })
+            fetch(`${API_PACIENTES}/${id}`, { method: 'DELETE' })
             .then(response => {
                 if (response.ok) {
                     dataTable.ajax.reload();
                     Swal.fire('Eliminado!', 'El registro ha sido eliminado.', 'success');
-                } else {
-                    Swal.fire('Error', 'No se pudo eliminar', 'error');
                 }
             });
         }
     });
 }
 
-// 6. Funcionalidad WhatsApp
-function abrirWhatsApp(telefono) {
-    if (!telefono) return;
-    // Limpiar número (quitar guiones, espacios, paréntesis)
-    const numeroLimpio = telefono.replace(/\D/g, '');
-    const url = `https://wa.me/52${numeroLimpio}`;
-    window.open(url, '_blank');
-}
-
-// Función completa corregida
+// ==========================================
+// 4. LA MAGIA DE CONVERSIÓN (Refactorizado)
+// ==========================================
 function convertirPaciente(id) {
     Swal.fire({
-        title: '¿Convertir a Paciente?',
+        title: '¿Convertir a Paciente Oficial?',
+        text: "Pasará a formar parte de tu base de datos clínica.",
         icon: 'question',
-        showCancelButton: true
+        showCancelButton: true,
+        confirmButtonColor: '#198754',
+        confirmButtonText: 'Sí, convertir'
     }).then(result => {
         if (result.isConfirmed) {
-            // 1. CAMBIAR ESTADO
-            fetch(`/api/potenciales/${id}/estado/ATENDIDO`, { method: 'PUT' })
+            // ¡Mira qué limpio quedó! Una sola petición al nuevo endpoint.
+            fetch(`${API_PACIENTES}/${id}/convertir`, { method: 'PATCH' })
             .then(res => {
-                if (!res.ok) throw new Error('Error estado');
-                // 2. OBTENER DATOS (ahora funciona)
-                return fetch(`/api/potenciales/${id}`);
+                if (res.ok) {
+                    // Al recargar la tabla, el paciente desaparecerá mágicamente de esta vista
+                    dataTable.ajax.reload();
+                    Swal.fire('¡PERFECTO!', 'Paciente convertido exitosamente.', 'success');
+                } else {
+                    throw new Error("Error en el servidor");
+                }
             })
-            .then(res => {
-                if (!res.ok) throw new Error('Error datos');
-                return res.json();
-            })
-            .then(potencial => {
-                console.log('✅ DATOS:', potencial);
-                
-                // 3. CREAR PACIENTE
-                const pacienteData = {
-                    nombre: potencial.nombre,
-                    telefono: potencial.telefono,
-                    email: potencial.email,
-                    graduacionActual: "De landing - pendiente actualizar",
-                    motivo: potencial.motivo,
-                    fecha: potencial.fecha || new Date().toISOString().split('T')[0]
-                };
-                
-                console.log('📤 POST:', JSON.stringify(pacienteData));
-                
-                return fetch('/api/pacientes', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(pacienteData)
-                });
-            })
-            .then(res => {
-                console.log('✅ RESPUESTA POST:', res.status);
-                if (!res.ok) throw new Error(`Error ${res.status}`);
-                dataTable.ajax.reload();
-                Swal.fire('¡PERFECTO!', 'Paciente creado ✅', 'success');
-            })
-            .catch(err => {
-                console.error('❌ ERROR:', err);
-                Swal.fire('Error', err.message, 'error');
-            });
+            .catch(err => Swal.fire('Error', 'No se pudo convertir al paciente.', 'error'));
         }
     });
 }
 
-// ==========================================
-// CARGAR CATÁLOGO DINÁMICO DE MOTIVOS
-// ==========================================
+function abrirWhatsApp(telefono) {
+    if (!telefono) return;
+    const numeroLimpio = telefono.replace(/\D/g, '');
+    window.open(`https://wa.me/52${numeroLimpio}`, '_blank');
+}
+
 function cargarMotivosVisita() {
     fetch(API_RAZONES)
         .then(res => res.json())
@@ -264,18 +222,15 @@ function cargarMotivosVisita() {
             const selectMotivo = document.getElementById('motivo');
             selectMotivo.innerHTML = '<option value="" disabled selected>Seleccione el motivo...</option>';
 
-            // Filtramos usando la misma lógica robusta
             const consultas = data.filter(r => !r.categoria || r.categoria.toUpperCase() === 'CONSULTA');
             const citas = data.filter(r => r.categoria && r.categoria.toUpperCase() === 'CITA');
 
             let opcionesHtml = '';
-
             if (consultas.length > 0) {
                 opcionesHtml += '<optgroup label="🩺 Consultas Clínicas">';
                 consultas.forEach(c => opcionesHtml += `<option value="${c.nombre}">${c.nombre}</option>`);
                 opcionesHtml += '</optgroup>';
             }
-
             if (citas.length > 0) {
                 opcionesHtml += '<optgroup label="🛍️ Citas y Mostrador">';
                 citas.forEach(c => opcionesHtml += `<option value="${c.nombre}">${c.nombre}</option>`);
@@ -283,9 +238,5 @@ function cargarMotivosVisita() {
             }
 
             selectMotivo.innerHTML += opcionesHtml;
-        })
-        .catch(err => console.error("Error cargando razones de visita:", err));
+        });
 }
-
-
-

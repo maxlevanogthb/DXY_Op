@@ -32,6 +32,14 @@ public class AdminController {
         return "admin/pacientes"; // ⚠️ OJO: Asegúrate de tener un archivo llamado pacientes.html
     }
 
+    // Pantalla de Clientes Potenciales (El Mini-CRM)
+    @GetMapping("/potenciales")
+    public String potenciales(Model model) {
+        model.addAttribute("titulo", "Clientes Potenciales");
+        // Apunta al archivo HTML que me acabas de mandar
+        return "admin/clientes"; 
+    }
+
     @GetMapping("/pacientes/nuevo")
     public String nuevoPaciente(Model model) {
         model.addAttribute("paciente", new Paciente());
