@@ -15,6 +15,10 @@ public class RazonVisitaService {
         return repository.findByActivoTrueOrderByNombreAsc();
     }
 
+    public RazonVisita getById(Long id) {
+        return repository.findById(id).orElse(null);
+    }
+
     public RazonVisita save(RazonVisita razon) {
         return repository.save(razon);
     }

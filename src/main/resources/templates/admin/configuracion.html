@@ -147,10 +147,10 @@
                         </ul>
 
                         <div class="row g-2 mb-3 bg-light p-3 rounded align-items-end">
-                            <div class="col-md-5">
-                                <label class="small fw-bold text-muted">Nombre</label>
-                                <input type="text" id="nuevoNombre" class="form-control"
-                                    placeholder="Ej. Hi-Index 1.67">
+                            <input type="hidden" id="nuevoId">
+                            
+                            <div class="col-md-4"> <label class="small fw-bold text-muted">Nombre</label>
+                                <input type="text" id="nuevoNombre" class="form-control" placeholder="Ej. Hi-Index 1.67">
                             </div>
                             <div class="col-md-3">
                                 <label class="small fw-bold text-muted">Precio Base</label>
@@ -159,9 +159,11 @@
                                     <input type="number" id="nuevoPrecio" class="form-control" placeholder="0.00">
                                 </div>
                             </div>
-                            <div class="col-md-4">
-                                <button class="btn btn-success w-100" onclick="guardarOpcion()">
+                            <div class="col-md-5 d-flex gap-2"> <button class="btn btn-success w-100" id="btnGuardarOpcion" onclick="guardarOpcion()">
                                     <i class="fas fa-plus me-2"></i>Agregar al Catálogo
+                                </button>
+                                <button class="btn btn-secondary d-none" id="btnCancelarEdicion" onclick="cancelarEdicionOpcion()" title="Cancelar Edición">
+                                    <i class="fas fa-times"></i>
                                 </button>
                             </div>
                         </div>
@@ -519,14 +521,22 @@
                                     placeholder="Breve descripción del tipo..." maxlength="100"></textarea>
                             </div>
                             <div class="mb-3">
-                                <label for="tipoIcono" class="form-label">Icono (FontAwesome)</label>
+                                <label for="tipoIcono" class="form-label fw-bold">Icono Representativo</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-icons"></i></span>
-                                    <input type="text" id="tipoIcono" class="form-control"
-                                        placeholder="Ej. fas fa-glasses">
+                                    <select id="tipoIcono" class="form-select">
+                                        <option value="fas fa-glasses">👓 Gafas / Armazones</option>
+                                        <option value="fas fa-eye">👁️ Ojo / Visión general</option>
+                                        <option value="fas fa-eye-dropper">💧 Gotas / Soluciones</option>
+                                        <option value="fas fa-box">📦 Caja / Paquete de Lentes</option>
+                                        <option value="fas fa-sun">🌞 Lentes de Sol</option>
+                                        <option value="fas fa-spray-can">🧴 Limpiadores / Spray</option>
+                                        <option value="fas fa-toolbox">🧰 Estuches / Accesorios</option>
+                                        <option value="fas fa-tags">🏷️ Etiqueta General</option>
+                                    </select>
                                 </div>
                                 <div id="iconoPreview" class="mt-2 p-3 border rounded bg-light text-center">
-                                    <small class="text-muted">Vista previa</small>
+                                    <i class="fas fa-glasses fa-2x text-primary"></i>
                                 </div>
                             </div>
                         </form>

@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (document.getElementById("tablaTipos")) {
     inicializarTablaTipos();
 
-    $("#tipoIcono").on("input", previewIcono);
+    $("#tipoIcono").on("change", previewIcono);
     $("#buscarTipo").on("keyup", function () {
       tablaTipos.search(this.value).draw();
     });
@@ -90,13 +90,10 @@ function inicializarTablaTipos() {
   });
 }
 
+// La nueva función es mucho más simple porque el select siempre tiene un valor
 function previewIcono() {
-  const icono = $("#tipoIcono").val().trim();
-  $("#iconoPreview").html(
-    icono
-      ? `<i class="${icono} fa-2x text-primary"></i>`
-      : '<small class="text-muted">Ej: fas fa-palette</small>',
-  );
+  const icono = $("#tipoIcono").val();
+  $("#iconoPreview").html(`<i class="${icono} fa-2x text-primary"></i>`);
 }
 
 function abrirModalTipo(editar = false, tipoData = null) {
@@ -259,9 +256,8 @@ function cargarTablaRazones() {
       tbody.innerHTML = "";
 
       data.forEach((r) => {
-        // Pequeña lógica para mostrar insignias bonitas según la categoría
-        const badgeCat =
-          r.categoria === "CONSULTA"
+        // Lógica para mostrar insignias bonitas según la categoría
+        const badgeCat = r.categoria === "CONSULTA"
             ? '<span class="badge bg-primary">Consulta</span>'
             : '<span class="badge bg-secondary">Cita</span>';
 
@@ -273,9 +269,14 @@ function cargarTablaRazones() {
                     <td class="text-center">${badgeCat}</td>
                     <td class="text-center">${colorDot}</td>
                     <td class="text-center">
-                        <button class="btn btn-sm btn-outline-danger" onclick="eliminarRazon(${r.id})" title="Eliminar">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                        <div class="btn-group shadow-sm">
+                            <button class="btn btn-sm btn-outline-warning me-1" onclick="editarRazon(${r.id})" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="eliminarRazon(${r.id})" title="Eliminar">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
                     </td>
                 `;
         tbody.appendChild(tr);
@@ -285,18 +286,37 @@ function cargarTablaRazones() {
 }
 
 function abrirModalRazon() {
-  // Limpiamos todos los campos antes de abrir
-  document.getElementById("razonId")
-    ? (document.getElementById("razonId").value = "")
-    : null;
+  // Limpiamos todos los campos antes de abrir (Modo Crear)
+  if(document.getElementById("razonId")) document.getElementById("razonId").value = "";
   document.getElementById("razonNombre").value = "";
-  document.getElementById("razonCategoria").value = "CONSULTA"; // Valor por defecto
-  document.getElementById("razonColor").value = "#0d6efd"; // Azul por defecto
+  document.getElementById("razonCategoria").value = "CONSULTA"; 
+  document.getElementById("razonColor").value = "#0d6efd"; 
 
   if (modalRazonInstance) modalRazonInstance.show();
 }
 
+// ⭐ NUEVA FUNCIÓN: CARGAR DATOS EN EL MODAL ⭐
+function editarRazon(id) {
+    fetch(`${API_RAZONES}/${id}`)
+        .then(res => {
+            if(!res.ok) throw new Error("Error al cargar la información");
+            return res.json();
+        })
+        .then(razon => {
+            // Llenamos el modal con los datos de la base de datos
+            document.getElementById("razonId").value = razon.id;
+            document.getElementById("razonNombre").value = razon.nombre;
+            document.getElementById("razonCategoria").value = razon.categoria || "CONSULTA";
+            document.getElementById("razonColor").value = razon.colorHex || "#0d6efd";
+            
+            // Abrimos el modal
+            if (modalRazonInstance) modalRazonInstance.show();
+        })
+        .catch(err => Swal.fire('Error', err.message, 'error'));
+}
+
 function guardarRazon() {
+  const id = document.getElementById("razonId").value; // Verificamos si hay ID oculto
   const nombre = document.getElementById("razonNombre").value.trim();
   const categoria = document.getElementById("razonCategoria").value;
   const colorHex = document.getElementById("razonColor").value;
@@ -306,15 +326,18 @@ function guardarRazon() {
     return;
   }
 
-  // Armamos el payload con los nuevos campos
   const data = {
     nombre: nombre,
     categoria: categoria,
     colorHex: colorHex,
   };
 
-  fetch(API_RAZONES, {
-    method: "POST",
+  // ⭐ LÓGICA INTELIGENTE: PUT si editamos, POST si creamos ⭐
+  const method = id ? "PUT" : "POST";
+  const url = id ? `${API_RAZONES}/${id}` : API_RAZONES;
+
+  fetch(url, {
+    method: method,
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   })
@@ -325,7 +348,7 @@ function guardarRazon() {
         Swal.fire({
           icon: "success",
           title: "Guardado",
-          text: "El motivo se agregó al catálogo",
+          text: `El motivo se ha ${id ? "actualizado" : "agregado"} correctamente.`,
           timer: 1500,
           showConfirmButton: false,
         });

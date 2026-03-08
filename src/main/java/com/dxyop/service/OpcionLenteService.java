@@ -15,9 +15,17 @@ public class OpcionLenteService {
     public List<OpcionLente> getByCategoria(String categoria) {
         return repository.findByCategoriaOrderByPrecioBaseAsc(categoria);
     }
-    
+
     // Método para guardar (si haces un CRUD de configuración después)
     public OpcionLente save(OpcionLente opcion) {
         return repository.save(opcion);
+    }
+
+    public OpcionLente getById(Long id) {
+        return repository.findById(id).orElse(null);
+    }
+
+    public void delete(Long id) {
+        repository.deleteById(id);
     }
 }
