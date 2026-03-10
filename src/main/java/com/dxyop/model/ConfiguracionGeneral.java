@@ -58,5 +58,8 @@ public class ConfiguracionGeneral {
     private String descripcionNosotros;
 
     private Double porcentajeComisionTarjeta;
+
+    private String colorTema; // Guardará el código Hexadecimal (ej. "#0d6efd")
+    private Boolean modoOscuro; // Guardará true o false
     
 }

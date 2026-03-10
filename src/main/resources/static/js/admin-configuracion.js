@@ -548,6 +548,13 @@ function cargarConfiguracionGeneral() {
                 document.getElementById('previewDer').src = data.logoRecetaDer;
                 document.getElementById('previewDer').classList.remove('d-none');
             }
+            // Cargar Apariencia
+            document.getElementById('confColorTema').value = data.colorTema || '#0d6efd';
+            document.getElementById('confModoOscuro').checked = data.modoOscuro || false;
+            
+            // Por si es la primera vez que inicia sesión en un equipo nuevo, sincronizamos el localstorage
+            localStorage.setItem('dxy_color', data.colorTema || '#0d6efd');
+            localStorage.setItem('dxy_dark', data.modoOscuro || false);
         })
         .catch(err => console.error("Error cargando configuración:", err));
 }
@@ -579,7 +586,9 @@ function guardarConfiguracionGeneral() {
         // Mandamos los logos en texto
         logoSistema: base64Sistema,
         logoRecetaIzq: base64Izq,
-        logoRecetaDer: base64Der
+        logoRecetaDer: base64Der,
+        colorTema: document.getElementById('confColorTema').value,
+        modoOscuro: document.getElementById('confModoOscuro').checked
     };
 
     fetch(API_CONFIG_GENERAL, {
@@ -589,6 +598,8 @@ function guardarConfiguracionGeneral() {
     })
     .then(res => {
         if(res.ok) {
+            localStorage.setItem('dxy_color', configData.colorTema);
+            localStorage.setItem('dxy_dark', configData.modoOscuro);
             Swal.fire({
                 icon: 'success',
                 title: 'Ajustes guardados',
