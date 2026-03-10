@@ -118,9 +118,15 @@
                                 <div class="col-md-6">
                                     <label for="motivo" class="form-label small fw-bold text-muted">Motivo
                                         Visita</label>
-                                    <select class="form-select" id="motivo">
-                                        <option value="Consulta General">Cargando motivos...</option>
-                                    </select>
+                                    <div class="input-group">
+                                        <select class="form-select" id="motivo">
+                                            <option value="Consulta General">Cargando motivos...</option>
+                                        </select>
+                                        <button class="btn btn-outline-primary" type="button"
+                                            onclick="crearMotivoInSitu('pacienteModal')" title="Nuevo Motivo">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
                                 </div>
                                 <div class="col-md-6">
                                     <label for="fecha" class="form-label small fw-bold text-muted">Fecha

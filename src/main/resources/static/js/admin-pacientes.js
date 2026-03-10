@@ -248,11 +248,11 @@ function eliminarPaciente(id) {
 // 7. UTILIDADES
 // ==========================================
 
-function cargarMotivosCategorizados() {
+// Le agregamos el parámetro opcional (nombreSeleccionar)
+function cargarMotivosCategorizados(nombreSeleccionar = null) {
     fetch('/api/razones-visita')
         .then(res => res.json())
         .then(data => {
-            // Filtramos las categorías igual que en el resto del sistema
             const consultas = data.filter(r => !r.categoria || r.categoria.toUpperCase() === 'CONSULTA');
             const citas = data.filter(r => r.categoria && r.categoria.toUpperCase() === 'CITA');
 
@@ -272,11 +272,18 @@ function cargarMotivosCategorizados() {
 
             // Inyectar en el Modal de Nuevo Paciente
             const selectMotivo = document.getElementById('motivo');
-            if (selectMotivo) selectMotivo.innerHTML = opcionesHtml;
+            if (selectMotivo) {
+                selectMotivo.innerHTML = opcionesHtml;
+                // ⭐ MAGIA UX: Auto-seleccionar
+                if(nombreSeleccionar) selectMotivo.value = nombreSeleccionar;
+            }
 
-            // Inyectar en el Modal de Hoja Clínica (Nueva Consulta)
+            // Inyectar en el Modal de Hoja Clínica
             const selectRazonVisita = document.getElementById('razonVisita');
-            if (selectRazonVisita) selectRazonVisita.innerHTML = opcionesHtml;
+            if (selectRazonVisita) {
+                selectRazonVisita.innerHTML = opcionesHtml;
+                if(nombreSeleccionar) selectRazonVisita.value = nombreSeleccionar;
+            }
         })
         .catch(err => console.error("Error cargando razones de visita:", err));
 }
@@ -287,4 +294,65 @@ function debounce(func, wait) {
     clearTimeout(timeout);
     timeout = setTimeout(() => func.apply(this, args), wait);
   };
+}
+
+// ==========================================
+// CREACIÓN IN-SITU (ACCESOS RÁPIDOS)
+// ==========================================
+function crearMotivoInSitu(modalId) {
+    Swal.fire({
+        title: 'Nuevo Motivo',
+        html: `
+            <div class="text-start mt-3">
+                <div class="mb-3">
+                    <label class="form-label fw-bold small">Nombre del Motivo *</label>
+                    <input type="text" id="swal-nombre" class="form-control" placeholder="Ej. Ajuste de Armazón">
+                </div>
+                <div class="row">
+                    <div class="col-8">
+                        <label class="form-label fw-bold small">Categoría</label>
+                        <select id="swal-categoria" class="form-select">
+                            <option value="CONSULTA">🩺 Consulta Clínica</option>
+                            <option value="CITA">🛍️ Cita / Mostrador</option>
+                        </select>
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label fw-bold small">Color</label>
+                        <input type="color" id="swal-color" class="form-control form-control-color w-100" value="#0d6efd" title="Elegir color">
+                    </div>
+                </div>
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonColor: '#0d6efd',
+        confirmButtonText: '<i class="fas fa-save"></i> Guardar',
+        cancelButtonText: 'Cancelar',
+        target: document.getElementById(modalId), // Se ancla al modal activo (Paciente o Prospecto)
+        
+        preConfirm: () => {
+            const nombre = document.getElementById('swal-nombre').value.trim();
+            if (!nombre) { Swal.showValidationMessage('¡El nombre es obligatorio!'); return false; }
+            return {
+                nombre: nombre,
+                categoria: document.getElementById('swal-categoria').value,
+                colorHex: document.getElementById('swal-color').value
+            };
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('/api/razones-visita', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(result.value)
+            })
+            .then(res => res.json())
+            .then(savedMotivo => {
+                Swal.fire({toast: true, position: 'top-end', icon: 'success', title: 'Motivo agregado', showConfirmButton: false, timer: 2000, target: document.getElementById(modalId)});
+                
+                // Recargamos el select y lo auto-seleccionamos
+                cargarMotivosCategorizados(savedMotivo.nombre); 
+            })
+            .catch(err => Swal.fire({title: 'Error', text: 'No se pudo crear el motivo', icon: 'error', target: document.getElementById(modalId)}));
+        }
+    });
 }

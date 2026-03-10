@@ -215,7 +215,7 @@ function abrirWhatsApp(telefono) {
     window.open(`https://wa.me/52${numeroLimpio}`, '_blank');
 }
 
-function cargarMotivosVisita() {
+function cargarMotivosVisita(nombreSeleccionar = null) {
     fetch(API_RAZONES)
         .then(res => res.json())
         .then(data => {
@@ -238,5 +238,71 @@ function cargarMotivosVisita() {
             }
 
             selectMotivo.innerHTML += opcionesHtml;
+
+            // Auto-seleccionar el motivo recién creado
+            if (nombreSeleccionar) {
+                selectMotivo.value = nombreSeleccionar;
+            }
         });
+}
+
+// ==========================================
+// CREACIÓN IN-SITU (ACCESOS RÁPIDOS)
+// ==========================================
+function crearMotivoInSitu(modalId) {
+    Swal.fire({
+        title: 'Nuevo Motivo',
+        html: `
+            <div class="text-start mt-3">
+                <div class="mb-3">
+                    <label class="form-label fw-bold small">Nombre del Motivo *</label>
+                    <input type="text" id="swal-nombre" class="form-control" placeholder="Ej. Ajuste de Armazón">
+                </div>
+                <div class="row">
+                    <div class="col-8">
+                        <label class="form-label fw-bold small">Categoría</label>
+                        <select id="swal-categoria" class="form-select">
+                            <option value="CITA">🛍️ Cita / Mostrador</option>
+                            <option value="CONSULTA">🩺 Consulta Clínica</option>
+                        </select>
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label fw-bold small">Color</label>
+                        <input type="color" id="swal-color" class="form-control form-control-color w-100" value="#0d6efd" title="Elegir color">
+                    </div>
+                </div>
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonColor: '#0d6efd',
+        confirmButtonText: '<i class="fas fa-save"></i> Guardar',
+        cancelButtonText: 'Cancelar',
+        target: document.getElementById(modalId), 
+        
+        preConfirm: () => {
+            const nombre = document.getElementById('swal-nombre').value.trim();
+            if (!nombre) { Swal.showValidationMessage('¡El nombre es obligatorio!'); return false; }
+            return {
+                nombre: nombre,
+                categoria: document.getElementById('swal-categoria').value,
+                colorHex: document.getElementById('swal-color').value
+            };
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('/api/razones-visita', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(result.value)
+            })
+            .then(res => res.json())
+            .then(savedMotivo => {
+                Swal.fire({toast: true, position: 'top-end', icon: 'success', title: 'Motivo agregado', showConfirmButton: false, timer: 2000, target: document.getElementById(modalId)});
+                
+                // Recargamos la lista específica de este archivo
+                cargarMotivosVisita(savedMotivo.nombre); 
+            })
+            .catch(err => Swal.fire({title: 'Error', text: 'No se pudo crear el motivo', icon: 'error', target: document.getElementById(modalId)}));
+        }
+    });
 }
