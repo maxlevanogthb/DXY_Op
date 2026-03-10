@@ -969,3 +969,299 @@ function enviarReciboPorCorreo(idConsulta) {
         }
     });
 }
+
+// ==========================================
+// H. CREACIÓN IN-SITU: CATÁLOGOS CLÍNICOS (Micas)
+// ==========================================
+function crearLenteInSitu(categoriaClinica, selectId, modalId) {
+    const nombreBonito = categoriaClinica.charAt(0) + categoriaClinica.slice(1).toLowerCase();
+
+    Swal.fire({
+        title: `Nuevo ${nombreBonito}`,
+        html: `
+            <div class="text-start mt-3">
+                <div class="mb-3">
+                    <label class="form-label fw-bold small">Descripción / Nombre *</label>
+                    <input type="text" id="swal-lente-nombre" class="form-control" placeholder="Ej. Policarbonato HD">
+                </div>
+                <div class="mb-0">
+                    <label class="form-label fw-bold small">Precio Base Sugerido</label>
+                    <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input type="number" id="swal-lente-precio" class="form-control" placeholder="0.00">
+                    </div>
+                </div>
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonColor: '#212529',
+        confirmButtonText: '<i class="fas fa-save"></i> Guardar',
+        cancelButtonText: 'Cancelar',
+        target: document.getElementById(modalId),
+        preConfirm: () => {
+            const nombre = document.getElementById('swal-lente-nombre').value.trim();
+            const precio = document.getElementById('swal-lente-precio').value;
+            if (!nombre) { Swal.showValidationMessage('La descripción es obligatoria'); return false; }
+            return { categoria: categoriaClinica, nombre: nombre, precioBase: precio ? parseFloat(precio) : 0.00 };
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('/api/opciones-lente', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(result.value)
+            })
+            .then(res => res.json())
+            .then(nuevaOpcion => {
+                Swal.fire({toast: true, position: 'top-end', icon: 'success', title: 'Agregado al catálogo', showConfirmButton: false, timer: 2000, target: document.getElementById(modalId)});
+                
+                // ⭐ MAGIA: Inyectamos la nueva opción en el select y la seleccionamos
+                const selectElement = document.getElementById(selectId);
+                if (selectElement) {
+                    const option = new Option(nuevaOpcion.nombre, nuevaOpcion.nombre); 
+                    option.dataset.precio = nuevaOpcion.precioBase; // Guardamos el precio para el carrito
+                    selectElement.add(option);
+                    selectElement.value = nuevaOpcion.nombre; 
+                    
+                    // Disparamos el recálculo de totales
+                    calcularTotales();
+                }
+            })
+            .catch(err => Swal.fire({title:'Error', text:'No se pudo guardar', icon:'error', target:document.getElementById(modalId)}));
+        }
+    });
+}
+
+// ==========================================
+// I. CREACIÓN IN-SITU: PRODUCTOS RÁPIDOS (CORREGIDO Y ESTRICTO)
+// ==========================================
+function crearProductoRapidoInSitu(modalId) {
+    const tabActiva = $('input[name="tipoProducto"]:checked').val() || "LENTE";
+    
+    Promise.all([
+        fetch('/api/tipos-producto').then(res => res.json()),
+        fetch('/api/opciones-lente?categoria=TIPO_ARMAZON').then(res => res.json())
+    ])
+    .then(([tipos, estilos]) => {
+        
+        let opcionesCategoria = '';
+        tipos.forEach(t => {
+            let selected = '';
+            if (tabActiva === 'LENTE' && t.nombre.toLowerCase().includes('armaz')) selected = 'selected';
+            if (tabActiva === 'CONTACTO' && t.nombre.toLowerCase().includes('contacto')) selected = 'selected';
+            if (tabActiva === 'GOTAS' && (t.nombre.toLowerCase().includes('gota') || t.nombre.toLowerCase().includes('liquido'))) selected = 'selected';
+            if (tabActiva === 'ACCESORIO' && t.nombre.toLowerCase().includes('accesorio')) selected = 'selected';
+            
+            opcionesCategoria += `<option value="${t.id}">${t.nombre}</option>`;
+        });
+
+        let opcionesEstilo = '<option value="">Seleccionar estilo...</option>';
+        estilos.forEach(e => { opcionesEstilo += `<option value="${e.nombre}">${e.nombre}</option>`; });
+
+        Swal.fire({
+            title: 'Alta Rápida de Producto',
+            width: '600px',
+            html: `
+                <div class="text-start mt-2">
+                    <div class="row g-2 mb-3">
+                        <div class="col-sm-6">
+                            <label class="form-label fw-bold small">Categoría *</label>
+                            <div class="input-group input-group-sm">
+                                <select id="swal-prod-cat" class="form-select">${opcionesCategoria}</select>
+                                <input type="text" id="swal-new-cat" class="form-control d-none" placeholder="Nueva categoría...">
+                                <button type="button" class="btn btn-outline-primary" id="btn-toggle-cat" title="Crear nueva categoría">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6" id="div-swal-estilo">
+                            <label class="form-label fw-bold small text-primary">Estilo / Montura</label>
+                            <div class="input-group input-group-sm">
+                                <select id="swal-prod-estilo" class="form-select border-primary">${opcionesEstilo}</select>
+                                <input type="text" id="swal-new-estilo" class="form-control border-primary d-none" placeholder="Nuevo estilo...">
+                                <button type="button" class="btn btn-outline-primary" id="btn-toggle-estilo" title="Crear nuevo estilo">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label fw-bold small">Marca *</label>
+                            <input type="text" id="swal-prod-marca" class="form-control form-control-sm" placeholder="Ej. Ray-Ban">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-bold small">Modelo *</label>
+                            <input type="text" id="swal-prod-modelo" class="form-control form-control-sm" placeholder="Ej. RB2140">
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mb-3">
+                        <div class="col-4">
+                            <label class="form-label fw-bold small">Color</label>
+                            <input type="text" id="swal-prod-color" class="form-control form-control-sm" placeholder="Opcional">
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label fw-bold small text-success">Precio Venta *</label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text bg-success text-white">$</span>
+                                <input type="number" id="swal-prod-precio" class="form-control border-success text-success fw-bold">
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label fw-bold small text-danger">Stock Inicial *</label>
+                            <input type="number" id="swal-prod-stock" class="form-control form-control-sm border-danger text-center fw-bold" value="1" min="1">
+                        </div>
+                    </div>
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonColor: '#198754',
+            confirmButtonText: '<i class="fas fa-box"></i> Guardar y Usar',
+            cancelButtonText: 'Cancelar',
+            target: document.getElementById(modalId),
+            
+            didOpen: () => {
+                const selCat = document.getElementById('swal-prod-cat');
+                const inpCat = document.getElementById('swal-new-cat');
+                const btnCat = document.getElementById('btn-toggle-cat');
+                
+                const selEstilo = document.getElementById('swal-prod-estilo');
+                const inpEstilo = document.getElementById('swal-new-estilo');
+                const btnEstilo = document.getElementById('btn-toggle-estilo');
+                const divEstilo = document.getElementById('div-swal-estilo');
+
+                // ⭐ ESTA ES LA CORRECCIÓN CLAVE DE VALIDACIÓN ⭐
+                const verificarArmazon = () => {
+                    const textoCat = inpCat.classList.contains('d-none') 
+                        ? selCat.options[selCat.selectedIndex]?.text.toLowerCase() || ''
+                        : inpCat.value.toLowerCase();
+                    
+                    // Solo mostramos "Estilo/Montura" si la palabra contiene estrictamente "armaz"
+                    if (textoCat.includes('armaz')) {
+                        divEstilo.classList.remove('d-none');
+                    } else {
+                        divEstilo.classList.add('d-none');
+                        // Limpiamos los valores si lo ocultamos para que no se guarde "Estilo Aviador" en unas gotas
+                        selEstilo.value = '';
+                        inpEstilo.value = '';
+                    }
+                };
+
+                selCat.addEventListener('change', verificarArmazon);
+                inpCat.addEventListener('input', verificarArmazon);
+                verificarArmazon(); // Ejecutar validación inicial al abrir
+
+                btnCat.addEventListener('click', () => {
+                    selCat.classList.toggle('d-none');
+                    inpCat.classList.toggle('d-none');
+                    btnCat.innerHTML = selCat.classList.contains('d-none') ? '<i class="fas fa-times text-danger"></i>' : '<i class="fas fa-plus"></i>';
+                    inpCat.value = ''; 
+                    verificarArmazon();
+                });
+
+                btnEstilo.addEventListener('click', () => {
+                    selEstilo.classList.toggle('d-none');
+                    inpEstilo.classList.toggle('d-none');
+                    btnEstilo.innerHTML = selEstilo.classList.contains('d-none') ? '<i class="fas fa-times text-danger"></i>' : '<i class="fas fa-plus"></i>';
+                    inpEstilo.value = ''; 
+                });
+            },
+
+            preConfirm: async () => {
+                const isNewCat = !document.getElementById('swal-new-cat').classList.contains('d-none');
+                const isNewEstilo = !document.getElementById('swal-new-estilo').classList.contains('d-none');
+
+                const catSelectVal = document.getElementById('swal-prod-cat').value;
+                const catNewVal = document.getElementById('swal-new-cat').value.trim();
+
+                const estiloSelectVal = document.getElementById('swal-prod-estilo').value;
+                const estiloNewVal = document.getElementById('swal-new-estilo').value.trim();
+
+                const marca = document.getElementById('swal-prod-marca').value.trim();
+                const modelo = document.getElementById('swal-prod-modelo').value.trim();
+                const color = document.getElementById('swal-prod-color').value.trim();
+                const precio = document.getElementById('swal-prod-precio').value;
+                const stock = document.getElementById('swal-prod-stock').value;
+
+                if (!marca || !modelo || !precio || !stock) {
+                    Swal.showValidationMessage('Marca, Modelo, Precio y Stock son obligatorios'); return false;
+                }
+                if (isNewCat && !catNewVal) {
+                    Swal.showValidationMessage('Escribe el nombre de la nueva Categoría'); return false;
+                }
+
+                try {
+                    let finalCatId = catSelectVal;
+                    let finalEstilo = estiloSelectVal;
+                    const nombreCatEval = isNewCat ? catNewVal.toLowerCase() : document.getElementById('swal-prod-cat').options[document.getElementById('swal-prod-cat').selectedIndex].text.toLowerCase();
+                    
+                    // ⭐ MISMA VALIDACIÓN ESTRICTA AL GUARDAR ⭐
+                    const esArmazon = nombreCatEval.includes('armaz');
+
+                    if (isNewCat) {
+                        const resCat = await fetch('/api/tipos-producto', {
+                            method: 'POST', headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ nombre: catNewVal, icono: 'fas fa-box', descripcion: 'Agregado desde consulta' })
+                        });
+                        if (!resCat.ok) throw new Error("Fallo al crear categoría");
+                        const dataCat = await resCat.json();
+                        finalCatId = dataCat.id;
+                    }
+
+                    if (esArmazon && isNewEstilo && estiloNewVal) {
+                        const resEst = await fetch('/api/opciones-lente', {
+                            method: 'POST', headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ categoria: 'TIPO_ARMAZON', nombre: estiloNewVal, precioBase: 0 })
+                        });
+                        if (!resEst.ok) throw new Error("Fallo al crear estilo");
+                        const dataEst = await resEst.json();
+                        finalEstilo = dataEst.nombre;
+                    }
+
+                    return {
+                        nombre: `${marca} ${modelo} ${color ? "- " + color : ""}`.trim(),
+                        marca: marca,
+                        modelo: modelo,
+                        color: color,
+                        talla: 'Única', 
+                        tipo: { id: parseInt(finalCatId) }, 
+                        subTipo: esArmazon ? finalEstilo : null, // Evitamos que guarde estilo si son gotas/contacto
+                        precioVenta: parseFloat(precio),
+                        stock: parseInt(stock) 
+                    };
+
+                } catch (error) {
+                    Swal.showValidationMessage(error.message); return false;
+                }
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch('/api/productos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(result.value)
+                })
+                .then(res => res.json())
+                .then(nuevoProd => {
+                    Swal.fire({toast: true, position: 'top-end', icon: 'success', title: 'Producto listo', showConfirmButton: false, timer: 2500, target: document.getElementById(modalId)});
+                    
+                    catalogoGlobal.push(nuevoProd);
+                    $("#selectProducto").val(nuevoProd.id);
+                    
+                    const catName = result.value.tipo.nombre || "Producto"; 
+                    const desc = `${catName} ${nuevoProd.marca} ${nuevoProd.modelo} ${nuevoProd.color ? "- " + nuevoProd.color : ""}`;
+                    
+                    $("#armazonModelo").val(desc).addClass("bg-success text-white");
+                    $("#precioArmazon").val(nuevoProd.precioVenta || 0);
+                    setTimeout(() => $("#armazonModelo").removeClass("bg-success text-white"), 800);
+                    
+                    calcularTotales();
+                })
+                .catch(err => Swal.fire({title: 'Error', text: 'No se pudo crear', icon: 'error', target: document.getElementById(modalId)}));
+            }
+        });
+    });
+}
