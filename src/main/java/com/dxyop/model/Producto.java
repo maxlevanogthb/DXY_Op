@@ -1,12 +1,12 @@
 package com.dxyop.model;
 
 import lombok.Data;
-import lombok.ToString;             // <--- IMPORTANTE
-import lombok.EqualsAndHashCode;    // <--- IMPORTANTE
+import lombok.ToString;             
+import lombok.EqualsAndHashCode;  
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties; // <--- USAR ESTE EN LUGAR DE IGNORE
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties; 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.*;
@@ -23,8 +23,7 @@ public class Producto {
     @Column(nullable = false)
     private String nombre;
 
-    // --- RELACIÓN CORREGIDA ---
-    // Queremos ver el Tipo en el JSON, pero sin bucles
+
     @ManyToOne(fetch = FetchType.LAZY) 
     @JoinColumn(name = "tipo_id", nullable = false)
     // 1. "productos": Asumiendo que TipoProducto tiene una lista de productos, la ignoramos.
@@ -63,4 +62,7 @@ public class Producto {
     protected void onCreate() {
         this.fechaRegistro = LocalDateTime.now();
     }
+
+    private Double precioCosto;
+    private Double porcentajeComision;
 }

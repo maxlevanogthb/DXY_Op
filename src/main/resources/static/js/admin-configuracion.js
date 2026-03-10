@@ -528,6 +528,9 @@ function cargarConfiguracionGeneral() {
             document.getElementById('confTextoHero').value = data.textoHero || '';
             document.getElementById('confSubtituloHero').value = data.subtituloHero || '';
             document.getElementById('confNosotros').value = data.descripcionNosotros || '';
+            
+            //Comision tarjeta
+            document.getElementById('confComision').value = data.porcentajeComisionTarjeta || 0;
 
             // Cargar miniaturas de los logos si existen en la BD
             if(data.logoSistema) {
@@ -572,6 +575,7 @@ function guardarConfiguracionGeneral() {
         textoHero: document.getElementById('confTextoHero').value,
         subtituloHero: document.getElementById('confSubtituloHero').value,
         descripcionNosotros: document.getElementById('confNosotros').value,
+        porcentajeComisionTarjeta: parseFloat(document.getElementById('confComision').value) || 0,
         // Mandamos los logos en texto
         logoSistema: base64Sistema,
         logoRecetaIzq: base64Izq,

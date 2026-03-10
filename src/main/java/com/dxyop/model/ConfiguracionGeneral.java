@@ -56,5 +56,7 @@ public class ConfiguracionGeneral {
     
     @Column(columnDefinition = "TEXT")
     private String descripcionNosotros;
+
+    private Double porcentajeComisionTarjeta;
     
 }
