@@ -62,12 +62,12 @@ function verificarSubtipo() {
 // C. CARGA DE DATOS
 // ==========================================
 
-async function cargarCategorias() {
+async function cargarCategorias(idSeleccionar = null) {
     try {
         const res = await fetch("/api/tipos-producto");
         const tipos = await res.json();
 
-        // Filtro superior
+        // Filtro superior (Tabla)
         const filtro = document.getElementById("filtroTipo");
         filtro.innerHTML = '<option value="">Todos los tipos</option>';
         tipos.forEach(t => filtro.add(new Option(t.nombre, t.nombre)));
@@ -82,16 +82,29 @@ async function cargarCategorias() {
             option.dataset.nombre = t.nombre;
             selectModal.appendChild(option);
         });
+
+        // Si acabamos de crear una, la selecciona automáticamente
+        if (idSeleccionar) {
+            selectModal.value = idSeleccionar;
+            verificarSubtipo(); // Dispara la lógica visual para mostrar el subtipo si es armazón
+        }
     } catch (e) { console.error(e); }
 }
 
-async function cargarEstilosArmazon() {
+async function cargarEstilosArmazon(nombreSeleccionar = null) {
     try {
-        const res = await fetch("/api/catalogo/lentes?categoria=TIPO_ARMAZON");
+        // Usamos el endpoint nuevo de Catálogos Clínicos
+        const res = await fetch("/api/opciones-lente?categoria=TIPO_ARMAZON");
         const estilos = await res.json();
+        
         const select = document.getElementById("subTipo");
         select.innerHTML = '<option value="">Seleccionar estilo...</option>';
         estilos.forEach(e => select.add(new Option(e.nombre, e.nombre)));
+
+        // Auto-selecciona el nuevo estilo
+        if (nombreSeleccionar) {
+            select.value = nombreSeleccionar;
+        }
     } catch (e) { console.error(e); }
 }
 
@@ -318,6 +331,110 @@ function eliminarProducto(id) {
                     Swal.fire("Listo", "Producto eliminado", "success");
                 }
             });
+        }
+    });
+}
+
+// ==========================================
+// E. CREACIÓN IN-SITU (ACCESOS RÁPIDOS)
+// ==========================================
+
+function crearTipoInSitu(modalId) {
+    Swal.fire({
+        title: 'Nueva Categoría de Producto',
+        html: `
+            <div class="text-start mt-3">
+                <div class="mb-3">
+                    <label class="form-label fw-bold small">Nombre *</label>
+                    <input type="text" id="swal-tipo-nombre" class="form-control" placeholder="Ej. Lentes de Contacto">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold small">Icono Representativo</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-icons"></i></span>
+                        <select id="swal-tipo-icono" class="form-select">
+                            <option value="fas fa-glasses">👓 Gafas / Armazones</option>
+                            <option value="fas fa-eye">👁️ Ojo / Visión general</option>
+                            <option value="fas fa-eye-dropper">💧 Gotas / Soluciones</option>
+                            <option value="fas fa-box">📦 Caja / Paquete</option>
+                            <option value="fas fa-sun">🌞 Lentes de Sol</option>
+                            <option value="fas fa-spray-can">🧴 Limpiadores / Spray</option>
+                            <option value="fas fa-toolbox">🧰 Estuches / Accesorios</option>
+                            <option value="fas fa-tags">🏷️ Etiqueta General</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonColor: '#0d6efd',
+        confirmButtonText: '<i class="fas fa-save"></i> Guardar',
+        cancelButtonText: 'Cancelar',
+        target: document.getElementById(modalId), // Se ancla al modal para permitir escribir
+        preConfirm: () => {
+            const nombre = document.getElementById('swal-tipo-nombre').value.trim();
+            if (!nombre) { Swal.showValidationMessage('El nombre es obligatorio'); return false; }
+            return {
+                nombre: nombre,
+                icono: document.getElementById('swal-tipo-icono').value,
+                descripcion: 'Agregado desde acceso rápido'
+            };
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('/api/tipos-producto', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(result.value)
+            })
+            .then(res => res.json())
+            .then(nuevoTipo => {
+                Swal.fire({toast: true, position: 'top-end', icon: 'success', title: 'Categoría agregada', showConfirmButton: false, timer: 2000, target: document.getElementById(modalId)});
+                cargarCategorias(nuevoTipo.id); // Recarga y auto-selecciona el nuevo ID
+            })
+            .catch(err => Swal.fire({title: 'Error', text: 'No se pudo guardar', icon: 'error', target: document.getElementById(modalId)}));
+        }
+    });
+}
+
+function crearEstiloInSitu(modalId) {
+    Swal.fire({
+        title: 'Nuevo Estilo / Montura',
+        html: `
+            <div class="text-start mt-3">
+                <div class="mb-3">
+                    <label class="form-label fw-bold small">Nombre del Estilo *</label>
+                    <input type="text" id="swal-estilo-nombre" class="form-control" placeholder="Ej. Aviador, Cat Eye, Ovalado...">
+                </div>
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonColor: '#0d6efd',
+        confirmButtonText: '<i class="fas fa-save"></i> Guardar',
+        cancelButtonText: 'Cancelar',
+        target: document.getElementById(modalId), 
+        preConfirm: () => {
+            const nombre = document.getElementById('swal-estilo-nombre').value.trim();
+            if (!nombre) { Swal.showValidationMessage('El nombre es obligatorio'); return false; }
+            return {
+                categoria: 'TIPO_ARMAZON',
+                nombre: nombre,
+                precioBase: 0.00 
+            };
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('/api/opciones-lente', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(result.value)
+            })
+            .then(res => res.json())
+            .then(nuevaOpcion => {
+                Swal.fire({toast: true, position: 'top-end', icon: 'success', title: 'Estilo agregado', showConfirmButton: false, timer: 2000, target: document.getElementById(modalId)});
+                cargarEstilosArmazon(nuevaOpcion.nombre); // Recarga y auto-selecciona el nuevo nombre
+            })
+            .catch(err => Swal.fire({title: 'Error', text: 'No se pudo guardar', icon: 'error', target: document.getElementById(modalId)}));
         }
     });
 }

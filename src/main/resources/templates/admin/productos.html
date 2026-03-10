@@ -77,15 +77,25 @@
                             <div class="row g-3 mb-4">
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold small text-muted">Categoría *</label>
-                                    <select id="categoria" class="form-select" required onchange="verificarSubtipo()">
-                                        <option value="">Cargando...</option>
-                                    </select>
+                                    <div class="input-group">
+                                        <select id="categoria" class="form-select" required onchange="verificarSubtipo()">
+                                            <option value="">Cargando...</option>
+                                        </select>
+                                        <button class="btn btn-outline-primary" type="button" onclick="crearTipoInSitu('modalProducto')" title="Nueva Categoría">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
                                 </div>
                                 <div class="col-md-6" id="divSubtipo" style="display:none;">
                                     <label class="form-label fw-bold small text-primary">Estilo / Montura</label>
-                                    <select id="subTipo" class="form-select border-primary">
-                                        <option value="">Seleccionar...</option>
-                                    </select>
+                                    <div class="input-group">
+                                        <select id="subTipo" class="form-select border-primary">
+                                            <option value="">Seleccionar...</option>
+                                        </select>
+                                        <button class="btn btn-outline-primary" type="button" onclick="crearEstiloInSitu('modalProducto')" title="Nuevo Estilo">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 
