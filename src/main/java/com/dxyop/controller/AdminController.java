@@ -14,84 +14,73 @@ public class AdminController {
 
     private final PacienteService service;
 
-    // Dashboard principal
-    @GetMapping("/dashboard")
-    public String dashboard(Model model) {
-        model.addAttribute("titulo", "Dashboard Óptica DXY");
-        // CORREGIDO: Llamamos a getAllPacientes()
-        model.addAttribute("totalPacientes", service.getAllPacientes().size()); 
-        return "admin/dashboard";
+    // ==========================================
+    // REDIRECCIÓN PRINCIPAL (VERSIÓN 2.0)
+    // Cuando el usuario entra a "/admin", lo mandamos directo a la Agenda
+    // ==========================================
+    @GetMapping({"", "/"})
+    public String adminIndex() {
+        return "redirect:/admin/citas"; 
     }
 
     // ==========================================
-    // UNIFICACIÓN: Todo es "Pacientes" ahora
+    // MÓDULOS DEL SISTEMA
     // ==========================================
-    @GetMapping("/pacientes")
-    public String pacientes(Model model) {
-        model.addAttribute("titulo", "Gestión de Pacientes");
-        return "admin/pacientes"; // ⚠️ OJO: Asegúrate de tener un archivo llamado pacientes.html
-    }
-
-    // Pantalla de Clientes Potenciales (El Mini-CRM)
-    @GetMapping("/potenciales")
-    public String potenciales(Model model) {
-        model.addAttribute("titulo", "Clientes Potenciales");
-        // Apunta al archivo HTML que me acabas de mandar
-        return "admin/clientes"; 
-    }
-
-    @GetMapping("/pacientes/nuevo")
-    public String nuevoPaciente(Model model) {
-        model.addAttribute("paciente", new Paciente());
-        model.addAttribute("titulo", "Nuevo Paciente");
-        return "admin/paciente-form"; // ⚠️ OJO: Renombra tu HTML a paciente-form.html
-    }
-
-    // ==========================================
-    // ENDPOINTS PARA JAVASCRIPT (CORREGIDOS)
-    // ==========================================
-    @GetMapping("/pacientes/{id}")
-    @ResponseBody
-    public Paciente getPacienteById(@PathVariable Long id) {
-        return service.getPacienteById(id); // CORREGIDO
-    }
-
-    @PostMapping("/pacientes")
-    @ResponseBody
-    public Paciente savePaciente(@RequestBody Paciente paciente) {
-        return service.savePaciente(paciente); // CORREGIDO
-    }
-
-    @DeleteMapping("/pacientes/{id}")
-    @ResponseBody
-    public void deletePaciente(@PathVariable Long id) {
-        service.deletePaciente(id); // CORREGIDO
-    }
-
-    // ==========================================
-    // LAS DEMÁS VISTAS
-    // ==========================================
-    @GetMapping("/productos")
-    public String productos(Model model) {
-        model.addAttribute("titulo", "Gestión de Productos");
-        return "admin/productos";
-    }
-
+    
     @GetMapping("/citas")
     public String citas(Model model) {
         model.addAttribute("titulo", "Agenda de Citas");
         return "admin/citas";
     }
 
+    @GetMapping("/ventas")
+    public String ventas(Model model) {
+        model.addAttribute("titulo", "Ventas y Finanzas"); // Aquí ahora vive el Dashboard
+        return "admin/ventas";  
+    }
+
+    @GetMapping("/pacientes")
+    public String pacientes(Model model) {
+        model.addAttribute("titulo", "Gestión de Pacientes");
+        return "admin/pacientes"; 
+    }
+
+    @GetMapping("/potenciales")
+    public String potenciales(Model model) {
+        model.addAttribute("titulo", "Clientes Potenciales");
+        return "admin/clientes"; 
+    }
+
+    @GetMapping("/productos")
+    public String productos(Model model) {
+        model.addAttribute("titulo", "Gestión de Productos");
+        return "admin/productos";
+    }
+
     @GetMapping("/configuracion")
     public String configuracion(Model model) {
-        model.addAttribute("titulo", "Configuracion");
+        model.addAttribute("titulo", "Configuración");
         return "admin/configuracion";  
     }
 
-    @GetMapping("/ventas")
-    public String ventas(Model model) {
-        model.addAttribute("titulo", "Ventas");
-        return "admin/ventas";  
+    // ==========================================
+    // ENDPOINTS PARA JAVASCRIPT (PACIENTES)
+    // ==========================================
+    @GetMapping("/pacientes/{id}")
+    @ResponseBody
+    public Paciente getPacienteById(@PathVariable Long id) {
+        return service.getPacienteById(id); 
+    }
+
+    @PostMapping("/pacientes")
+    @ResponseBody
+    public Paciente savePaciente(@RequestBody Paciente paciente) {
+        return service.savePaciente(paciente); 
+    }
+
+    @DeleteMapping("/pacientes/{id}")
+    @ResponseBody
+    public void deletePaciente(@PathVariable Long id) {
+        service.deletePaciente(id); 
     }
 }

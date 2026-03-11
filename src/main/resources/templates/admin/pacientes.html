@@ -18,11 +18,11 @@
         </div>
 
         <div class="card border-0 shadow-sm mb-4">
-            <div class="card-body p-3 bg-light rounded">
+            <div class="card-body p-3 bg-body-tertiary rounded">
                 <div class="row g-3">
                     <div class="col-md-8">
                         <div class="input-group">
-                            <span class="input-group-text bg-white border-end-0"><i
+                            <span class="input-group-text bg-body border-end-0"><i
                                     class="fas fa-search text-muted"></i></span>
                             <input type="text" id="buscarPaciente" class="form-control border-start-0 ps-0"
                                 placeholder="Buscar por nombre, teléfono o email..." />
@@ -37,9 +37,9 @@
             </div>
         </div>
 
-        <div class="table-responsive shadow-sm border rounded-3 bg-white">
+        <div class="table-responsive shadow-sm border rounded-3 bg-body">
             <table id="tablaPacientes" class="table table-hover align-middle mb-0" style="width:100%">
-                <thead class="bg-light">
+                <thead class="table-secondary">
                     <tr>
                         <th class="text-center text-muted small py-3">ID</th>
                         <th class="py-3">Nombre</th>
@@ -65,7 +65,7 @@
                         </h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                     </div>
-                    <div class="modal-body p-4">
+                    <div class="modal-body p-4 bg-body">
                         <form id="formPaciente">
                             <input type="hidden" id="pacienteId">
 
@@ -77,7 +77,7 @@
                                     <label for="nombre" class="form-label fw-bold small text-muted">Nombre Completo
                                         *</label>
                                     <div class="input-group">
-                                        <span class="input-group-text bg-light"><i
+                                        <span class="input-group-text bg-body-tertiary"><i
                                                 class="fas fa-user text-muted"></i></span>
                                         <input type="text" class="form-control" id="nombre" required
                                             placeholder="Ej. Juan Pérez">
@@ -93,7 +93,7 @@
                                 <div class="col-md-6">
                                     <label for="telefono" class="form-label fw-bold small text-muted">Teléfono *</label>
                                     <div class="input-group">
-                                        <span class="input-group-text bg-light"><i
+                                        <span class="input-group-text bg-body-tertiary"><i
                                                 class="fas fa-phone text-muted"></i></span>
                                         <input type="tel" class="form-control" id="telefono" required
                                             placeholder="55 1234 5678">
@@ -103,7 +103,7 @@
                                 <div class="col-md-12">
                                     <label for="email" class="form-label fw-bold small text-muted">Email</label>
                                     <div class="input-group">
-                                        <span class="input-group-text bg-light"><i
+                                        <span class="input-group-text bg-body-tertiary"><i
                                                 class="fas fa-envelope text-muted"></i></span>
                                         <input type="email" class="form-control" id="email"
                                             placeholder="cliente@email.com">
@@ -148,7 +148,7 @@
                             </div>
                         </form>
                     </div>
-                    <div class="modal-footer bg-light">
+                    <div class="modal-footer bg-body-tertiary">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                         <button type="button" class="btn btn-primary px-4" onclick="guardarPaciente()">
                             <i class="fas fa-save me-2"></i>Guardar Paciente
@@ -168,12 +168,12 @@
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                     </div>
 
-                    <div class="modal-body bg-light">
+                    <div class="modal-body bg-body-tertiary">
                         <form id="formConsulta">
                             <input type="hidden" id="consulta_clienteId">
                             <input type="hidden" id="consulta_id">
 
-                            <div class="row mb-3 p-3 bg-white rounded shadow-sm mx-1">
+                            <div class="row mb-3 p-3 bg-body rounded shadow-sm mx-1">
 
                                 <div class="col-md-4 mb-3">
                                     <label class="form-label small fw-bold text-muted">FECHA</label>
@@ -195,7 +195,7 @@
                                 <div class="col-md-4 mb-3" id="cajaEstadoEntrega">
                                     <label class="form-label small fw-bold text-primary">ESTADO LENTES</label>
                                     <select id="estadoEntrega"
-                                        class="form-select form-select-sm fw-bold border-primary text-dark">
+                                        class="form-select form-select-sm fw-bold border-primary text-body">
                                         <option value="PENDIENTE">🔴 Pendiente (En Laboratorio/Pedir)</option>
                                         <option value="RECIBIDO">🟡 Recibido (Listo en Óptica)</option>
                                         <option value="ENTREGADO">🟢 Entregado al Paciente</option>
@@ -204,7 +204,7 @@
                                 </div>
 
                                 <div class="col-12 mb-3 border-top pt-3">
-                                    <label for="diagnosticoOftalmologo" class="form-label small fw-bold text-dark">
+                                    <label for="diagnosticoOftalmologo" class="form-label small fw-bold text-body">
                                         <i class="fas fa-user-md me-1 text-info"></i> DIAGNÓSTICO CLÍNICO
                                     </label>
                                     <textarea id="diagnosticoOftalmologo"
@@ -224,38 +224,38 @@
 
                             </div>
 
-                            <div class="mb-3 p-3 border rounded bg-white mx-1 shadow-sm">
+                            <div class="mb-3 p-3 border rounded bg-body mx-1 shadow-sm">
                                 <h6 class="mb-3 pb-2 border-bottom border-primary fw-bold text-primary">
                                     <i class="fas fa-eye me-2"></i>AGUDEZA VISUAL
                                 </h6>
                                 <div class="row g-3">
                                     <div class="col-lg-3 col-md-6">
-                                        <div class="card border-0 bg-light h-100">
+                                        <div class="card border-0 bg-body-tertiary h-100">
                                             <div
-                                                class="card-header bg-secondary bg-opacity-10 text-center fw-bold text-dark py-1 small">
+                                                class="card-header bg-secondary bg-opacity-10 text-center fw-bold text-body py-1 small">
                                                 SIN GRADUACIÓN
                                             </div>
                                             <div class="card-body p-2">
                                                 <div class="input-group input-group-sm mb-1">
-                                                    <span class="input-group-text border-0 bg-white small text-muted"
+                                                    <span class="input-group-text border-0 bg-body small text-muted"
                                                         style="width: 70px;">Lejos OD</span>
                                                     <input type="text" id="avSinLejosOD"
                                                         class="form-control text-center" placeholder="20/20">
                                                 </div>
                                                 <div class="input-group input-group-sm mb-1">
-                                                    <span class="input-group-text border-0 bg-white small text-muted"
+                                                    <span class="input-group-text border-0 bg-body small text-muted"
                                                         style="width: 70px;">Lejos OI</span>
                                                     <input type="text" id="avSinLejosOI"
                                                         class="form-control text-center">
                                                 </div>
                                                 <div class="input-group input-group-sm mb-1">
-                                                    <span class="input-group-text border-0 bg-white small text-muted"
+                                                    <span class="input-group-text border-0 bg-body small text-muted"
                                                         style="width: 70px;">Cerca OD</span>
                                                     <input type="text" id="avSinCercaOD"
                                                         class="form-control text-center">
                                                 </div>
                                                 <div class="input-group input-group-sm">
-                                                    <span class="input-group-text border-0 bg-white small text-muted"
+                                                    <span class="input-group-text border-0 bg-body small text-muted"
                                                         style="width: 70px;">Cerca OI</span>
                                                     <input type="text" id="avSinCercaOI"
                                                         class="form-control text-center">
@@ -272,28 +272,28 @@
                                             <div class="card-body p-2">
                                                 <div class="input-group input-group-sm mb-1">
                                                     <span
-                                                        class="input-group-text border-0 bg-white small text-primary fw-bold"
+                                                        class="input-group-text border-0 bg-body small text-primary fw-bold"
                                                         style="width: 70px;">Lejos OD</span>
                                                     <input type="text" id="avActualLejosOD"
                                                         class="form-control text-center">
                                                 </div>
                                                 <div class="input-group input-group-sm mb-1">
                                                     <span
-                                                        class="input-group-text border-0 bg-white small text-primary fw-bold"
+                                                        class="input-group-text border-0 bg-body small text-primary fw-bold"
                                                         style="width: 70px;">Lejos OI</span>
                                                     <input type="text" id="avActualLejosOI"
                                                         class="form-control text-center">
                                                 </div>
                                                 <div class="input-group input-group-sm mb-1">
                                                     <span
-                                                        class="input-group-text border-0 bg-white small text-primary fw-bold"
+                                                        class="input-group-text border-0 bg-body small text-primary fw-bold"
                                                         style="width: 70px;">Cerca OD</span>
                                                     <input type="text" id="avActualCercaOD"
                                                         class="form-control text-center">
                                                 </div>
                                                 <div class="input-group input-group-sm">
                                                     <span
-                                                        class="input-group-text border-0 bg-white small text-primary fw-bold"
+                                                        class="input-group-text border-0 bg-body small text-primary fw-bold"
                                                         style="width: 70px;">Cerca OI</span>
                                                     <input type="text" id="avActualCercaOI"
                                                         class="form-control text-center">
@@ -310,28 +310,28 @@
                                             <div class="card-body p-2">
                                                 <div class="input-group input-group-sm mb-1">
                                                     <span
-                                                        class="input-group-text border-0 bg-white small text-success fw-bold"
+                                                        class="input-group-text border-0 bg-body small text-success fw-bold"
                                                         style="width: 70px;">Lejos OD</span>
                                                     <input type="text" id="avNuevaLejosOD"
                                                         class="form-control text-center">
                                                 </div>
                                                 <div class="input-group input-group-sm mb-1">
                                                     <span
-                                                        class="input-group-text border-0 bg-white small text-success fw-bold"
+                                                        class="input-group-text border-0 bg-body small text-success fw-bold"
                                                         style="width: 70px;">Lejos OI</span>
                                                     <input type="text" id="avNuevaLejosOI"
                                                         class="form-control text-center">
                                                 </div>
                                                 <div class="input-group input-group-sm mb-1">
                                                     <span
-                                                        class="input-group-text border-0 bg-white small text-success fw-bold"
+                                                        class="input-group-text border-0 bg-body small text-success fw-bold"
                                                         style="width: 70px;">Cerca OD</span>
                                                     <input type="text" id="avNuevaCercaOD"
                                                         class="form-control text-center">
                                                 </div>
                                                 <div class="input-group input-group-sm">
                                                     <span
-                                                        class="input-group-text border-0 bg-white small text-success fw-bold"
+                                                        class="input-group-text border-0 bg-body small text-success fw-bold"
                                                         style="width: 70px;">Cerca OI</span>
                                                     <input type="text" id="avNuevaCercaOI"
                                                         class="form-control text-center">
@@ -342,20 +342,20 @@
                                     <div class="col-lg-3 col-md-6">
                                         <div class="card border border-warning border-opacity-25 h-100">
                                             <div
-                                                class="card-header bg-warning bg-opacity-10 text-center fw-bold text-dark py-1 small">
+                                                class="card-header bg-warning bg-opacity-10 text-center fw-bold text-body py-1 small">
                                                 CAPACIDAD
                                             </div>
                                             <div class="card-body p-2 d-flex flex-column justify-content-center">
                                                 <div class="input-group input-group-sm mb-2">
                                                     <span
-                                                        class="input-group-text border-0 bg-white small text-warning fw-bold"
+                                                        class="input-group-text border-0 bg-body small text-warning fw-bold"
                                                         style="width: 50px;">OD</span>
                                                     <input type="text" id="capacidadOD" class="form-control text-center"
                                                         placeholder="100%">
                                                 </div>
                                                 <div class="input-group input-group-sm">
                                                     <span
-                                                        class="input-group-text border-0 bg-white small text-warning fw-bold"
+                                                        class="input-group-text border-0 bg-body small text-warning fw-bold"
                                                         style="width: 50px;">OI</span>
                                                     <input type="text" id="capacidadOI"
                                                         class="form-control text-center">
@@ -366,7 +366,7 @@
                                 </div>
                             </div>
 
-                            <div class="mb-3 p-3 border rounded bg-white mx-1 shadow-sm">
+                            <div class="mb-3 p-3 border rounded bg-body mx-1 shadow-sm">
                                 <h6 class="mb-3 pb-2 border-bottom border-info fw-bold text-info">
                                     <i class="fas fa-search me-2"></i>REFRACCIÓN
                                 </h6>
@@ -379,7 +379,7 @@
                                                 <div class="table-responsive">
                                                     <table
                                                         class="table table-sm table-bordered align-middle mb-0 text-center">
-                                                        <thead class="bg-light text-muted small">
+                                                        <thead class="table-secondary text-muted small">
                                                             <tr>
                                                                 <th class="text-start ps-3" style="width: 25%;">Prueba
                                                                 </th>
@@ -390,7 +390,8 @@
                                                         </thead>
                                                         <tbody>
                                                             <tr>
-                                                                <th class="text-start ps-3 text-secondary bg-light">
+                                                                <th
+                                                                    class="text-start ps-3 text-secondary bg-body-tertiary">
                                                                     Bruta OD</th>
                                                                 <td class="p-0"><input type="text" id="brutaOdEsfera"
                                                                         class="form-control form-control-sm border-0 text-center shadow-none py-2"
@@ -403,7 +404,8 @@
                                                                         placeholder="0°"></td>
                                                             </tr>
                                                             <tr>
-                                                                <th class="text-start ps-3 text-secondary bg-light">
+                                                                <th
+                                                                    class="text-start ps-3 text-secondary bg-body-tertiary">
                                                                     Bruta OI</th>
                                                                 <td class="p-0"><input type="text" id="brutaOiEsfera"
                                                                         class="form-control form-control-sm border-0 text-center shadow-none py-2">
@@ -454,7 +456,7 @@
                                         </div>
                                     </div>
                                     <div class="col-md-3">
-                                        <div class="card shadow-sm h-100 border-0 bg-light">
+                                        <div class="card shadow-sm h-100 border-0 bg-body-tertiary">
                                             <div
                                                 class="card-header bg-secondary text-white fw-bold text-center py-1 small">
                                                 ADICIONES</div>
@@ -481,7 +483,7 @@
                                 </div>
                             </div>
 
-                            <div class="p-3 border rounded bg-white shadow-sm mx-1 mt-1">
+                            <div class="p-3 border rounded bg-body shadow-sm mx-1 mt-1">
                                 <h6 class="border-bottom border-success pb-2 text-success fw-bold">
                                     <i class="fas fa-shopping-cart me-2"></i>COTIZADOR Y PRESUPUESTO
                                 </h6>
@@ -519,7 +521,7 @@
 
                                 <div class="row g-3">
                                     <div class="col-md-6" id="panelMicas">
-                                        <div class="card h-100 border-light bg-light">
+                                        <div class="card h-100 border-light bg-body-tertiary">
                                             <div class="card-body p-3">
                                                 <h6 class="text-muted mb-3 small fw-bold"><i
                                                         class="fas fa-layer-group me-1"></i> MICAS / LENTES</h6>
@@ -567,7 +569,7 @@
                                     </div>
 
                                     <div class="col-md-6" id="panelInventario">
-                                        <div class="card h-100 border-light bg-light">
+                                        <div class="card h-100 border-light bg-body-tertiary">
                                             <div class="card-body p-3">
                                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                                     <h6 class="text-muted small fw-bold mb-0" id="tituloInventario">
@@ -602,16 +604,21 @@
                                                 <input type="hidden" id="selectProducto" value="">
 
                                                 <div class="input-group input-group-sm mb-2 mt-3">
-                                                    <span class="input-group-text bg-white text-muted">Desc.</span>
+                                                    <span class="input-group-text bg-body text-muted">Desc.</span>
                                                     <input type="text" id="armazonModelo"
-                                                        class="form-control bg-white fw-bold" readonly placeholder="-">
+                                                        class="form-control bg-body fw-bold" readonly placeholder="-">
                                                 </div>
                                                 <div class="input-group input-group-sm">
-                                                    <span class="input-group-text bg-white fw-bold text-success">Precio
+                                                    <span class="input-group-text bg-body fw-bold text-success">Precio
                                                         $</span>
                                                     <input type="number" id="precioArmazon"
                                                         class="form-control text-end fw-bold text-success"
                                                         placeholder="0.00">
+                                                    <button class="btn btn-outline-secondary" type="button"
+                                                        onclick="quitarComisionProducto()"
+                                                        title="Vender a precio costo (Quitar comisión)">
+                                                        <i class="fas fa-tags text-warning"></i>
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
@@ -647,7 +654,7 @@
                                 <div class="table-responsive border rounded mb-3"
                                     style="max-height: 200px; overflow-y: auto;">
                                     <table class="table table-sm table-hover mb-0" id="tablaCarrito">
-                                        <thead class="table-light sticky-top small text-muted">
+                                        <thead class="table-secondary sticky-top small text-muted">
                                             <tr>
                                                 <th style="width: 55%">Artículo</th>
                                                 <th class="text-center">Categoría</th>
@@ -669,7 +676,7 @@
                                     <div class="row text-center align-items-center">
                                         <div class="col-4 border-end">
                                             <label class="small fw-bold text-muted d-block">TOTAL VENTA</label>
-                                            <h4 class="text-dark mb-0" id="displayTotal">$0.00</h4>
+                                            <h4 class="text-body mb-0" id="displayTotal">$0.00</h4>
                                             <input type="hidden" id="totalPresupuesto">
                                         </div>
                                         <div class="col-4 border-end">
@@ -691,7 +698,7 @@
                         </form>
                     </div>
 
-                    <div class="modal-footer bg-light">
+                    <div class="modal-footer bg-body-tertiary">
                         <div id="accionesPostGuardado" class="me-auto d-none">
                             <button type="button" class="btn btn-outline-secondary btn-sm me-1"
                                 onclick="imprimirDocumento('receta')">
@@ -724,11 +731,11 @@
                     </div>
                     <div class="modal-body">
                         <h6 class="text-muted mb-3">Paciente: <span id="historialPacienteNombre"
-                                class="fw-bold text-dark"></span></h6>
+                                class="fw-bold text-body"></span></h6>
 
                         <div class="table-responsive">
                             <table class="table table-hover table-bordered table-sm align-middle">
-                                <thead class="table-light">
+                                <thead class="table-secondary">
                                     <tr>
                                         <th>Fecha</th>
                                         <th>Motivo</th>

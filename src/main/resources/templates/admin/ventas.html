@@ -51,11 +51,17 @@
     </div>
 
     <div class="card shadow-sm border-0">
-        <div class="card-header bg-white border-bottom-0 pt-3 ps-3">
+        <div class="card-header bg-body border-bottom-0 pt-3 ps-3">
             <ul class="nav nav-tabs card-header-tabs" id="ventasTabs" role="tablist">
                 
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link active fw-bold text-danger" id="pendientes-tab" data-bs-toggle="tab" data-bs-target="#pendientes-pane" type="button">
+                    <button class="nav-link active fw-bold text-primary" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboard-pane" type="button">
+                        <i class="fas fa-tachometer-alt me-2"></i>Estadísticas Generales
+                    </button>
+                </li>
+
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold text-danger" id="pendientes-tab" data-bs-toggle="tab" data-bs-target="#pendientes-pane" type="button">
                         <i class="fas fa-clock me-2"></i>Cuentas por Cobrar
                     </button>
                 </li>
@@ -67,7 +73,7 @@
                 </li>
 
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link fw-bold text-dark" id="caja-tab" data-bs-toggle="tab" data-bs-target="#caja-pane" type="button">
+                    <button class="nav-link fw-bold text-body" id="caja-tab" data-bs-toggle="tab" data-bs-target="#caja-pane" type="button">
                         <i class="fas fa-receipt me-2"></i>Corte de Caja (Hoy)
                     </button>
                 </li>
@@ -77,10 +83,35 @@
         <div class="card-body">
             <div class="tab-content" id="myTabContent">
                 
-                <div class="tab-pane fade show active" id="pendientes-pane">
+                <div class="tab-pane fade show active" id="dashboard-pane">
+                    <div class="row g-3 mb-4 mt-1">
+                        <div class="col-12 col-lg-8">
+                            <div class="card border-0 shadow-sm h-100 bg-body-tertiary">
+                                <div class="card-header bg-transparent border-0 pt-3 pb-0">
+                                    <h6 class="fw-bold text-body mb-0"><i class="fas fa-chart-bar text-primary me-2"></i>Ingresos (Últimos 7 días)</h6>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="graficaIngresos" height="100"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-4">
+                            <div class="card border-0 shadow-sm h-100 bg-body-tertiary">
+                                <div class="card-header bg-transparent border-0 pt-3 pb-0">
+                                    <h6 class="fw-bold text-body mb-0"><i class="fas fa-chart-pie text-success me-2"></i>Ventas por Categoría</h6>
+                                </div>
+                                <div class="card-body d-flex justify-content-center align-items-center">
+                                    <canvas id="graficaCategorias" height="250"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="pendientes-pane">
                     <div class="table-responsive">
                         <table class="table table-hover align-middle w-100" id="tablaPendientes">
-                            <thead class="table-light">
+                            <thead class="table-secondary">
                                 <tr>
                                     <th>Fecha Venta</th>
                                     <th>Cliente</th>
@@ -102,7 +133,7 @@
                     </div>
                     <div class="table-responsive">
                         <table class="table table-hover align-middle w-100" id="tablaFinalizadas">
-                            <thead class="table-light">
+                            <thead class="table-secondary">
                                 <tr>
                                     <th>Fecha Cierre</th>
                                     <th>Cliente</th>
@@ -156,12 +187,12 @@
                         
                         <div class="mb-3">
                             <label class="form-label text-muted small fw-bold">CLIENTE</label>
-                            <input type="text" class="form-control fw-bold bg-light" id="abono_clienteNombre" readonly>
+                            <input type="text" class="form-control fw-bold bg-body-tertiary" id="abono_clienteNombre" readonly>
                         </div>
 
                         <div class="row g-2 mb-3">
                             <div class="col-6">
-                                <div class="p-2 border rounded bg-light text-center">
+                                <div class="p-2 border rounded bg-body-tertiary text-center">
                                     <small class="text-muted d-block">Total Venta</small>
                                     <span class="fw-bold" id="abono_totalDisplay">$0.00</span>
                                 </div>
@@ -219,12 +250,12 @@
                 <div class="modal-body">
                     <div class="d-flex justify-content-between mb-3">
                         <h6 class="fw-bold text-secondary" id="historial_cliente">Cliente: -</h6>
-                        <h6 class="fw-bold text-dark" id="historial_total">Total Venta: $0.00</h6>
+                        <h6 class="fw-bold text-body" id="historial_total">Total Venta: $0.00</h6>
                     </div>
                     
                     <div class="table-responsive">
                         <table class="table table-bordered table-sm">
-                            <thead class="table-light">
+                            <thead class="table-secondary">
                                 <tr>
                                     <th>Fecha</th>
                                     <th>Método</th>
@@ -234,7 +265,7 @@
                             </thead>
                             <tbody id="tablaHistorialBody">
                                 </tbody>
-                            <tfoot class="table-light fw-bold">
+                            <tfoot class="table-secondary fw-bold">
                                 <tr>
                                     <td colspan="3" class="text-end">TOTAL ABONADO:</td>
                                     <td class="text-end text-success" id="historial_sumaAbonos">$0.00</td>
@@ -254,9 +285,12 @@
         </div>
     </div>
 
-</div> <div th:fragment="scripts">
+</div> 
+
+<div th:fragment="scripts">
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="/js/admin-ventas.js"></script>
 </div>
 

@@ -332,7 +332,6 @@ function guardarRazon() {
     colorHex: colorHex,
   };
 
-  // ⭐ LÓGICA INTELIGENTE: PUT si editamos, POST si creamos ⭐
   const method = id ? "PUT" : "POST";
   const url = id ? `${API_RAZONES}/${id}` : API_RAZONES;
 
@@ -477,12 +476,45 @@ let base64Sistema = null;
 let base64Izq = null;
 let base64Der = null;
 
+function aplicarReglasApariencia() {
+    const selectTema = document.getElementById('confColorTema');
+    const switchOscuro = document.getElementById('confModoOscuro');
+    
+    if (!selectTema || !switchOscuro) return;
+
+    // 1. Si elige Gris Ejecutivo (#212529) -> Apagar y bloquear Modo Oscuro
+    if (selectTema.value === '#212529') {
+        switchOscuro.checked = false;
+        switchOscuro.disabled = true;
+    } else {
+        switchOscuro.disabled = false;
+    }
+
+    // 2. Si activa Modo Oscuro -> Bloquear la opción Gris Ejecutivo
+    for (let i = 0; i < selectTema.options.length; i++) {
+        if (selectTema.options[i].value === '#212529') {
+            selectTema.options[i].disabled = switchOscuro.checked;
+            // Si estaba en gris y forzaron modo oscuro, cambiarlo a Azul
+            if (switchOscuro.checked && selectTema.value === '#212529') {
+                selectTema.value = '#0d6efd'; 
+            }
+        }
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     if(document.getElementById('confNombre')) {
         cargarConfiguracionGeneral();
+        
+        const selectTema = document.getElementById('confColorTema');
+        const switchOscuro = document.getElementById('confModoOscuro');
+        
+        if (selectTema && switchOscuro) {
+            selectTema.addEventListener('change', aplicarReglasApariencia);
+            switchOscuro.addEventListener('change', aplicarReglasApariencia);
+        }
     }
 });
-
 // Función mágica para leer la imagen y convertirla a texto Base64
 function convertirImagenABase64(event, previewId, variableGlobal) {
     const file = event.target.files[0];
@@ -551,6 +583,8 @@ function cargarConfiguracionGeneral() {
             // Cargar Apariencia
             document.getElementById('confColorTema').value = data.colorTema || '#0d6efd';
             document.getElementById('confModoOscuro').checked = data.modoOscuro || false;
+            
+            aplicarReglasApariencia();
             
             // Por si es la primera vez que inicia sesión en un equipo nuevo, sincronizamos el localstorage
             localStorage.setItem('dxy_color', data.colorTema || '#0d6efd');

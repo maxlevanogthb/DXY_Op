@@ -190,17 +190,23 @@ function inicializarTabla() {
 
       // COL 4: PRECIO (Verde y fuente monoespaciada para números)
       {
-        data: "precioVenta",
-        className:
-          "text-end align-middle fw-bold text-success font-monospace py-3 fs-6",
-        render: (precio) => {
-          const valor = precio || 0;
-          return (
-            "$" +
-            parseFloat(valor).toLocaleString("es-MX", {
-              minimumFractionDigits: 2,
-            })
-          );
+        data: null,
+        className: "text-end align-middle font-monospace py-3",
+        render: (data, type, row) => {
+          const costo = row.precioCosto || 0;
+          const venta = row.precioVenta || 0;
+          
+          const format = (num) => "$" + parseFloat(num).toLocaleString("es-MX", { minimumFractionDigits: 2 });
+          
+          return `
+            <div class="d-flex flex-column align-items-end" style="line-height: 1.2;">
+                <span class="small text-muted mb-1" title="Precio Costo (Sin Comisión)">
+                    <i class="fas fa-box-open opacity-50 me-1"></i>${format(costo)}
+                </span>
+                <span class="fw-bold text-success fs-6" title="Precio Venta (Con Comisión)">
+                    <i class="fas fa-tag opacity-50 me-1"></i>${format(venta)}
+                </span>
+            </div>`;
         },
       },
 
@@ -534,14 +540,38 @@ function crearEstiloInSitu(modalId) {
   });
 }
 
-function calcularPrecioVenta() {
+// ==========================================
+// F. CÁLCULO BIDIRECCIONAL DE PRECIOS
+// ==========================================
+
+// 1. De Costo/Comisión hacia Precio
+function calcularDesdeComision() {
   const costo = parseFloat($("#precioCosto").val()) || 0;
   const comision = parseFloat($("#porcentajeComision").val()) || 0;
-  const precioVenta = costo + costo * (comision / 100);
-  $("#precio").val(precioVenta.toFixed(2));
+  
+  if (costo > 0) {
+      const precioVenta = costo + (costo * (comision / 100));
+      $("#precio").val(precioVenta.toFixed(2));
+  } else {
+      $("#precio").val("");
+  }
 }
 
-// Disparar el cálculo cuando el usuario escriba
+// 2. De Precio hacia Comisión (La Magia Inversa)
+function calcularDesdePrecio() {
+  const costo = parseFloat($("#precioCosto").val()) || 0;
+  const precio = parseFloat($("#precio").val()) || 0;
+  
+  if (costo > 0 && precio >= costo) {
+      const nuevaComision = ((precio / costo) - 1) * 100;
+      $("#porcentajeComision").val(nuevaComision.toFixed(2));
+  } else {
+      $("#porcentajeComision").val(0);
+  }
+}
+
+// Disparar los cálculos cuando el usuario escriba
 $(document).ready(function () {
-  $("#precioCosto, #porcentajeComision").on("input", calcularPrecioVenta);
+  $("#precioCosto, #porcentajeComision").on("input", calcularDesdeComision);
+  $("#precio").on("input", calcularDesdePrecio); // Ahora el precio final ajusta la comisión
 });

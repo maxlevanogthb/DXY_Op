@@ -1147,29 +1147,40 @@ function crearProductoRapidoInSitu(modalId) {
                             <input type="text" id="swal-prod-modelo" class="form-control form-control-sm" placeholder="Ej. RB2140">
                         </div>
                     </div>
+                    
+                    <div class="row g-2 mb-3">
+                        <div class="col-4">
+                            <label class="form-label fw-bold small text-muted">Color</label>
+                            <input type="text" id="swal-prod-color" class="form-control form-control-sm" placeholder="Ej. Negro">
+                        </div>
+                        <div class="col-4 offset-4">
+                            <label class="form-label fw-bold small text-muted">Stock Inicial</label>
+                            <input type="number" id="swal-prod-stock" class="form-control form-control-sm" value="1" min="1">
+                        </div>
+                    </div>
 
                     <div class="row g-2 mb-3">
                         <div class="col-4">
-        <label class="form-label fw-bold small">Costo *</label>
-        <div class="input-group input-group-sm">
-            <span class="input-group-text">$</span>
-            <input type="number" id="swal-prod-costo" class="form-control">
-        </div>
-    </div>
-    <div class="col-4">
-        <label class="form-label fw-bold small text-info">Comisión</label>
-        <div class="input-group input-group-sm">
-            <input type="number" id="swal-prod-comision" class="form-control border-info" value="${configGeneral.porcentajeComisionTarjeta || 0}">
-            <span class="input-group-text bg-info text-white border-info">%</span>
-        </div>
-    </div>
-    <div class="col-4">
-        <label class="form-label fw-bold small text-success">P. Venta</label>
-        <div class="input-group input-group-sm">
-            <span class="input-group-text bg-success text-white border-success">$</span>
-            <input type="number" id="swal-prod-precio" class="form-control border-success text-success fw-bold bg-light" readonly>
-        </div>
-    </div>
+                            <label class="form-label fw-bold small">Costo *</label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text bg-body-tertiary">$</span>
+                                <input type="number" id="swal-prod-costo" class="form-control" placeholder="0.00">
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label fw-bold small text-info">Comisión</label>
+                            <div class="input-group input-group-sm">
+                                <input type="number" id="swal-prod-comision" class="form-control border-info" value="${configGeneral.porcentajeComisionTarjeta || 0}">
+                                <span class="input-group-text bg-info text-white border-info">%</span>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label fw-bold small text-success">P. Venta</label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text bg-success text-white border-success">$</span>
+                                <input type="number" id="swal-prod-precio" class="form-control border-success text-success fw-bold" placeholder="0.00">
+                            </div>
+                        </div>
                     </div>
                 </div>
             `,
@@ -1230,16 +1241,39 @@ function crearProductoRapidoInSitu(modalId) {
 
         const inputCosto = document.getElementById("swal-prod-costo");
         const inputComision = document.getElementById("swal-prod-comision");
-        const inputVenta = document.getElementById("swal-prod-precio");
+        const inputPrecio = document.getElementById("swal-prod-precio");
 
-        const calcularVentaSwal = () => {
+        // 1. De Costo/Comisión hacia Precio
+        function calcularDesdeComision() {
           const costo = parseFloat(inputCosto.value) || 0;
           const comision = parseFloat(inputComision.value) || 0;
-          inputVenta.value = (costo + costo * (comision / 100)).toFixed(2);
-        };
+          
+          if (costo > 0) {
+              // Fórmula: Costo + (Costo * (Comision / 100))
+              inputPrecio.value = (costo * (1 + comision / 100)).toFixed(2);
+          } else {
+              inputPrecio.value = "";
+          }
+        }
 
-        inputCosto.addEventListener("input", calcularVentaSwal);
-        inputComision.addEventListener("input", calcularVentaSwal);
+        // 2. De Precio hacia Comisión (Inversa)
+        function calcularDesdePrecio() {
+          const costo = parseFloat(inputCosto.value) || 0;
+          const precio = parseFloat(inputPrecio.value) || 0;
+
+          if (costo > 0 && precio >= costo) {
+            // Extraemos la comisión: ((Precio / Costo) - 1) * 100
+            const nuevaComision = (precio / costo - 1) * 100;
+            inputComision.value = nuevaComision.toFixed(2); // Redondeamos a 2 decimales
+          } else {
+            inputComision.value = 0;
+          }
+        }
+
+        // Conectamos los escuchadores
+        inputCosto.addEventListener("input", calcularDesdeComision);
+        inputComision.addEventListener("input", calcularDesdeComision);
+        inputPrecio.addEventListener("input", calcularDesdePrecio);
       },
 
       preConfirm: async () => {
@@ -1269,7 +1303,7 @@ function crearProductoRapidoInSitu(modalId) {
 
         if (!marca || !modelo || !costo || !precio || !stock) {
           Swal.showValidationMessage(
-            "Marca, Modelo, Costo y Stock son obligatorios",
+            "Marca, Modelo, Costo y Precio son obligatorios",
           );
           return false;
         }
@@ -1328,12 +1362,12 @@ function crearProductoRapidoInSitu(modalId) {
             color: color,
             talla: "Única",
             tipo: { id: parseInt(finalCatId) },
-            subTipo: esArmazon ? finalEstilo : null, 
-            
+            subTipo: esArmazon ? finalEstilo : null,
+
             precioCosto: parseFloat(costo) || 0,
             porcentajeComision: parseFloat(comision) || 0,
             precioVenta: parseFloat(precio),
-            
+
             stock: parseInt(stock),
           };
         } catch (error) {
@@ -1386,4 +1420,43 @@ function crearProductoRapidoInSitu(modalId) {
       }
     });
   });
+}
+
+// ==========================================================
+// FUNCIÓN: QUITAR COMISIÓN (VENDER AL COSTO BASE)
+// ==========================================================
+function quitarComisionProducto() {
+    const prodId = $("#selectProducto").val();
+    
+    if (!prodId) {
+        Swal.fire({
+            toast: true, position: 'top-end', icon: 'info', 
+            title: 'Seleccione un producto primero', showConfirmButton: false, timer: 2000
+        });
+        return;
+    }
+
+    // Buscamos el producto en el catálogo que ya tienes cargado en memoria
+    const producto = catalogoGlobal.find(p => p.id == prodId);
+    
+    if (producto && producto.precioCosto) {
+        // Establecemos el valor editable del input al costo base (0% comisión)
+        $("#precioArmazon").val(producto.precioCosto.toFixed(2));
+        
+        // 🌟 Animación visual UX: Un parpadeo amarillo para que el doctor note el descuento
+        $("#precioArmazon").addClass("bg-warning text-dark").removeClass("text-success");
+        setTimeout(() => {
+            $("#precioArmazon").removeClass("bg-warning text-dark").addClass("text-success");
+        }, 600);
+
+        // Si tienes la función de calcular totales en el carrito, la disparamos
+        if (typeof calcularTotales === "function") {
+            calcularTotales();
+        }
+    } else {
+        Swal.fire({
+            toast: true, position: 'top-end', icon: 'error', 
+            title: 'No se encontró el costo base del producto', showConfirmButton: false, timer: 2000
+        });
+    }
 }

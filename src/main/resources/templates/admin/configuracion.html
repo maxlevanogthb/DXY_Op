@@ -89,7 +89,7 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <div class="input-group">
-                            <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+                            <span class="input-group-text bg-body"><i class="fas fa-search text-muted"></i></span>
                             <input type="text" id="buscarTipo" class="form-control" placeholder="Buscar tipo...">
                         </div>
                     </div>
@@ -146,7 +146,7 @@
                             </li>
                         </ul>
 
-                        <div class="row g-2 mb-3 bg-light p-3 rounded align-items-end">
+                        <div class="row g-2 mb-3 bg-body-tertiary p-3 rounded align-items-end">
                             <input type="hidden" id="nuevoId">
 
                             <div class="col-md-4"> <label class="small fw-bold text-muted">Nombre</label>
@@ -173,7 +173,7 @@
 
                         <div class="table-responsive" style="min-height: 200px;">
                             <table class="table table-hover align-middle">
-                                <thead class="table-light">
+                                <thead class="table-secondary">
                                     <tr>
                                         <th>Descripción</th>
                                         <th style="width: 200px;">Precio Sugerido</th>
@@ -302,7 +302,7 @@
                             <div class="card-header bg-primary text-white fw-bold">
                                 <i class="fas fa-heading me-2"></i> Títulos Principales (Inicio)
                             </div>
-                            <div class="card-body bg-light">
+                            <div class="card-body bg-body-tertiary">
                                 <p class="small text-muted mb-3">Estos son los textos que verán sus clientes al entrar a
                                     la página web.</p>
 
@@ -322,10 +322,10 @@
 
                     <div class="col-lg-6">
                         <div class="card border-0 shadow-sm h-100">
-                            <div class="card-header bg-warning text-dark fw-bold">
+                            <div class="card-header bg-warning text-body fw-bold">
                                 <i class="fas fa-info-circle me-2"></i> Sección 'Sobre Nosotros'
                             </div>
-                            <div class="card-body bg-light">
+                            <div class="card-body bg-body-tertiary">
                                 <p class="small text-muted mb-3">La historia de su óptica para generar confianza en los
                                     pacientes.</p>
 
@@ -355,7 +355,7 @@
                             <div class="card-header bg-dark text-white fw-bold">
                                 <i class="fas fa-store me-2"></i> Datos del Negocio y Redes Sociales
                             </div>
-                            <div class="card-body bg-light">
+                            <div class="card-body bg-body-tertiary">
                                 <div class="mb-3">
                                     <label class="form-label small fw-bold text-muted">Nombre Comercial</label>
                                     <input type="text" id="confNombre" class="form-control"
@@ -399,12 +399,12 @@
                             <div class="card-header bg-secondary text-white fw-bold">
                                 <i class="fas fa-image me-2"></i> Identidad Visual (Logos)
                             </div>
-                            <div class="card-body bg-light">
+                            <div class="card-body bg-body-tertiary">
                                 <p class="small text-muted mb-3">Sube imágenes en formato PNG o JPG. Se adaptarán
                                     automáticamente.</p>
 
-                                <div class="mb-3 p-3 border rounded bg-white">
-                                    <label class="form-label fw-bold text-dark mb-1">Logo del Sistema (Login y
+                                <div class="mb-3 p-3 border rounded bg-body">
+                                    <label class="form-label fw-bold text-body mb-1">Logo del Sistema (Login y
                                         Menú)</label>
                                     <input type="file" class="form-control form-control-sm mb-2" accept="image/*"
                                         onchange="convertirImagenABase64(event, 'previewSistema', 'base64Sistema')">
@@ -412,15 +412,15 @@
                                         style="max-height: 60px;">
                                 </div>
 
-                                <div class="mb-3 p-3 border rounded bg-white">
-                                    <label class="form-label fw-bold text-dark mb-1">Logo Receta (Izquierda)</label>
+                                <div class="mb-3 p-3 border rounded bg-body">
+                                    <label class="form-label fw-bold text-body mb-1">Logo Receta (Izquierda)</label>
                                     <input type="file" class="form-control form-control-sm mb-2" accept="image/*"
                                         onchange="convertirImagenABase64(event, 'previewIzq', 'base64Izq')">
                                     <img id="previewIzq" src="" class="d-none img-thumbnail" style="max-height: 60px;">
                                 </div>
 
-                                <div class="mb-0 p-3 border rounded bg-white">
-                                    <label class="form-label fw-bold text-dark mb-1">Logo Receta (Derecha)</label>
+                                <div class="mb-0 p-3 border rounded bg-body">
+                                    <label class="form-label fw-bold text-body mb-1">Logo Receta (Derecha)</label>
                                     <input type="file" class="form-control form-control-sm mb-2" accept="image/*"
                                         onchange="convertirImagenABase64(event, 'previewDer', 'base64Der')">
                                     <img id="previewDer" src="" class="d-none img-thumbnail" style="max-height: 60px;">
@@ -434,7 +434,7 @@
                             <div class="card-header bg-primary text-white fw-bold">
                                 <i class="far fa-calendar-alt me-2"></i> Configuración de Agenda
                             </div>
-                            <div class="card-body bg-light">
+                            <div class="card-body bg-body-tertiary">
                                 <div class="row">
                                     <div class="col-4">
                                         <label class="form-label small fw-bold text-muted">Apertura</label>
@@ -460,7 +460,7 @@
                             <div class="card-header bg-success text-white fw-bold">
                                 <i class="fas fa-cash-register me-2"></i> Ventas y Tickets
                             </div>
-                            <div class="card-body bg-light">
+                            <div class="card-body bg-body-tertiary">
                                 <div class="row mb-3">
                                     <div class="col-md-6">
                                         <label class="form-label small fw-bold text-muted">Impuesto (IVA %)</label>
@@ -490,10 +490,10 @@
                         </div>
 
                         <div class="card border-0 shadow-sm mt-4">
-                            <div class="card-header bg-info text-dark fw-bold">
+                            <div class="card-header bg-info text-body fw-bold">
                                 <i class="fas fa-envelope me-2"></i> Configuración de Correo (SMTP)
                             </div>
-                            <div class="card-body bg-light">
+                            <div class="card-body bg-body-tertiary">
                                 <p class="small text-muted mb-3">
                                     Configure el correo desde el cual el sistema enviará los recibos y recordatorios.
                                     <em>(Si usa Gmail, requiere una "Contraseña de Aplicación").</em>
@@ -520,7 +520,7 @@
                             <div class="card-header bg-dark text-white fw-bold">
                                 <i class="fas fa-paint-roller me-2"></i> Apariencia del Sistema
                             </div>
-                            <div class="card-body bg-light">
+                            <div class="card-body bg-body-tertiary">
                                 <div class="row align-items-center">
                                     <div class="col-md-6 mb-3 mb-md-0">
                                         <label class="form-label small fw-bold text-muted">Color Principal</label>
@@ -541,7 +541,7 @@
                                         <div class="form-check form-switch fs-4 d-inline-block">
                                             <input class="form-check-input cursor-pointer" type="checkbox"
                                                 id="confModoOscuro">
-                                            <label class="form-check-label ms-2 small text-dark fs-6"
+                                            <label class="form-check-label ms-2 small text-body fs-6"
                                                 for="confModoOscuro">
                                                 <i class="fas fa-moon text-secondary"></i> Activar Modo Oscuro
                                             </label>
@@ -592,7 +592,7 @@
                                         <option value="fas fa-tags">🏷️ Etiqueta General</option>
                                     </select>
                                 </div>
-                                <div id="iconoPreview" class="mt-2 p-3 border rounded bg-light text-center">
+                                <div id="iconoPreview" class="mt-2 p-3 border rounded bg-body-tertiary text-center">
                                     <i class="fas fa-glasses fa-2x text-primary"></i>
                                 </div>
                             </div>

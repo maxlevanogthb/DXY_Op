@@ -17,7 +17,7 @@ body {
     min-height: 100vh;
     margin-left: -15rem;
     transition: margin .25s ease-out;
-    background-color: var(--primary-blue);
+    background-color: var(--bs-primary, var(--primary-blue));
     color: white;
     border-right: 1px solid rgba(0,0,0,0.1);
 }
@@ -101,4 +101,234 @@ body.sb-sidenav-toggled #sidebar-wrapper {
     box-shadow: 0 .125rem .25rem rgba(0,0,0,.075)!important;
     transform: translateY(-1px);
     transition: all 0.2s;
+}
+
+/* ===================================================
+   MODO OSCURO NATIVO - ADMIN DASHBOARD
+=================================================== */
+[data-bs-theme="dark"] body {
+    background-color: #121212 !important;
+    color: #e0e0e0 !important;
+}
+
+/* Oscurecer la barra superior que estaba en "white" */
+[data-bs-theme="dark"] .navbar-custom {
+    background-color: #1e1e1e !important;
+    border-bottom: 1px solid #333 !important;
+}
+
+/* Oscurecer el contenedor de las tablas que estaba en "white" */
+[data-bs-theme="dark"] .table-responsive {
+    background: #1e1e1e !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.5) !important;
+}
+
+/* Oscurecer los botones/filas al pasar el mouse (hover) */
+[data-bs-theme="dark"] .hover-shadow:hover {
+    background-color: #2b2b2b !important;
+    box-shadow: 0 .125rem .25rem rgba(0,0,0,.5) !important;
+}
+
+/* Ajustar el badge de graduación que era muy claro */
+[data-bs-theme="dark"] .badge-graduacion {
+    background-color: rgba(var(--bs-primary-rgb), 0.15) !important;
+    color: var(--bs-primary, #6ea8fe) !important;
+    border: 1px solid rgba(var(--bs-primary-rgb), 0.3);
+}
+
+[data-bs-theme="dark"] .form-control, 
+[data-bs-theme="dark"] .form-select, 
+[data-bs-theme="dark"] .input-group-text {
+    background-color: #2b2b2b; /* Gris medio, no negro total */
+    border-color: #444; 
+    color: #e0e0e0;
+}
+
+
+/* Textos descriptivos (Forzarlos a gris claro para que resalten) */
+[data-bs-theme="dark"] .text-secondary,
+[data-bs-theme="dark"] .text-black-50 {
+    color: #adb5bd !important;
+}
+
+/* Cajas de texto descriptivas que no tengan clase específica */
+[data-bs-theme="dark"] .card-body p {
+    color: #d1d5db; /* Un gris muy legible */
+}
+
+/* Cabeceras claras (Amarillo y Celeste) necesitan texto negro (Excluyendo los badges transparentes) */
+[data-bs-theme="dark"] .bg-warning:not(.bg-opacity-10),
+[data-bs-theme="dark"] .bg-warning:not(.bg-opacity-10) *,
+[data-bs-theme="dark"] .bg-info:not(.bg-opacity-10),
+[data-bs-theme="dark"] .bg-info:not(.bg-opacity-10) * {
+    color: #212529 !important;
+}
+
+/* Asegurar que los badges celestes (como la Graduación) brillen en la oscuridad */
+[data-bs-theme="dark"] .bg-info.bg-opacity-10 {
+    color: #0dcaf0 !important; /* Cian brillante */
+    border-color: rgba(13, 202, 240, 0.3) !important;
+}
+
+/* ===================================================
+   MODO OSCURO NATIVO - MÓDULO DE VENTAS
+   =================================================== */
+
+/* Asegurar que las tarjetas de KPI tengan fondo oscuro y bordes discretos */
+[data-bs-theme="dark"] .card.border-start {
+    background-color: var(--bs-body-bg) !important;
+    border-color: var(--bs-border-color) !important;
+}
+
+/* Modificar los fondos "opacity-10" para que resalten mejor en fondo oscuro */
+[data-bs-theme="dark"] .bg-success.bg-opacity-10 {
+    background-color: rgba(25, 135, 84, 0.2) !important; /* Verde un poco más fuerte */
+}
+[data-bs-theme="dark"] .bg-danger.bg-opacity-10 {
+    background-color: rgba(220, 53, 69, 0.2) !important; /* Rojo un poco más fuerte */
+}
+[data-bs-theme="dark"] .bg-warning.bg-opacity-10 {
+    background-color: rgba(255, 193, 7, 0.15) !important; /* Amarillo oscuro */
+    color: #e0e0e0 !important; /* Forzar texto claro si estaba oscuro */
+}
+
+/* Tabla de Corte de Caja (table-dark a veces choca con el modo oscuro general) */
+[data-bs-theme="dark"] .table-dark {
+    --bs-table-bg: #1a1d20; 
+    --bs-table-color: #fff;
+    --bs-table-border-color: #333;
+}
+[data-bs-theme="dark"] .table-striped > tbody > tr:nth-of-type(odd) > * {
+    --bs-table-accent-bg: rgba(255, 255, 255, 0.05); /* Rayas sutiles */
+    color: #e0e0e0;
+}
+
+/* Botones de navegación de las pestañas (Tabs) */
+[data-bs-theme="dark"] .nav-tabs {
+    border-bottom: 1px solid #444;
+}
+[data-bs-theme="dark"] .nav-tabs .nav-link {
+    color: #adb5bd !important; 
+    border-color: transparent !important;
+}
+[data-bs-theme="dark"] .nav-tabs .nav-link:hover {
+    color: #f8f9fa !important;
+    border-color: transparent transparent #666 transparent !important;
+}
+[data-bs-theme="dark"] .nav-tabs .nav-link.active {
+    background-color: var(--bs-body-bg) !important;
+    border-color: #444 #444 var(--bs-body-bg) !important; 
+    color: var(--bs-primary) !important; /* Resalta con el color principal */
+}
+/* Asegurar que las pestañas mantengan su color verde/rojo si están activas */
+[data-bs-theme="dark"] .nav-tabs .nav-link.active.text-danger { color: #dc3545 !important; }
+[data-bs-theme="dark"] .nav-tabs .nav-link.active.text-success { color: #198754 !important; }
+
+/* ===================================================
+   AJUSTES UNIVERSALES MODO OSCURO (Formularios y Alertas)
+   =================================================== */
+
+/* Ajustar los campos "readonly" (Ej. Precio Venta automático, Nombres previos) */
+[data-bs-theme="dark"] .form-control:disabled, 
+[data-bs-theme="dark"] .form-control[readonly] {
+    background-color: #1a1d20 !important; /* Gris súper oscuro, distinto al input normal */
+    border-color: #333 !important;
+    color: #8c959f !important; /* Letra atenuada para que se note que no se puede editar */
+}
+
+/* Arreglar el borde de las etiquetas anexas a los inputs (Ej. El símbolo de "$" o "%") */
+[data-bs-theme="dark"] .input-group-text {
+    border-color: #444 !important;
+}
+
+/* Modificar las Alertas Claras (Ej. "Nombre generado automáticamente") */
+[data-bs-theme="dark"] .alert-light {
+    background-color: #1a1d20 !important;
+    border-color: #333 !important;
+    color: #e0e0e0 !important;
+}
+
+/* Modificar el badge azul suave en detalles de productos */
+[data-bs-theme="dark"] .badge.bg-primary.bg-opacity-10 {
+    background-color: rgba(var(--bs-primary-rgb), 0.2) !important;
+    color: var(--bs-primary) !important;
+    border: 1px solid rgba(var(--bs-primary-rgb), 0.4) !important;
+}
+
+/* ===================================================
+   EL MENÚ LATERAL (SIDEBAR) MODO OSCURO
+   =================================================== */
+
+/* 1. Fondo oscuro elegante para el menú lateral entero */
+[data-bs-theme="dark"] #sidebar-wrapper {
+    background-color: #121416 !important; /* Un gris casi negro, más profundo que el fondo */
+    border-right: 1px solid #333 !important;
+}
+
+/* 2. Textos de la cabecera (Óptica DXY) */
+[data-bs-theme="dark"] #sidebar-wrapper .sidebar-heading {
+    color: #f8f9fa !important;
+    border-bottom: 1px solid #333 !important;
+}
+
+/* Hacemos que el icono de los lentes tome el color de tu tema para que resalte */
+[data-bs-theme="dark"] #sidebar-wrapper .sidebar-heading i {
+    color: var(--bs-primary) !important; 
+}
+
+/* 3. Opciones del menú normales (Inactivas) */
+[data-bs-theme="dark"] #sidebar-wrapper .list-group-item {
+    color: #adb5bd !important; /* Gris claro para que no canse la vista */
+}
+
+/* Efecto al pasar el mouse por encima de una opción */
+[data-bs-theme="dark"] #sidebar-wrapper .list-group-item:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: #fff !important;
+}
+
+/* 4. Opción Seleccionada/Activa (¡Aquí ocurre la magia!) */
+[data-bs-theme="dark"] #sidebar-wrapper .list-group-item.active {
+    background-color: rgba(var(--bs-primary-rgb), 0.15) !important; /* Fondo translúcido de tu color */
+    color: var(--bs-primary) !important; /* Letras de tu color brillante */
+    border-left: 4px solid var(--bs-primary) !important; /* Línea izquierda indicadora */
+}
+
+/* ===================================================
+   SWEETALERT2 EN MODO OSCURO (Modales in situ)
+   =================================================== */
+[data-bs-theme="dark"] .swal2-popup {
+    background-color: #1e1e1e !important; /* Fondo oscuro tipo tarjeta */
+    color: #e0e0e0 !important; /* Texto claro */
+    border: 1px solid #333 !important;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-bs-theme="dark"] .swal2-title {
+    color: #fff !important;
+}
+
+[data-bs-theme="dark"] .swal2-html-container {
+    color: #adb5bd !important;
+}
+
+/* Inputs dentro de SweetAlert2 */
+[data-bs-theme="dark"] .swal2-input,
+[data-bs-theme="dark"] .swal2-select,
+[data-bs-theme="dark"] .swal2-textarea {
+    background-color: #2b2b2b !important;
+    color: #fff !important;
+    border-color: #444 !important;
+}
+
+[data-bs-theme="dark"] .swal2-input:focus,
+[data-bs-theme="dark"] .swal2-select:focus,
+[data-bs-theme="dark"] .swal2-textarea:focus {
+    border-color: var(--bs-primary) !important;
+    box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25) !important;
+}
+
+[data-bs-theme="dark"] .swal2-validation-message {
+    background-color: #2b2b2b !important;
+    color: #dc3545 !important;
 }

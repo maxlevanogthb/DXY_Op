@@ -23,7 +23,7 @@ public class SecurityConfig {
             )
             .formLogin(form -> form
                 .loginPage("/login")
-                .defaultSuccessUrl("/admin/dashboard", true)
+                .defaultSuccessUrl("/admin/citas", true)
                 .permitAll()
             )
             // ----------------------------------------------
