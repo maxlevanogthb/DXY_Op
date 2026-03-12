@@ -63,6 +63,41 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // Listener Armazón Propio
+  $("#checkArmazonPropio").on("change", function() {
+      const esPropio = $(this).is(":checked");
+      if (esPropio) {
+          $("#contenedorBuscadorInventario").addClass("d-none");
+          $("#contenedorArmazonPropio").removeClass("d-none");
+          $("#btnQuitarComision").addClass("d-none"); // No hay comisión que quitar
+          
+          // Limpiamos los campos
+          limpiarCamposFinales();
+          $("#armazonModelo").val("Armazón Propio del Paciente");
+          $("#armazonModelo").prop("readonly", false); // Permitir editar por si acaso
+      } else {
+          $("#contenedorBuscadorInventario").removeClass("d-none");
+          $("#contenedorArmazonPropio").addClass("d-none");
+          $("#btnQuitarComision").removeClass("d-none");
+          $("#armazonModelo").prop("readonly", true);
+          
+          filtrarMarcas(); // Recargar el buscador
+      }
+  });
+
+  // Autogenerar descripción del armazón propio al escribir
+  $("#propioMarca, #propioModelo, #propioColor, #propioTipo").on("input change", function() {
+      const marca = $("#propioMarca").val().trim();
+      const modelo = $("#propioModelo").val().trim();
+      const color = $("#propioColor").val().trim();
+      const tipo = $("#propioTipo").val();
+      
+      let desc = `[PROPIO] ${marca} ${modelo} ${color ? '- '+color : ''} (${tipo})`.trim();
+      if(desc === "[PROPIO] ()") desc = "Armazón Propio del Paciente";
+      
+      $("#armazonModelo").val(desc);
+  });
+
   // 7. Listener de Pagos
   $("#aCuenta").on("input change", function () {
     dibujarCarrito();
@@ -86,6 +121,7 @@ function abrirModalConsulta(idPaciente, nombrePaciente) {
   dibujarCarrito();
 
   $("#cajaEstadoEntrega").addClass("d-none");
+  $("#checkArmazonPropio").prop("checked", false).trigger("change");
 
   // 2. Valores por defecto (Fecha de hoy)
   const hoy = new Date().toISOString().split("T")[0];
@@ -395,6 +431,11 @@ function actualizarInterfazCotizador(tipo) {
   $("#panelMicas").addClass("d-none");
   $("#panelInventario").addClass("d-none");
   $("#panelConsulta").addClass("d-none");
+  $("#panelServicios").addClass("d-none"); // Nuevo panel
+  
+  // Limpiar UI de Armazón Propio
+  $("#opcionArmazonPropio").addClass("d-none");
+  $("#checkArmazonPropio").prop("checked", false).trigger("change");
 
   switch (tipo) {
     case "CONSULTA":
@@ -403,47 +444,74 @@ function actualizarInterfazCotizador(tipo) {
       $("#busqTipo").val("CONSULTA");
       break;
 
+    case "SERVICIO":
+      $("#panelServicios").removeClass("d-none");
+      $("#descServicio").focus();
+      $("#busqTipo").val("SERVICIO");
+      break;
+
     case "LENTE":
       $("#panelMicas").removeClass("d-none");
       $("#panelInventario").removeClass("d-none");
-      $("#tituloInventario").html(
-        '<i class="fas fa-glasses me-1"></i> SELECCIONAR ARMAZÓN',
-      );
+      $("#tituloInventario").html('<i class="fas fa-glasses me-1"></i> SELECCIONAR ARMAZÓN');
       $("#busqTipo").val("LENTE");
+      $("#opcionArmazonPropio").removeClass("d-none"); // Muestra el switch
       filtrarMarcas();
       break;
 
     case "CONTACTO":
       $("#panelInventario").removeClass("d-none");
-      $("#tituloInventario").html(
-        '<i class="fas fa-eye me-1"></i> LENTES DE CONTACTO',
-      );
+      $("#tituloInventario").html('<i class="fas fa-eye me-1"></i> LENTES DE CONTACTO');
       $("#busqTipo").val("CONTACTO");
       filtrarMarcas();
       break;
 
     case "GOTAS":
       $("#panelInventario").removeClass("d-none");
-      $("#tituloInventario").html(
-        '<i class="fas fa-tint me-1"></i> LÍQUIDOS Y CUIDADO OCULAR',
-      );
+      $("#tituloInventario").html('<i class="fas fa-tint me-1"></i> LÍQUIDOS/CUIDADO OCULAR');
       $("#busqTipo").val("GOTAS");
       filtrarMarcas();
       break;
 
     case "ACCESORIO":
       $("#panelInventario").removeClass("d-none");
-      $("#tituloInventario").html(
-        '<i class="fas fa-spray-can me-1"></i> ACCESORIOS',
-      );
+      $("#tituloInventario").html('<i class="fas fa-spray-can me-1"></i> ACCESORIOS');
       $("#busqTipo").val("ACCESORIO");
       filtrarMarcas();
       break;
   }
 }
 
+// EVENTOS DEL ARMAZÓN PROPIO 
+$(document).ready(function() {
+  $("#checkArmazonPropio").on("change", function() {
+      const esPropio = $(this).is(":checked");
+      if (esPropio) {
+          $("#contenedorBuscadorInventario").addClass("d-none");
+          $("#contenedorArmazonPropio").removeClass("d-none");
+          $("#btnQuitarComision").addClass("d-none");
+          limpiarCamposFinales();
+          $("#armazonModelo").val("Armazón Propio del Paciente");
+          $("#armazonModelo").prop("readonly", false);
+      } else {
+          $("#contenedorBuscadorInventario").removeClass("d-none");
+          $("#contenedorArmazonPropio").addClass("d-none");
+          $("#btnQuitarComision").removeClass("d-none");
+          $("#armazonModelo").prop("readonly", true);
+          filtrarMarcas();
+      }
+  });
+
+  $("#propioMarca, #propioModelo, #propioColor, #propioTipo, #propioCondicion").on("input change", function() {
+      const marca = $("#propioMarca").val().trim();
+      const modelo = $("#propioModelo").val().trim();
+      const desc = `[PROPIO] ${marca} ${modelo} (${$("#propioTipo").val()})`.trim();
+      $("#armazonModelo").val(desc === "[PROPIO] ()" ? "Armazón Propio del Paciente" : desc);
+  });
+});
+
 // ==========================================
-// E. CARRITO DE COMPRAS
+// E. CARRITO DE COMPRAS (Validación Estricta)
 // ==========================================
 function agregarItemAlCarrito() {
   const tipo = $('input[name="tipoProducto"]:checked').val();
@@ -451,89 +519,65 @@ function agregarItemAlCarrito() {
 
   if (tipo === "CONSULTA") {
     const precio = parseFloat($("#precioConsulta").val()) || 0;
-    if (precio <= 0) {
-      Swal.fire("Atención", "Ingrese el costo de la consulta.", "warning");
-      return;
-    }
-    item = {
-      tipoItem: "CONSULTA",
-      descripcion: "Consulta Optométrica / Examen de la Vista",
-      cantidad: 1,
-      precioUnitario: precio,
-      subtotal: precio,
-      material: null,
-      tratamiento: null,
-      tinte: null,
-      productoInventarioId: null,
-    };
-  } else {
+    if (precio <= 0) { Swal.fire("Atención", "Ingrese el costo de la consulta.", "warning"); return; }
+    item = { tipoItem: "CONSULTA", descripcion: "Consulta / Examen", cantidad: 1, precioUnitario: precio, subtotal: precio, material: null, tratamiento: null, tinte: null, productoInventarioId: null };
+  } 
+  else if (tipo === "SERVICIO") {
+    const desc = $("#descServicio").val().trim();
+    const precio = parseFloat($("#precioServicio").val()) || 0;
+    if (!desc || precio <= 0) { Swal.fire("Atención", "Ingrese la descripción y el costo de la reparación.", "warning"); return; }
+    item = { tipoItem: "SERVICIO", descripcion: `Reparación: ${desc}`, cantidad: 1, precioUnitario: precio, subtotal: precio, material: null, tratamiento: null, tinte: null, productoInventarioId: null };
+  } 
+  else {
+    const esPropio = $("#checkArmazonPropio").is(":checked");
     const precioInv = parseFloat($("#precioArmazon").val()) || 0;
-    const precioMicas =
-      tipo === "LENTE"
-        ? (parseFloat($("#precioMaterial").val()) || 0) +
-          (parseFloat($("#precioTratamiento").val()) || 0) +
-          (parseFloat($("#precioTinte").val()) || 0)
-        : 0;
-
     let descripcion = $("#armazonModelo").val();
 
-    if (!descripcion || descripcion === "" || descripcion === "-") {
-      Swal.fire(
-        "Atención",
-        "Debe seleccionar un producto del inventario.",
-        "warning",
-      );
-      return;
+    // 🔴 VALIDACIÓN 1: Armazón
+    if (!esPropio && (!descripcion || descripcion === "" || descripcion === "-")) {
+      Swal.fire("¡Falta el Armazón!", "Seleccione un producto del inventario.", "warning"); return;
+    }
+    if (esPropio && (!$("#propioMarca").val() || !$("#propioModelo").val())) {
+      Swal.fire("¡Datos Incompletos!", "Indique la Marca y Modelo del armazón que trae el paciente.", "warning"); return;
     }
 
     const mat = $("#material").val();
     const trat = $("#tratamiento").val();
     const tinte = $("#tinte").val();
+    const precioMicas = tipo === "LENTE" ? (parseFloat($("#precioMaterial").val()) || 0) + (parseFloat($("#precioTratamiento").val()) || 0) + (parseFloat($("#precioTinte").val()) || 0) : 0;
 
+    // 🔴 VALIDACIÓN 2: Micas obligatorias para Lentes
     if (tipo === "LENTE") {
-      if (mat) descripcion += ` + Mica ${mat}`;
-      if (trat) descripcion += ` (${trat})`;
-      if (tinte) descripcion += ` [Tinte: ${tinte}]`;
+        if (!mat) {
+            Swal.fire("¡Faltan las Micas!", "Debe seleccionar un Material para el lente (o crear una opción 'Sin Mica').", "warning"); return;
+        }
+        descripcion += ` + Mica ${mat} ${trat ? `(${trat})` : ''} ${tinte ? `[Tinte: ${tinte}]` : ''}`;
     }
 
     const subtotal = precioInv + precioMicas;
+    let notasExtras = null;
+    if (esPropio) notasExtras = `Armazón Propio: ${$("#propioMarca").val()} ${$("#propioModelo").val()} | Condición: ${$("#propioCondicion").val()}`;
 
     item = {
-      tipoItem: tipo,
-      descripcion: descripcion,
-      cantidad: 1,
-      precioUnitario: subtotal,
-      subtotal: subtotal,
-      material: tipo === "LENTE" ? mat : null,
-      tratamiento: tipo === "LENTE" ? trat : null,
-      tinte: tipo === "LENTE" ? tinte : null,
-      productoInventarioId: $("#selectProducto").val()
-        ? parseInt($("#selectProducto").val())
-        : null,
+      tipoItem: tipo, descripcion: descripcion, cantidad: 1, precioUnitario: subtotal, subtotal: subtotal,
+      material: tipo === "LENTE" ? mat : null, tratamiento: tipo === "LENTE" ? trat : null, tinte: tipo === "LENTE" ? tinte : null,
+      productoInventarioId: (!esPropio && $("#selectProducto").val()) ? parseInt($("#selectProducto").val()) : null,
+      notas: notasExtras
     };
   }
 
   carritoVenta.push(item);
   dibujarCarrito();
+  Swal.mixin({ toast: true, position: "top-end", showConfirmButton: false, timer: 1500 }).fire({ icon: "success", title: "Agregado a la venta" });
 
-  Swal.mixin({
-    toast: true,
-    position: "top-end",
-    showConfirmButton: false,
-    timer: 1500,
-  }).fire({ icon: "success", title: "Agregado a la lista" });
-
-  // Limpiar para el siguiente
-  if (tipo !== "CONSULTA") {
-    $("#armazonModelo").val("");
-    $("#precioArmazon").val("0.00");
-    $("#selectProducto").val("");
-    $("#material").val("").trigger("change");
-    $("#tratamiento").val("").trigger("change");
-    $("#tinte").val("").trigger("change");
+  // Limpieza general
+  if (tipo === "CONSULTA") $("#precioConsulta").val("0.00");
+  else if (tipo === "SERVICIO") { $("#descServicio").val(""); $("#precioServicio").val(""); }
+  else {
+    $("#armazonModelo").val(""); $("#precioArmazon").val("0.00"); $("#selectProducto").val("");
+    $("#propioMarca").val(""); $("#propioModelo").val(""); $("#propioColor").val(""); $("#propioCondicion").val("");
+    $("#material").val("").trigger("change"); $("#tratamiento").val("").trigger("change"); $("#tinte").val("").trigger("change");
     calcularTotales();
-  } else {
-    $("#precioConsulta").val("0.00");
   }
 }
 
@@ -921,6 +965,9 @@ function abrirHistorial(clienteId, nombrePaciente) {
                     </button>
                     <button class="btn btn-outline-dark px-2" title="Estado de Cuenta / Pagos" onclick="imprimirDesdeHistorial(${c.id}, 'estado-cuenta')">
                         <i class="fas fa-file-invoice-dollar"></i>
+                    </button>
+                    <button class="btn btn-outline-danger px-2 ms-1" title="Eliminar Hoja Clínica" onclick="eliminarConsultaDeHistorial(${c.id}, ${clienteId}, '${nombrePaciente}')">
+                        <i class="fas fa-trash-alt"></i>
                     </button>
                 </div>
             </td>

@@ -332,3 +332,6 @@ body.sb-sidenav-toggled #sidebar-wrapper {
     background-color: #2b2b2b !important;
     color: #dc3545 !important;
 }
+
+.cursor-pointer { cursor: pointer; }
+

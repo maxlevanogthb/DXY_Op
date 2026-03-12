@@ -174,7 +174,6 @@
                             <input type="hidden" id="consulta_id">
 
                             <div class="row mb-3 p-3 bg-body rounded shadow-sm mx-1">
-
                                 <div class="col-md-4 mb-3">
                                     <label class="form-label small fw-bold text-muted">FECHA</label>
                                     <input type="date" id="fechaVisita" class="form-control form-control-sm">
@@ -221,480 +220,604 @@
                                         class="form-control border-primary border-opacity-25" rows="2"
                                         placeholder="Ej. Aplicar 1 gota de Hyabak cada 8 horas por 7 días..."></textarea>
                                 </div>
-
                             </div>
 
-                            <div class="mb-3 p-3 border rounded bg-body mx-1 shadow-sm">
-                                <h6 class="mb-3 pb-2 border-bottom border-primary fw-bold text-primary">
-                                    <i class="fas fa-eye me-2"></i>AGUDEZA VISUAL
-                                </h6>
-                                <div class="row g-3">
-                                    <div class="col-lg-3 col-md-6">
-                                        <div class="card border-0 bg-body-tertiary h-100">
-                                            <div
-                                                class="card-header bg-secondary bg-opacity-10 text-center fw-bold text-body py-1 small">
-                                                SIN GRADUACIÓN
-                                            </div>
-                                            <div class="card-body p-2">
-                                                <div class="input-group input-group-sm mb-1">
-                                                    <span class="input-group-text border-0 bg-body small text-muted"
-                                                        style="width: 70px;">Lejos OD</span>
-                                                    <input type="text" id="avSinLejosOD"
-                                                        class="form-control text-center" placeholder="20/20">
-                                                </div>
-                                                <div class="input-group input-group-sm mb-1">
-                                                    <span class="input-group-text border-0 bg-body small text-muted"
-                                                        style="width: 70px;">Lejos OI</span>
-                                                    <input type="text" id="avSinLejosOI"
-                                                        class="form-control text-center">
-                                                </div>
-                                                <div class="input-group input-group-sm mb-1">
-                                                    <span class="input-group-text border-0 bg-body small text-muted"
-                                                        style="width: 70px;">Cerca OD</span>
-                                                    <input type="text" id="avSinCercaOD"
-                                                        class="form-control text-center">
-                                                </div>
-                                                <div class="input-group input-group-sm">
-                                                    <span class="input-group-text border-0 bg-body small text-muted"
-                                                        style="width: 70px;">Cerca OI</span>
-                                                    <input type="text" id="avSinCercaOI"
-                                                        class="form-control text-center">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-3 col-md-6">
-                                        <div class="card border border-primary border-opacity-25 h-100">
-                                            <div
-                                                class="card-header bg-primary bg-opacity-10 text-center fw-bold text-primary py-1 small">
-                                                GRAD. ACTUAL
-                                            </div>
-                                            <div class="card-body p-2">
-                                                <div class="input-group input-group-sm mb-1">
-                                                    <span
-                                                        class="input-group-text border-0 bg-body small text-primary fw-bold"
-                                                        style="width: 70px;">Lejos OD</span>
-                                                    <input type="text" id="avActualLejosOD"
-                                                        class="form-control text-center">
-                                                </div>
-                                                <div class="input-group input-group-sm mb-1">
-                                                    <span
-                                                        class="input-group-text border-0 bg-body small text-primary fw-bold"
-                                                        style="width: 70px;">Lejos OI</span>
-                                                    <input type="text" id="avActualLejosOI"
-                                                        class="form-control text-center">
-                                                </div>
-                                                <div class="input-group input-group-sm mb-1">
-                                                    <span
-                                                        class="input-group-text border-0 bg-body small text-primary fw-bold"
-                                                        style="width: 70px;">Cerca OD</span>
-                                                    <input type="text" id="avActualCercaOD"
-                                                        class="form-control text-center">
-                                                </div>
-                                                <div class="input-group input-group-sm">
-                                                    <span
-                                                        class="input-group-text border-0 bg-body small text-primary fw-bold"
-                                                        style="width: 70px;">Cerca OI</span>
-                                                    <input type="text" id="avActualCercaOI"
-                                                        class="form-control text-center">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-3 col-md-6">
-                                        <div class="card border border-success border-opacity-25 h-100">
-                                            <div
-                                                class="card-header bg-success bg-opacity-10 text-center fw-bold text-success py-1 small">
-                                                NUEVA GRAD.
-                                            </div>
-                                            <div class="card-body p-2">
-                                                <div class="input-group input-group-sm mb-1">
-                                                    <span
-                                                        class="input-group-text border-0 bg-body small text-success fw-bold"
-                                                        style="width: 70px;">Lejos OD</span>
-                                                    <input type="text" id="avNuevaLejosOD"
-                                                        class="form-control text-center">
-                                                </div>
-                                                <div class="input-group input-group-sm mb-1">
-                                                    <span
-                                                        class="input-group-text border-0 bg-body small text-success fw-bold"
-                                                        style="width: 70px;">Lejos OI</span>
-                                                    <input type="text" id="avNuevaLejosOI"
-                                                        class="form-control text-center">
-                                                </div>
-                                                <div class="input-group input-group-sm mb-1">
-                                                    <span
-                                                        class="input-group-text border-0 bg-body small text-success fw-bold"
-                                                        style="width: 70px;">Cerca OD</span>
-                                                    <input type="text" id="avNuevaCercaOD"
-                                                        class="form-control text-center">
-                                                </div>
-                                                <div class="input-group input-group-sm">
-                                                    <span
-                                                        class="input-group-text border-0 bg-body small text-success fw-bold"
-                                                        style="width: 70px;">Cerca OI</span>
-                                                    <input type="text" id="avNuevaCercaOI"
-                                                        class="form-control text-center">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-3 col-md-6">
-                                        <div class="card border border-warning border-opacity-25 h-100">
-                                            <div
-                                                class="card-header bg-warning bg-opacity-10 text-center fw-bold text-body py-1 small">
-                                                CAPACIDAD
-                                            </div>
-                                            <div class="card-body p-2 d-flex flex-column justify-content-center">
-                                                <div class="input-group input-group-sm mb-2">
-                                                    <span
-                                                        class="input-group-text border-0 bg-body small text-warning fw-bold"
-                                                        style="width: 50px;">OD</span>
-                                                    <input type="text" id="capacidadOD" class="form-control text-center"
-                                                        placeholder="100%">
-                                                </div>
-                                                <div class="input-group input-group-sm">
-                                                    <span
-                                                        class="input-group-text border-0 bg-body small text-warning fw-bold"
-                                                        style="width: 50px;">OI</span>
-                                                    <input type="text" id="capacidadOI"
-                                                        class="form-control text-center">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                            <div class="mb-3 border rounded bg-body mx-1 shadow-sm overflow-hidden">
+                                <div class="p-3 bg-body-tertiary d-flex justify-content-between align-items-center cursor-pointer"
+                                    role="button" data-bs-toggle="collapse" data-bs-target="#collapseAgudeza">
+                                    <h6 class="mb-0 fw-bold text-primary"><i class="fas fa-eye me-2"></i>AGUDEZA VISUAL
+                                    </h6>
+                                    <i class="fas fa-chevron-down text-primary"></i>
                                 </div>
-                            </div>
-
-                            <div class="mb-3 p-3 border rounded bg-body mx-1 shadow-sm">
-                                <h6 class="mb-3 pb-2 border-bottom border-info fw-bold text-info">
-                                    <i class="fas fa-search me-2"></i>REFRACCIÓN
-                                </h6>
-                                <div class="row g-3">
-                                    <div class="col-md-9">
-                                        <div class="card shadow-sm h-100 border-0">
-                                            <div class="card-header bg-info text-white fw-bold py-1 small"><i
-                                                    class="fas fa-table me-2"></i>MEDICIONES</div>
-                                            <div class="card-body p-0">
-                                                <div class="table-responsive">
-                                                    <table
-                                                        class="table table-sm table-bordered align-middle mb-0 text-center">
-                                                        <thead class="table-secondary text-muted small">
-                                                            <tr>
-                                                                <th class="text-start ps-3" style="width: 25%;">Prueba
-                                                                </th>
-                                                                <th style="width: 25%;">Esfera</th>
-                                                                <th style="width: 25%;">Cilindro</th>
-                                                                <th style="width: 25%;">Eje</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <tr>
-                                                                <th
-                                                                    class="text-start ps-3 text-secondary bg-body-tertiary">
-                                                                    Bruta OD</th>
-                                                                <td class="p-0"><input type="text" id="brutaOdEsfera"
-                                                                        class="form-control form-control-sm border-0 text-center shadow-none py-2"
-                                                                        placeholder="-0.00"></td>
-                                                                <td class="p-0"><input type="text" id="brutaOdCilindro"
-                                                                        class="form-control form-control-sm border-0 text-center shadow-none py-2"
-                                                                        placeholder="-0.00"></td>
-                                                                <td class="p-0"><input type="number" id="brutaOdEje"
-                                                                        class="form-control form-control-sm border-0 text-center shadow-none py-2"
-                                                                        placeholder="0°"></td>
-                                                            </tr>
-                                                            <tr>
-                                                                <th
-                                                                    class="text-start ps-3 text-secondary bg-body-tertiary">
-                                                                    Bruta OI</th>
-                                                                <td class="p-0"><input type="text" id="brutaOiEsfera"
-                                                                        class="form-control form-control-sm border-0 text-center shadow-none py-2">
-                                                                </td>
-                                                                <td class="p-0"><input type="text" id="brutaOiCilindro"
-                                                                        class="form-control form-control-sm border-0 text-center shadow-none py-2">
-                                                                </td>
-                                                                <td class="p-0"><input type="number" id="brutaOiEje"
-                                                                        class="form-control form-control-sm border-0 text-center shadow-none py-2">
-                                                                </td>
-                                                            </tr>
-                                                            <tr class="table-primary border-primary">
-                                                                <th
-                                                                    class="text-start ps-3 text-primary bg-primary bg-opacity-10">
-                                                                    Subjetivo OD</th>
-                                                                <td class="p-0"><input type="text"
-                                                                        id="subjetivoOdEsfera"
-                                                                        class="form-control form-control-sm border-0 text-center fw-bold shadow-none py-2 text-primary">
-                                                                </td>
-                                                                <td class="p-0"><input type="text"
-                                                                        id="subjetivoOdCilindro"
-                                                                        class="form-control form-control-sm border-0 text-center fw-bold shadow-none py-2 text-primary">
-                                                                </td>
-                                                                <td class="p-0"><input type="number" id="subjetivoOdEje"
-                                                                        class="form-control form-control-sm border-0 text-center fw-bold shadow-none py-2 text-primary">
-                                                                </td>
-                                                            </tr>
-                                                            <tr class="table-primary border-primary">
-                                                                <th
-                                                                    class="text-start ps-3 text-primary bg-primary bg-opacity-10">
-                                                                    Subjetivo OI</th>
-                                                                <td class="p-0"><input type="text"
-                                                                        id="subjetivoOiEsfera"
-                                                                        class="form-control form-control-sm border-0 text-center fw-bold shadow-none py-2 text-primary">
-                                                                </td>
-                                                                <td class="p-0"><input type="text"
-                                                                        id="subjetivoOiCilindro"
-                                                                        class="form-control form-control-sm border-0 text-center fw-bold shadow-none py-2 text-primary">
-                                                                </td>
-                                                                <td class="p-0"><input type="number" id="subjetivoOiEje"
-                                                                        class="form-control form-control-sm border-0 text-center fw-bold shadow-none py-2 text-primary">
-                                                                </td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="card shadow-sm h-100 border-0 bg-body-tertiary">
-                                            <div
-                                                class="card-header bg-secondary text-white fw-bold text-center py-1 small">
-                                                ADICIONES</div>
-                                            <div class="card-body p-3">
-                                                <div class="mb-2">
-                                                    <label class="small fw-bold text-muted d-block">Adición
-                                                        (ADD)</label>
-                                                    <input id="adicion"
-                                                        class="form-control form-control-sm text-center fw-bold"
-                                                        placeholder="+2.00">
-                                                </div>
-                                                <div class="mb-2">
-                                                    <label class="small fw-bold text-muted d-block">Alt. Oblea</label>
-                                                    <input id="alturaOblea"
-                                                        class="form-control form-control-sm text-center">
-                                                </div>
-                                                <div class="mb-0">
-                                                    <label class="small fw-bold text-muted d-block">DIP</label>
-                                                    <input id="dip" class="form-control form-control-sm text-center">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="p-3 border rounded bg-body shadow-sm mx-1 mt-1">
-                                <h6 class="border-bottom border-success pb-2 text-success fw-bold">
-                                    <i class="fas fa-shopping-cart me-2"></i>COTIZADOR Y PRESUPUESTO
-                                </h6>
-
-                                <div class="text-center mb-4 mt-3">
-                                    <p class="text-muted small mb-2 fw-bold">¿Qué desea agregar a la venta?</p>
-                                    <div class="btn-group w-100 shadow-sm" role="group">
-                                        <input type="radio" class="btn-check" name="tipoProducto" id="optConsulta"
-                                            value="CONSULTA" autocomplete="off">
-                                        <label class="btn btn-outline-primary" for="optConsulta"><i
-                                                class="fas fa-user-md d-block mb-1 fs-5"></i>Consulta</label>
-
-                                        <input type="radio" class="btn-check" name="tipoProducto" id="optLente"
-                                            value="LENTE" autocomplete="off" checked>
-                                        <label class="btn btn-outline-primary" for="optLente"><i
-                                                class="fas fa-glasses d-block mb-1 fs-5"></i>Lentes</label>
-
-                                        <input type="radio" class="btn-check" name="tipoProducto" id="optContacto"
-                                            value="CONTACTO" autocomplete="off">
-                                        <label class="btn btn-outline-primary" for="optContacto"><i
-                                                class="fas fa-eye d-block mb-1 fs-5"></i>L. Contacto</label>
-
-                                        <input type="radio" class="btn-check" name="tipoProducto" id="optGotas"
-                                            value="GOTAS" autocomplete="off">
-                                        <label class="btn btn-outline-info" for="optGotas">
-                                            <i class="fas fa-tint d-block mb-1 fs-5"></i>Cuidado Ocular
-                                        </label>
-
-                                        <input type="radio" class="btn-check" name="tipoProducto" id="optAccesorio"
-                                            value="ACCESORIO" autocomplete="off">
-                                        <label class="btn btn-outline-primary" for="optAccesorio"><i
-                                                class="fas fa-spray-can d-block mb-1 fs-5"></i>Accesorios</label>
-                                    </div>
-                                </div>
-
-                                <div class="row g-3">
-                                    <div class="col-md-6" id="panelMicas">
-                                        <div class="card h-100 border-light bg-body-tertiary">
-                                            <div class="card-body p-3">
-                                                <h6 class="text-muted mb-3 small fw-bold"><i
-                                                        class="fas fa-layer-group me-1"></i> MICAS / LENTES</h6>
-                                                <div class="mb-2">
-                                                    <label class="small text-muted">Material</label>
-                                                    <div class="input-group input-group-sm">
-                                                        <select id="material"
-                                                            class="form-select form-select-sm"></select>
-                                                        <button class="btn btn-outline-dark" type="button"
-                                                            onclick="crearLenteInSitu('MATERIAL', 'material', 'modalConsulta')"
-                                                            title="Nuevo Material"><i class="fas fa-plus"></i></button>
+                                <div class="collapse" id="collapseAgudeza">
+                                    <div class="p-3 border-top">
+                                        <div class="row g-3">
+                                            <div class="col-lg-3 col-md-6">
+                                                <div class="card border-0 bg-body-tertiary h-100">
+                                                    <div
+                                                        class="card-header bg-secondary bg-opacity-10 text-center fw-bold text-body py-1 small">
+                                                        SIN GRADUACIÓN</div>
+                                                    <div class="card-body p-2">
+                                                        <div class="input-group input-group-sm mb-1">
+                                                            <span
+                                                                class="input-group-text border-0 bg-body small text-muted"
+                                                                style="width: 70px;">Lejos OD</span>
+                                                            <input type="text" id="avSinLejosOD"
+                                                                class="form-control text-center" placeholder="20/20">
+                                                        </div>
+                                                        <div class="input-group input-group-sm mb-1">
+                                                            <span
+                                                                class="input-group-text border-0 bg-body small text-muted"
+                                                                style="width: 70px;">Lejos OI</span>
+                                                            <input type="text" id="avSinLejosOI"
+                                                                class="form-control text-center">
+                                                        </div>
+                                                        <div class="input-group input-group-sm mb-1">
+                                                            <span
+                                                                class="input-group-text border-0 bg-body small text-muted"
+                                                                style="width: 70px;">Cerca OD</span>
+                                                            <input type="text" id="avSinCercaOD"
+                                                                class="form-control text-center">
+                                                        </div>
+                                                        <div class="input-group input-group-sm">
+                                                            <span
+                                                                class="input-group-text border-0 bg-body small text-muted"
+                                                                style="width: 70px;">Cerca OI</span>
+                                                            <input type="text" id="avSinCercaOI"
+                                                                class="form-control text-center">
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <div class="mb-2">
-                                                    <label class="small text-muted">Tratamiento</label>
-                                                    <div class="input-group input-group-sm">
-                                                        <select id="tratamiento"
-                                                            class="form-select form-select-sm"></select>
-                                                        <button class="btn btn-outline-dark" type="button"
-                                                            onclick="crearLenteInSitu('TRATAMIENTO', 'tratamiento', 'modalConsulta')"
-                                                            title="Nuevo Tratamiento"><i
-                                                                class="fas fa-plus"></i></button>
+                                            </div>
+                                            <div class="col-lg-3 col-md-6">
+                                                <div class="card border border-primary border-opacity-25 h-100">
+                                                    <div
+                                                        class="card-header bg-primary bg-opacity-10 text-center fw-bold text-primary py-1 small">
+                                                        GRAD. ACTUAL</div>
+                                                    <div class="card-body p-2">
+                                                        <div class="input-group input-group-sm mb-1">
+                                                            <span
+                                                                class="input-group-text border-0 bg-body small text-primary fw-bold"
+                                                                style="width: 70px;">Lejos OD</span>
+                                                            <input type="text" id="avActualLejosOD"
+                                                                class="form-control text-center">
+                                                        </div>
+                                                        <div class="input-group input-group-sm mb-1">
+                                                            <span
+                                                                class="input-group-text border-0 bg-body small text-primary fw-bold"
+                                                                style="width: 70px;">Lejos OI</span>
+                                                            <input type="text" id="avActualLejosOI"
+                                                                class="form-control text-center">
+                                                        </div>
+                                                        <div class="input-group input-group-sm mb-1">
+                                                            <span
+                                                                class="input-group-text border-0 bg-body small text-primary fw-bold"
+                                                                style="width: 70px;">Cerca OD</span>
+                                                            <input type="text" id="avActualCercaOD"
+                                                                class="form-control text-center">
+                                                        </div>
+                                                        <div class="input-group input-group-sm">
+                                                            <span
+                                                                class="input-group-text border-0 bg-body small text-primary fw-bold"
+                                                                style="width: 70px;">Cerca OI</span>
+                                                            <input type="text" id="avActualCercaOI"
+                                                                class="form-control text-center">
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <div class="mb-2">
-                                                    <label class="small text-muted">Tinte</label>
-                                                    <div class="input-group input-group-sm">
-                                                        <select id="tinte" class="form-select form-select-sm"></select>
-                                                        <button class="btn btn-outline-dark" type="button"
-                                                            onclick="crearLenteInSitu('TINTE', 'tinte', 'modalConsulta')"
-                                                            title="Nuevo Tinte"><i class="fas fa-plus"></i></button>
+                                            </div>
+                                            <div class="col-lg-3 col-md-6">
+                                                <div class="card border border-success border-opacity-25 h-100">
+                                                    <div
+                                                        class="card-header bg-success bg-opacity-10 text-center fw-bold text-success py-1 small">
+                                                        NUEVA GRAD.</div>
+                                                    <div class="card-body p-2">
+                                                        <div class="input-group input-group-sm mb-1">
+                                                            <span
+                                                                class="input-group-text border-0 bg-body small text-success fw-bold"
+                                                                style="width: 70px;">Lejos OD</span>
+                                                            <input type="text" id="avNuevaLejosOD"
+                                                                class="form-control text-center">
+                                                        </div>
+                                                        <div class="input-group input-group-sm mb-1">
+                                                            <span
+                                                                class="input-group-text border-0 bg-body small text-success fw-bold"
+                                                                style="width: 70px;">Lejos OI</span>
+                                                            <input type="text" id="avNuevaLejosOI"
+                                                                class="form-control text-center">
+                                                        </div>
+                                                        <div class="input-group input-group-sm mb-1">
+                                                            <span
+                                                                class="input-group-text border-0 bg-body small text-success fw-bold"
+                                                                style="width: 70px;">Cerca OD</span>
+                                                            <input type="text" id="avNuevaCercaOD"
+                                                                class="form-control text-center">
+                                                        </div>
+                                                        <div class="input-group input-group-sm">
+                                                            <span
+                                                                class="input-group-text border-0 bg-body small text-success fw-bold"
+                                                                style="width: 70px;">Cerca OI</span>
+                                                            <input type="text" id="avNuevaCercaOI"
+                                                                class="form-control text-center">
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <input type="hidden" id="precioMaterial" value="0">
-                                                <input type="hidden" id="precioTratamiento" value="0">
-                                                <input type="hidden" id="precioTinte" value="0">
-
-                                                <div class="d-flex justify-content-between mt-3 border-top pt-2">
-                                                    <span class="small fw-bold">Subtotal Micas:</span>
-                                                    <span class="fw-bold text-success"
-                                                        id="displaySubtotalMicas">$0.00</span>
-                                                </div>
                                             </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6" id="panelInventario">
-                                        <div class="card h-100 border-light bg-body-tertiary">
-                                            <div class="card-body p-3">
-                                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                                    <h6 class="text-muted small fw-bold mb-0" id="tituloInventario">
-                                                        <i class="fas fa-box-open me-1"></i> SELECCIONAR PRODUCTO
-                                                    </h6>
-                                                    <button type="button" class="btn btn-sm btn-outline-success"
-                                                        onclick="crearProductoRapidoInSitu('modalConsulta')">
-                                                        <i class="fas fa-plus me-1"></i>Crear Rápido
-                                                    </button>
-                                                </div>
-
-                                                <input type="hidden" id="busqTipo" value="">
-                                                <div class="row g-2 mb-2">
-                                                    <div class="col-6"><select id="busqMarca"
-                                                            class="form-select form-select-sm" disabled>
-                                                            <option>Marca...</option>
-                                                        </select></div>
-                                                    <div class="col-6"><select id="busqModelo"
-                                                            class="form-select form-select-sm" disabled>
-                                                            <option>Modelo...</option>
-                                                        </select></div>
-                                                    <div class="col-6"><select id="busqColor"
-                                                            class="form-select form-select-sm" disabled>
-                                                            <option>Color...</option>
-                                                        </select></div>
-                                                    <div class="col-6"><select id="busqTalla"
-                                                            class="form-select form-select-sm" disabled>
-                                                            <option>Talla...</option>
-                                                        </select></div>
-                                                </div>
-
-                                                <input type="hidden" id="selectProducto" value="">
-
-                                                <div class="input-group input-group-sm mb-2 mt-3">
-                                                    <span class="input-group-text bg-body text-muted">Desc.</span>
-                                                    <input type="text" id="armazonModelo"
-                                                        class="form-control bg-body fw-bold" readonly placeholder="-">
-                                                </div>
-                                                <div class="input-group input-group-sm">
-                                                    <span class="input-group-text bg-body fw-bold text-success">Precio
-                                                        $</span>
-                                                    <input type="number" id="precioArmazon"
-                                                        class="form-control text-end fw-bold text-success"
-                                                        placeholder="0.00">
-                                                    <button class="btn btn-outline-secondary" type="button"
-                                                        onclick="quitarComisionProducto()"
-                                                        title="Vender a precio costo (Quitar comisión)">
-                                                        <i class="fas fa-tags text-warning"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-12 d-none" id="panelConsulta">
-                                        <div
-                                            class="alert alert-info d-flex align-items-center mb-0 border-info border-opacity-25">
-                                            <i class="fas fa-stethoscope me-3 fs-3"></i>
-                                            <div class="flex-grow-1">
-                                                <strong>Costo de la Consulta / Examen Visual</strong>
-                                                <p class="small mb-2 text-muted">Ingrese el valor a cobrar (Deje en 0.00
-                                                    si no tiene costo).</p>
-                                                <div class="input-group input-group-sm" style="max-width: 250px;">
-                                                    <span class="input-group-text fw-bold">$</span>
-                                                    <input type="number" class="form-control fw-bold"
-                                                        id="precioConsulta" value="0.00">
+                                            <div class="col-lg-3 col-md-6">
+                                                <div class="card border border-warning border-opacity-25 h-100">
+                                                    <div
+                                                        class="card-header bg-warning bg-opacity-10 text-center fw-bold text-body py-1 small">
+                                                        CAPACIDAD</div>
+                                                    <div
+                                                        class="card-body p-2 d-flex flex-column justify-content-center">
+                                                        <div class="input-group input-group-sm mb-2">
+                                                            <span
+                                                                class="input-group-text border-0 bg-body small text-warning fw-bold"
+                                                                style="width: 50px;">OD</span>
+                                                            <input type="text" id="capacidadOD"
+                                                                class="form-control text-center" placeholder="100%">
+                                                        </div>
+                                                        <div class="input-group input-group-sm">
+                                                            <span
+                                                                class="input-group-text border-0 bg-body small text-warning fw-bold"
+                                                                style="width: 50px;">OI</span>
+                                                            <input type="text" id="capacidadOI"
+                                                                class="form-control text-center">
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-
-                                <div class="d-grid mt-3 mb-4">
-                                    <button type="button" class="btn btn-outline-success border-2 shadow-sm fw-bold"
-                                        onclick="agregarItemAlCarrito()">
-                                        <i class="fas fa-cart-plus me-2"></i>AÑADIR A LA VENTA
-                                    </button>
-                                </div>
-
-                                <h6 class="small fw-bold text-secondary border-bottom pb-2"><i
-                                        class="fas fa-receipt me-1"></i> RESUMEN DE LA VENTA</h6>
-                                <div class="table-responsive border rounded mb-3"
-                                    style="max-height: 200px; overflow-y: auto;">
-                                    <table class="table table-sm table-hover mb-0" id="tablaCarrito">
-                                        <thead class="table-secondary sticky-top small text-muted">
-                                            <tr>
-                                                <th style="width: 55%">Artículo</th>
-                                                <th class="text-center">Categoría</th>
-                                                <th class="text-end">Importe</th>
-                                                <th class="text-center" style="width: 40px"></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="carritoBody">
-                                            <tr>
-                                                <td colspan="4" class="text-center text-muted py-3 small"><i
-                                                        class="fas fa-shopping-basket mb-1 fs-5 d-block"></i>Lista vacía
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-
-                                <div class="col-12 mt-2 border-top pt-3">
-                                    <div class="row text-center align-items-center">
-                                        <div class="col-4 border-end">
-                                            <label class="small fw-bold text-muted d-block">TOTAL VENTA</label>
-                                            <h4 class="text-body mb-0" id="displayTotal">$0.00</h4>
-                                            <input type="hidden" id="totalPresupuesto">
-                                        </div>
-                                        <div class="col-4 border-end">
-                                            <label class="small fw-bold text-success d-block">A CUENTA</label>
-                                            <input type="number" id="aCuenta"
-                                                class="form-control text-center fw-bold text-success border-0 bg-success bg-opacity-10 fs-5 precio-calc"
-                                                placeholder="$0.00">
-                                        </div>
-                                        <div class="col-4">
-                                            <label class="small fw-bold text-danger d-block">RESTANTE</label>
-                                            <h4 class="text-danger mb-0" id="displayRestante">$0.00</h4>
-                                            <input type="hidden" id="restante">
-                                        </div>
-                                    </div>
-                                </div>
-
                             </div>
 
+                            <div class="mb-3 border rounded bg-body mx-1 shadow-sm overflow-hidden">
+                                <div class="p-3 bg-body-tertiary d-flex justify-content-between align-items-center cursor-pointer"
+                                    role="button" data-bs-toggle="collapse" data-bs-target="#collapseRefraccion">
+                                    <h6 class="mb-0 fw-bold text-info"><i class="fas fa-search me-2"></i>REFRACCIÓN</h6>
+                                    <i class="fas fa-chevron-down text-info"></i>
+                                </div>
+                                <div class="collapse" id="collapseRefraccion">
+                                    <div class="p-3 border-top">
+                                        <div class="row g-3">
+                                            <div class="col-md-9">
+                                                <div class="card shadow-sm h-100 border-0">
+                                                    <div class="card-header bg-info text-white fw-bold py-1 small"><i
+                                                            class="fas fa-table me-2"></i>MEDICIONES</div>
+                                                    <div class="card-body p-0">
+                                                        <div class="table-responsive">
+                                                            <table
+                                                                class="table table-sm table-bordered align-middle mb-0 text-center">
+                                                                <thead class="table-secondary text-muted small">
+                                                                    <tr>
+                                                                        <th class="text-start ps-3" style="width: 25%;">
+                                                                            Prueba</th>
+                                                                        <th style="width: 25%;">Esfera</th>
+                                                                        <th style="width: 25%;">Cilindro</th>
+                                                                        <th style="width: 25%;">Eje</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <th
+                                                                            class="text-start ps-3 text-secondary bg-body-tertiary">
+                                                                            Bruta OD</th>
+                                                                        <td class="p-0"><input type="text"
+                                                                                id="brutaOdEsfera"
+                                                                                class="form-control form-control-sm border-0 text-center shadow-none py-2"
+                                                                                placeholder="-0.00"></td>
+                                                                        <td class="p-0"><input type="text"
+                                                                                id="brutaOdCilindro"
+                                                                                class="form-control form-control-sm border-0 text-center shadow-none py-2"
+                                                                                placeholder="-0.00"></td>
+                                                                        <td class="p-0"><input type="number"
+                                                                                id="brutaOdEje"
+                                                                                class="form-control form-control-sm border-0 text-center shadow-none py-2"
+                                                                                placeholder="0°"></td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th
+                                                                            class="text-start ps-3 text-secondary bg-body-tertiary">
+                                                                            Bruta OI</th>
+                                                                        <td class="p-0"><input type="text"
+                                                                                id="brutaOiEsfera"
+                                                                                class="form-control form-control-sm border-0 text-center shadow-none py-2">
+                                                                        </td>
+                                                                        <td class="p-0"><input type="text"
+                                                                                id="brutaOiCilindro"
+                                                                                class="form-control form-control-sm border-0 text-center shadow-none py-2">
+                                                                        </td>
+                                                                        <td class="p-0"><input type="number"
+                                                                                id="brutaOiEje"
+                                                                                class="form-control form-control-sm border-0 text-center shadow-none py-2">
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr class="table-primary border-primary">
+                                                                        <th
+                                                                            class="text-start ps-3 text-primary bg-primary bg-opacity-10">
+                                                                            Subjetivo OD</th>
+                                                                        <td class="p-0"><input type="text"
+                                                                                id="subjetivoOdEsfera"
+                                                                                class="form-control form-control-sm border-0 text-center fw-bold shadow-none py-2 text-primary">
+                                                                        </td>
+                                                                        <td class="p-0"><input type="text"
+                                                                                id="subjetivoOdCilindro"
+                                                                                class="form-control form-control-sm border-0 text-center fw-bold shadow-none py-2 text-primary">
+                                                                        </td>
+                                                                        <td class="p-0"><input type="number"
+                                                                                id="subjetivoOdEje"
+                                                                                class="form-control form-control-sm border-0 text-center fw-bold shadow-none py-2 text-primary">
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr class="table-primary border-primary">
+                                                                        <th
+                                                                            class="text-start ps-3 text-primary bg-primary bg-opacity-10">
+                                                                            Subjetivo OI</th>
+                                                                        <td class="p-0"><input type="text"
+                                                                                id="subjetivoOiEsfera"
+                                                                                class="form-control form-control-sm border-0 text-center fw-bold shadow-none py-2 text-primary">
+                                                                        </td>
+                                                                        <td class="p-0"><input type="text"
+                                                                                id="subjetivoOiCilindro"
+                                                                                class="form-control form-control-sm border-0 text-center fw-bold shadow-none py-2 text-primary">
+                                                                        </td>
+                                                                        <td class="p-0"><input type="number"
+                                                                                id="subjetivoOiEje"
+                                                                                class="form-control form-control-sm border-0 text-center fw-bold shadow-none py-2 text-primary">
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="card shadow-sm h-100 border-0 bg-body-tertiary">
+                                                    <div
+                                                        class="card-header bg-secondary text-white fw-bold text-center py-1 small">
+                                                        ADICIONES</div>
+                                                    <div class="card-body p-3">
+                                                        <div class="mb-2">
+                                                            <label class="small fw-bold text-muted d-block">Adición
+                                                                (ADD)</label>
+                                                            <input id="adicion"
+                                                                class="form-control form-control-sm text-center fw-bold"
+                                                                placeholder="+2.00">
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <label class="small fw-bold text-muted d-block">Alt.
+                                                                Oblea</label>
+                                                            <input id="alturaOblea"
+                                                                class="form-control form-control-sm text-center">
+                                                        </div>
+                                                        <div class="mb-0">
+                                                            <label class="small fw-bold text-muted d-block">DIP</label>
+                                                            <input id="dip"
+                                                                class="form-control form-control-sm text-center">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3 border rounded bg-body mx-1 shadow-sm overflow-hidden">
+                                <div class="p-3 bg-body-tertiary d-flex justify-content-between align-items-center cursor-pointer"
+                                    role="button" data-bs-toggle="collapse" data-bs-target="#collapseCotizador">
+                                    <h6 class="mb-0 fw-bold text-success"><i
+                                            class="fas fa-shopping-cart me-2"></i>COTIZADOR Y PRESUPUESTO</h6>
+                                    <i class="fas fa-chevron-down text-success"></i>
+                                </div>
+                                <div class="collapse show" id="collapseCotizador">
+                                    <div class="p-3 border-top">
+
+                                        <div class="text-center mb-4 mt-1">
+                                            <p class="text-muted small mb-2 fw-bold">¿Qué desea agregar a la venta?</p>
+                                            <div class="btn-group w-100 shadow-sm" role="group">
+                                                <input type="radio" class="btn-check" name="tipoProducto"
+                                                    id="optConsulta" value="CONSULTA" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="optConsulta"><i
+                                                        class="fas fa-user-md d-block mb-1 fs-5"></i>Consulta</label>
+
+                                                <input type="radio" class="btn-check" name="tipoProducto" id="optLente"
+                                                    value="LENTE" autocomplete="off" checked>
+                                                <label class="btn btn-outline-primary" for="optLente"><i
+                                                        class="fas fa-glasses d-block mb-1 fs-5"></i>Lentes</label>
+
+                                                <input type="radio" class="btn-check" name="tipoProducto"
+                                                    id="optContacto" value="CONTACTO" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="optContacto"><i
+                                                        class="fas fa-eye d-block mb-1 fs-5"></i>L. Contacto</label>
+
+                                                <input type="radio" class="btn-check" name="tipoProducto" id="optGotas"
+                                                    value="GOTAS" autocomplete="off">
+                                                <label class="btn btn-outline-info" for="optGotas"><i
+                                                        class="fas fa-tint d-block mb-1 fs-5"></i>Gotas/Líq.</label>
+
+                                                <input type="radio" class="btn-check" name="tipoProducto"
+                                                    id="optAccesorio" value="ACCESORIO" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="optAccesorio"><i
+                                                        class="fas fa-spray-can d-block mb-1 fs-5"></i>Accesorios</label>
+
+                                                <input type="radio" class="btn-check" name="tipoProducto"
+                                                    id="optServicio" value="SERVICIO" autocomplete="off">
+                                                <label class="btn btn-outline-primary" for="optServicio"><i
+                                                        class="fas fa-tools d-block mb-1 fs-5 text-warning"></i>Reparación</label>
+                                            </div>
+                                        </div>
+
+                                        <div class="row g-3">
+
+                                            <div class="col-md-6" id="panelInventario">
+                                                <div class="card h-100 border-light bg-body-tertiary">
+                                                    <div class="card-body p-3">
+                                                        <div
+                                                            class="d-flex justify-content-between align-items-center mb-3">
+                                                            <h6 class="text-muted small fw-bold mb-0"
+                                                                id="tituloInventario"><i
+                                                                    class="fas fa-box-open me-1"></i> SELECCIONAR
+                                                                PRODUCTO</h6>
+                                                            <button type="button" class="btn btn-sm btn-outline-success"
+                                                                onclick="crearProductoRapidoInSitu('modalConsulta')"><i
+                                                                    class="fas fa-plus me-1"></i>Crear Rápido</button>
+                                                        </div>
+
+                                                        <div id="opcionArmazonPropio"
+                                                            class="form-check form-switch mb-3 d-none">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                id="checkArmazonPropio">
+                                                            <label class="form-check-label small fw-bold text-primary"
+                                                                for="checkArmazonPropio">El paciente trae su propio
+                                                                armazón</label>
+                                                        </div>
+
+                                                        <div id="contenedorBuscadorInventario">
+                                                            <input type="hidden" id="busqTipo" value="">
+                                                            <div class="row g-2 mb-2">
+                                                                <div class="col-6"><select id="busqMarca"
+                                                                        class="form-select form-select-sm" disabled>
+                                                                        <option>Marca...</option>
+                                                                    </select></div>
+                                                                <div class="col-6"><select id="busqModelo"
+                                                                        class="form-select form-select-sm" disabled>
+                                                                        <option>Modelo...</option>
+                                                                    </select></div>
+                                                                <div class="col-6"><select id="busqColor"
+                                                                        class="form-select form-select-sm" disabled>
+                                                                        <option>Color...</option>
+                                                                    </select></div>
+                                                                <div class="col-6"><select id="busqTalla"
+                                                                        class="form-select form-select-sm" disabled>
+                                                                        <option>Talla...</option>
+                                                                    </select></div>
+                                                            </div>
+                                                            <input type="hidden" id="selectProducto" value="">
+                                                        </div>
+
+                                                        <div id="contenedorArmazonPropio"
+                                                            class="d-none border-top pt-2 mt-2 border-primary">
+                                                            <p class="small text-muted mb-2"><i
+                                                                    class="fas fa-info-circle me-1"></i> Datos físicos
+                                                                del lente a enmicar/reparar.</p>
+                                                            <div class="row g-2 mb-2">
+                                                                <div class="col-6"><input type="text" id="propioMarca"
+                                                                        class="form-control form-control-sm"
+                                                                        placeholder="Marca (Ej. RayBan)"></div>
+                                                                <div class="col-6"><input type="text" id="propioModelo"
+                                                                        class="form-control form-control-sm"
+                                                                        placeholder="Modelo"></div>
+                                                                <div class="col-6"><input type="text" id="propioColor"
+                                                                        class="form-control form-control-sm"
+                                                                        placeholder="Color"></div>
+                                                                <div class="col-6">
+                                                                    <select id="propioTipo"
+                                                                        class="form-select form-select-sm">
+                                                                        <option value="Completo">Aro Completo</option>
+                                                                        <option value="Ranurado">Ranurado</option>
+                                                                        <option value="Al aire">Al aire</option>
+                                                                    </select>
+                                                                </div>
+                                                                <div class="col-12"><input type="text"
+                                                                        id="propioCondicion"
+                                                                        class="form-control form-control-sm border-warning"
+                                                                        placeholder="Condición (Ej. Rayado, faltan tornillos)">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="input-group input-group-sm mb-2 mt-3">
+                                                            <span
+                                                                class="input-group-text bg-body text-muted">Desc.</span>
+                                                            <input type="text" id="armazonModelo"
+                                                                class="form-control bg-body fw-bold" readonly
+                                                                placeholder="-">
+                                                        </div>
+                                                        <div class="input-group input-group-sm">
+                                                            <span
+                                                                class="input-group-text bg-body fw-bold text-success">Precio
+                                                                $</span>
+                                                            <input type="number" id="precioArmazon"
+                                                                class="form-control text-end fw-bold text-success"
+                                                                placeholder="0.00">
+                                                            <button class="btn btn-outline-secondary" type="button"
+                                                                id="btnQuitarComision"
+                                                                onclick="quitarComisionProducto()"
+                                                                title="Vender al Costo"><i
+                                                                    class="fas fa-tags text-warning"></i></button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6" id="panelMicas">
+                                                <div class="card h-100 border-light bg-body-tertiary">
+                                                    <div class="card-body p-3">
+                                                        <h6 class="text-muted mb-3 small fw-bold"><i
+                                                                class="fas fa-layer-group me-1"></i> MICAS / LENTES</h6>
+                                                        <div class="mb-2">
+                                                            <label class="small text-muted">Material</label>
+                                                            <div class="input-group input-group-sm">
+                                                                <select id="material"
+                                                                    class="form-select form-select-sm"></select>
+                                                                <button class="btn btn-outline-dark" type="button"
+                                                                    onclick="crearLenteInSitu('MATERIAL', 'material', 'modalConsulta')"
+                                                                    title="Nuevo Material"><i
+                                                                        class="fas fa-plus"></i></button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <label class="small text-muted">Tratamiento</label>
+                                                            <div class="input-group input-group-sm">
+                                                                <select id="tratamiento"
+                                                                    class="form-select form-select-sm"></select>
+                                                                <button class="btn btn-outline-dark" type="button"
+                                                                    onclick="crearLenteInSitu('TRATAMIENTO', 'tratamiento', 'modalConsulta')"
+                                                                    title="Nuevo Tratamiento"><i
+                                                                        class="fas fa-plus"></i></button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <label class="small text-muted">Tinte</label>
+                                                            <div class="input-group input-group-sm">
+                                                                <select id="tinte"
+                                                                    class="form-select form-select-sm"></select>
+                                                                <button class="btn btn-outline-dark" type="button"
+                                                                    onclick="crearLenteInSitu('TINTE', 'tinte', 'modalConsulta')"
+                                                                    title="Nuevo Tinte"><i
+                                                                        class="fas fa-plus"></i></button>
+                                                            </div>
+                                                        </div>
+                                                        <input type="hidden" id="precioMaterial" value="0"><input
+                                                            type="hidden" id="precioTratamiento" value="0"><input
+                                                            type="hidden" id="precioTinte" value="0">
+                                                        <div
+                                                            class="d-flex justify-content-between mt-3 border-top pt-2">
+                                                            <span class="small fw-bold">Subtotal Micas:</span>
+                                                            <span class="fw-bold text-success"
+                                                                id="displaySubtotalMicas">$0.00</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-12 d-none" id="panelServicios">
+                                                <div
+                                                    class="card h-100 border-warning border-opacity-50 bg-body-tertiary shadow-sm">
+                                                    <div class="card-body p-3 d-flex align-items-center">
+                                                        <i class="fas fa-tools me-4 fs-1 text-warning opacity-75"></i>
+                                                        <div class="flex-grow-1">
+                                                            <h6 class="fw-bold text-warning mb-1">Servicio / Reparación
+                                                            </h6>
+                                                            <p class="small mb-2 text-muted">Registre reparaciones o
+                                                                mantenimientos (Ej. Soldadura, ajuste de plaquetas,
+                                                                tornillos).</p>
+                                                            <div class="row g-2">
+                                                                <div class="col-md-8">
+                                                                    <input type="text"
+                                                                        class="form-control form-control-sm"
+                                                                        id="descServicio"
+                                                                        placeholder="Descripción del servicio...">
+                                                                </div>
+                                                                <div class="col-md-4">
+                                                                    <div class="input-group input-group-sm">
+                                                                        <span
+                                                                            class="input-group-text bg-body fw-bold text-success border-success">$</span>
+                                                                        <input type="number"
+                                                                            class="form-control text-end fw-bold text-success border-success"
+                                                                            id="precioServicio" placeholder="0.00">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-12 d-none" id="panelConsulta">
+                                                <div
+                                                    class="card h-100 border-info border-opacity-50 bg-body-tertiary shadow-sm">
+                                                    <div class="card-body p-3 d-flex align-items-center">
+                                                        <i
+                                                            class="fas fa-stethoscope me-4 fs-1 text-info opacity-75"></i>
+                                                        <div class="flex-grow-1">
+                                                            <h6 class="fw-bold text-info mb-1">Costo de la Consulta /
+                                                                Examen Visual</h6>
+                                                            <p class="small mb-2 text-muted">Ingrese el valor a cobrar
+                                                                (Deje en 0.00 si no tiene costo).</p>
+                                                            <div class="input-group input-group-sm"
+                                                                style="max-width: 250px;">
+                                                                <span
+                                                                    class="input-group-text bg-body fw-bold text-success border-success">$</span>
+                                                                <input type="number"
+                                                                    class="form-control fw-bold text-success border-success"
+                                                                    id="precioConsulta" value="0.00">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                        <div class="d-grid mt-3 mb-4">
+                                            <button type="button"
+                                                class="btn btn-outline-success border-2 shadow-sm fw-bold"
+                                                onclick="agregarItemAlCarrito()">
+                                                <i class="fas fa-cart-plus me-2"></i>AÑADIR A LA VENTA
+                                            </button>
+                                        </div>
+
+                                        <h6 class="small fw-bold text-secondary border-bottom pb-2"><i
+                                                class="fas fa-receipt me-1"></i> RESUMEN DE LA VENTA</h6>
+                                        <div class="table-responsive border rounded mb-3"
+                                            style="max-height: 200px; overflow-y: auto;">
+                                            <table class="table table-sm table-hover mb-0" id="tablaCarrito">
+                                                <thead class="table-secondary sticky-top small text-muted">
+                                                    <tr>
+                                                        <th style="width: 55%">Artículo</th>
+                                                        <th class="text-center">Categoría</th>
+                                                        <th class="text-end">Importe</th>
+                                                        <th class="text-center" style="width: 40px"></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="carritoBody">
+                                                    <tr>
+                                                        <td colspan="4" class="text-center text-muted py-3 small"><i
+                                                                class="fas fa-shopping-basket mb-1 fs-5 d-block"></i>Lista
+                                                            vacía</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <div class="col-12 mt-2 border-top pt-3">
+                                            <div class="row text-center align-items-center">
+                                                <div class="col-4 border-end">
+                                                    <label class="small fw-bold text-muted d-block">TOTAL VENTA</label>
+                                                    <h4 class="text-body mb-0" id="displayTotal">$0.00</h4><input
+                                                        type="hidden" id="totalPresupuesto">
+                                                </div>
+                                                <div class="col-4 border-end">
+                                                    <label class="small fw-bold text-success d-block">A
+                                                        CUENTA</label><input type="number" id="aCuenta"
+                                                        class="form-control text-center fw-bold text-success border-0 bg-success bg-opacity-10 fs-5 precio-calc"
+                                                        placeholder="$0.00">
+                                                </div>
+                                                <div class="col-4">
+                                                    <label class="small fw-bold text-danger d-block">RESTANTE</label>
+                                                    <h4 class="text-danger mb-0" id="displayRestante">$0.00</h4><input
+                                                        type="hidden" id="restante">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
                         </form>
                     </div>
 

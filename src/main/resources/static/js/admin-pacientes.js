@@ -357,3 +357,51 @@ function crearMotivoInSitu(modalId) {
     });
 }
 
+// ==========================================
+// ELIMINAR CONSULTA (HISTORIAL CLÍNICO)
+// ==========================================
+function eliminarConsultaDeHistorial(consultaId, pacienteId, nombrePaciente) {
+    Swal.fire({
+        title: '¿Eliminar Hoja Clínica?',
+        html: `<p class="text-danger fw-bold mb-0">¡Esta acción es irreversible!</p><br>Se borrarán los datos médicos, la receta y los detalles de venta asociados a esta visita.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: '<i class="fas fa-trash-alt me-1"></i> Sí, eliminar para siempre',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Bloqueamos el modal para que no den clic a otra cosa
+            Swal.fire({title: 'Eliminando...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
+            
+            fetch(`/api/consultas/${consultaId}`, {
+                method: 'DELETE'
+            })
+            .then(async res => {
+                if (res.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Eliminado',
+                        text: 'La consulta ha sido borrada del historial.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                    
+                    // Recargar la tabla que está debajo (el historial del paciente)
+                    abrirHistorial(pacienteId, nombrePaciente);
+                    
+                    // Opcional: Recargar la tabla principal si quieres actualizar la fecha de "Última visita"
+                    if (typeof dataTable !== "undefined") dataTable.ajax.reload(null, false);
+                    
+                } else {
+                    const errText = await res.text();
+                    throw new Error(errText || 'Error al eliminar');
+                }
+            })
+            .catch(err => {
+                Swal.fire('Error', `No se pudo eliminar: ${err.message}`, 'error');
+            });
+        }
+    });
+}
