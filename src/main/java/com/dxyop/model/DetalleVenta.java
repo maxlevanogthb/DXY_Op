@@ -3,6 +3,8 @@ package com.dxyop.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Data
 @Entity
@@ -16,7 +18,9 @@ public class DetalleVenta {
     // Relación con la Consulta (Padre)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "consulta_id", nullable = false)
-    @JsonIgnore // Evita bucles infinitos al convertir a JSON
+    @JsonIgnore // Cortafuegos para el JSON
+    @ToString.Exclude // Cortafuegos para Lombok
+    @EqualsAndHashCode.Exclude // Cortafuegos para Lombok
     private Consulta consulta;
 
     // Tipo: "LENTE", "ACCESORIO", "CONSULTA", "CONTACTO"

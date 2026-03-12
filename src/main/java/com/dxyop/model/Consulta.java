@@ -106,6 +106,10 @@ public class Consulta {
     private Double precioArmazon;
 
     // --- TOTALES ---
+
+    private Double subtotal;       // La suma de los artículos sin IVA
+    private Boolean aplicarIva;    // Para saber si se cobró IVA en esta venta
+
     private Double totalPresupuesto;
     private Double aCuenta;
     private Double restante;
@@ -123,14 +127,16 @@ public class Consulta {
         this.fechaRegistro = LocalDateTime.now();
     }
 
-    // --- NUEVA RELACIÓN DE PAGOS ---
+// --- NUEVA RELACIÓN DE PAGOS ---
     @OneToMany(mappedBy = "consulta", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnoreProperties("consulta") // Evita bucle al pedir la consulta
+    @JsonIgnoreProperties("consulta") // <--- ESTE ES EL BLINDAJE EXTRA
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private java.util.List<Pago> pagos = new java.util.ArrayList<>();
+    private List<Pago> pagos = new ArrayList<>();
 
     @OneToMany(mappedBy = "consulta", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude // <--- NUEVO BLINDAJE
+    @EqualsAndHashCode.Exclude // <--- NUEVO BLINDAJE
     private List<DetalleVenta> detalles = new ArrayList<>();
 
     // Método de utilidad para agregar items y mantener la relación sincronizada

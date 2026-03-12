@@ -128,72 +128,63 @@ public class ConsultaService {
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
         consulta.setPaciente(cliente);
 
-        // Relación con Producto/Armazón (Opcional)
+        // Relación con Producto/Armazón (Opcional - Compatibilidad vieja)
         if (dto.getProductoArmazonId() != null) {
             Producto producto = productoRepository.findById(dto.getProductoArmazonId()).orElse(null);
             consulta.setProductoArmazon(producto);
         }
 
-            consulta.setFechaVisita(dto.getFechaVisita());
-            consulta.setRazonVisita(dto.getRazonVisita());
-            consulta.setDiagnosticoOftalmologo(dto.getDiagnosticoOftalmologo());
-            consulta.setTratamientoMedico(dto.getTratamientoMedico());
+        // --- DATOS MÉDICOS ---
+        consulta.setFechaVisita(dto.getFechaVisita());
+        consulta.setRazonVisita(dto.getRazonVisita());
+        consulta.setDiagnosticoOftalmologo(dto.getDiagnosticoOftalmologo());
+        consulta.setTratamientoMedico(dto.getTratamientoMedico());
 
-            consulta.setAvLejosOd(dto.getAvLejosOd());
-            consulta.setAvLejosOi(dto.getAvLejosOi());
-            consulta.setAvCercaOd(dto.getAvCercaOd());
-            consulta.setAvCercaOi(dto.getAvCercaOi());
+        consulta.setAvLejosOd(dto.getAvLejosOd());
+        consulta.setAvLejosOi(dto.getAvLejosOi());
+        consulta.setAvCercaOd(dto.getAvCercaOd());
+        consulta.setAvCercaOi(dto.getAvCercaOi());
 
-            consulta.setAvActualLejosOd(dto.getAvActualLejosOd());
-            consulta.setAvActualLejosOi(dto.getAvActualLejosOi());
-            consulta.setAvActualCercaOd(dto.getAvActualCercaOd());
-            consulta.setAvActualCercaOi(dto.getAvActualCercaOi());
+        consulta.setAvActualLejosOd(dto.getAvActualLejosOd());
+        consulta.setAvActualLejosOi(dto.getAvActualLejosOi());
+        consulta.setAvActualCercaOd(dto.getAvActualCercaOd());
+        consulta.setAvActualCercaOi(dto.getAvActualCercaOi());
 
-            consulta.setAvNuevaLejosOd(dto.getAvNuevaLejosOd());
-            consulta.setAvNuevaLejosOi(dto.getAvNuevaLejosOi());
-            consulta.setAvNuevaCercaOd(dto.getAvNuevaCercaOd());
-            consulta.setAvNuevaCercaOi(dto.getAvNuevaCercaOi());
+        consulta.setAvNuevaLejosOd(dto.getAvNuevaLejosOd());
+        consulta.setAvNuevaLejosOi(dto.getAvNuevaLejosOi());
+        consulta.setAvNuevaCercaOd(dto.getAvNuevaCercaOd());
+        consulta.setAvNuevaCercaOi(dto.getAvNuevaCercaOi());
 
-            consulta.setCapacidadVisualOd(dto.getCapacidadVisualOd());
-            consulta.setCapacidadVisualOi(dto.getCapacidadVisualOi());
+        consulta.setCapacidadVisualOd(dto.getCapacidadVisualOd());
+        consulta.setCapacidadVisualOi(dto.getCapacidadVisualOi());
 
-            consulta.setBrutaOdEsfera(dto.getBrutaOdEsfera());
-            consulta.setBrutaOdCilindro(dto.getBrutaOdCilindro());
-            consulta.setBrutaOdEje(dto.getBrutaOdEje());
-            consulta.setBrutaOiEsfera(dto.getBrutaOiEsfera());
-            consulta.setBrutaOiCilindro(dto.getBrutaOiCilindro());
-            consulta.setBrutaOiEje(dto.getBrutaOiEje());
+        consulta.setBrutaOdEsfera(dto.getBrutaOdEsfera());
+        consulta.setBrutaOdCilindro(dto.getBrutaOdCilindro());
+        consulta.setBrutaOdEje(dto.getBrutaOdEje());
+        consulta.setBrutaOiEsfera(dto.getBrutaOiEsfera());
+        consulta.setBrutaOiCilindro(dto.getBrutaOiCilindro());
+        consulta.setBrutaOiEje(dto.getBrutaOiEje());
 
-            consulta.setSubjetivoOdEsfera(dto.getSubjetivoOdEsfera());
-            consulta.setSubjetivoOdCilindro(dto.getSubjetivoOdCilindro());
-            consulta.setSubjetivoOdEje(dto.getSubjetivoOdEje());
-            consulta.setSubjetivoOiEsfera(dto.getSubjetivoOiEsfera());
-            consulta.setSubjetivoOiCilindro(dto.getSubjetivoOiCilindro());
-            consulta.setSubjetivoOiEje(dto.getSubjetivoOiEje());
+        consulta.setSubjetivoOdEsfera(dto.getSubjetivoOdEsfera());
+        consulta.setSubjetivoOdCilindro(dto.getSubjetivoOdCilindro());
+        consulta.setSubjetivoOdEje(dto.getSubjetivoOdEje());
+        consulta.setSubjetivoOiEsfera(dto.getSubjetivoOiEsfera());
+        consulta.setSubjetivoOiCilindro(dto.getSubjetivoOiCilindro());
+        consulta.setSubjetivoOiEje(dto.getSubjetivoOiEje());
 
-            consulta.setAdicion(dto.getAdicion());
-            consulta.setAlturaOblea(dto.getAlturaOblea());
-            consulta.setDip(dto.getDip());
+        consulta.setAdicion(dto.getAdicion());
+        consulta.setAlturaOblea(dto.getAlturaOblea());
+        consulta.setDip(dto.getDip());
 
-            consulta.setMaterial(dto.getMaterial());
-            consulta.setTratamiento(dto.getTratamiento());
-            consulta.setTinte(dto.getTinte());
+        // --- DATOS FINANCIEROS NUEVOS (V2.0) ---
+        consulta.setSubtotal(dto.getSubtotal());
+        consulta.setAplicarIva(dto.getAplicarIva() != null ? dto.getAplicarIva() : false);
 
-            consulta.setPrecioMaterial(dto.getPrecioMaterial());
-            consulta.setPrecioTratamiento(dto.getPrecioTratamiento());
-            consulta.setPrecioTinte(dto.getPrecioTinte());
-
-            consulta.setTipoArmazon(dto.getTipoArmazon());
-            consulta.setArmazonModelo(dto.getArmazonModelo());
-            consulta.setArmazonColor(dto.getArmazonColor());
-            consulta.setPrecioArmazon(dto.getPrecioArmazon());
-
-            boolean requiereLaboratorio = false;
+        boolean requiereLaboratorio = false;
         
-       // 4. EL NUEVO CARRITO DE COMPRAS (Detalles)
+        // --- 4. EL NUEVO CARRITO DE COMPRAS (Detalles e Inventario) ---
         if (dto.getDetalles() != null && !dto.getDetalles().isEmpty()) {
             
-            // Recorremos el carrito que viene del Frontend
             for (DetalleVentaDto detDto : dto.getDetalles()) {
                 DetalleVenta detalle = new DetalleVenta();
                 detalle.setTipoItem(detDto.getTipoItem());
@@ -202,7 +193,6 @@ public class ConsultaService {
                 detalle.setPrecioUnitario(detDto.getPrecioUnitario());
                 detalle.setSubtotal(detDto.getSubtotal());
                 
-                // Opcionales para lentes
                 detalle.setMaterial(detDto.getMaterial());
                 detalle.setTratamiento(detDto.getTratamiento());
                 detalle.setTinte(detDto.getTinte());
@@ -210,54 +200,53 @@ public class ConsultaService {
 
                 consulta.agregarDetalle(detalle);
 
-                // --- DETECTAR SI REQUIERE ESPERA ---
+                // Descontar Stock solo si es Venta Nueva
+                if (esNueva && detDto.getProductoInventarioId() != null) {
+                    Producto prodBD = productoRepository.findById(detDto.getProductoInventarioId()).orElse(null);
+                    if (prodBD != null && prodBD.getStock() > 0) {
+                        prodBD.setStock(prodBD.getStock() - 1);
+                        productoRepository.save(prodBD);
+                    }
+                }
+
+                // Detectar si requiere espera
                 if ("LENTE".equals(detDto.getTipoItem()) || "CONTACTO".equals(detDto.getTipoItem())) {
                     requiereLaboratorio = true;
                 }
             }
 
-            // --- MODO COMPATIBILIDAD (Para no romper tus recibos PDF) ---
-            // Tomamos el primer item (generalmente el lente principal) y llenamos los campos viejos
+            // Modo compatibilidad
             DetalleVentaDto itemPrincipal = dto.getDetalles().get(0);
             consulta.setMaterial(itemPrincipal.getMaterial());
             consulta.setTratamiento(itemPrincipal.getTratamiento());
             consulta.setTinte(itemPrincipal.getTinte());
-            
-            // Usamos la descripción del carrito como el "Modelo del Armazón" para el PDF
             consulta.setArmazonModelo(itemPrincipal.getDescripcion());
             consulta.setPrecioArmazon(itemPrincipal.getSubtotal()); 
         } else {
-            // Si por alguna razón envían vacío, vaciamos los campos de compatibilidad
             consulta.setMaterial(null);
             consulta.setArmazonModelo("Solo Consulta / Sin Producto");
             consulta.setPrecioArmazon(0.0);
         }
 
-        // --- ASIGNACIÓN DEL ESTADO DE ENTREGA ---
+        // --- ESTADO DE ENTREGA ---
         if (dto.getEstadoEntrega() != null) {
-            // 1. PRIORIDAD MÁXIMA: Lo que el doctor elija en la pantalla, se respeta siempre.
             consulta.setEstadoEntrega(dto.getEstadoEntrega());
         } else if (esNueva || consulta.getEstadoEntrega() == null) {
-            // 2. SOLO SI ES NUEVA: El sistema detecta si requiere mandarse a hacer
-            if (requiereLaboratorio) {
-                consulta.setEstadoEntrega("PENDIENTE"); 
-            } else {
-                consulta.setEstadoEntrega("NO_APLICA"); 
-            }
+            if (requiereLaboratorio) consulta.setEstadoEntrega("PENDIENTE"); 
+            else consulta.setEstadoEntrega("NO_APLICA"); 
         }
 
-        // 5. Lógica Financiera (Igual)
+        // --- 5. TOTALES Y PAGOS ---
         Double total = dto.getTotalPresupuesto() != null ? dto.getTotalPresupuesto() : 0.0;
         consulta.setTotalPresupuesto(total);
 
         if (esNueva) {
-            consulta.setACuenta(0.0); // El JS mandará el pago aparte
+            consulta.setACuenta(0.0); 
             consulta.setRestante(total);
             consulta = consultaRepository.save(consulta);
         } 
         else {
             consulta = consultaRepository.save(consulta);
-            // Recalculamos matemáticamente basado en el historial de pagos real
             Double totalPagado = pagoRepository.findByConsultaIdOrderByFechaPagoDesc(consulta.getId())
                     .stream().mapToDouble(Pago::getMonto).sum();
             

@@ -682,6 +682,9 @@ function guardarConsulta() {
     return;
   }
 
+  const subtotalIngresado = parseFloat($("#displaySubtotalVenta").text().replace('$', '')) || 0;
+  const aplicaIva = $("#checkAplicarIva").is(":checked");
+
   const anticipoIngresado = parseFloat($("#aCuenta").val()) || 0;
   const totalPresupuesto = parseFloat($("#totalPresupuesto").val()) || 0;
   const restanteCalculado = parseFloat($("#restante").val()) || 0;
@@ -738,6 +741,8 @@ function guardarConsulta() {
     alturaOblea: $("#alturaOblea").val(),
     dip: $("#dip").val(),
 
+    subtotal: subtotalIngresado,
+    aplicarIva: aplicaIva,
     totalPresupuesto: totalPresupuesto,
     aCuenta: 0,
     restante: restanteCalculado,
@@ -800,107 +805,126 @@ function guardarConsulta() {
 }
 
 function cargarConsultaParaEditar(consultaId) {
-  if (modalHistorialInstancia) {
-    modalHistorialInstancia.hide();
-  }
+    if (modalHistorialInstancia) {
+        modalHistorialInstancia.hide();
+    }
 
-  Swal.fire({
-    title: "Cargando...",
-    allowOutsideClick: false,
-    didOpen: () => Swal.showLoading(),
-  });
-
-  fetch(`${API_CONSULTAS}/${consultaId}`)
-    .then((res) => {
-      if (!res.ok) throw new Error();
-      return res.json();
-    })
-    .then((data) => {
-      Swal.close();
-      $("#formConsulta")[0].reset();
-
-      $("#consulta_id").val(data.id);
-      $("#consulta_clienteId").val(data.cliente.id);
-
-      $("#fechaVisita").val(data.fechaVisita);
-      $("#razonVisita").val(data.razonVisita);
-      // --- NUEVAS LÍNEAS: Mostrar control y cargar estado ---
-      $("#cajaEstadoEntrega").removeClass("d-none");
-      // Si viene nulo o vacío, lo ponemos por defecto en NO_APLICA
-      $("#estadoEntrega").val(data.estadoEntrega || "NO_APLICA");
-      $("#diagnosticoOftalmologo").val(data.diagnosticoOftalmologo);
-      $("#tratamientoMedico").val(data.tratamientoMedico || "");
-
-      $("#avSinLejosOD").val(data.avLejosOd);
-      $("#avSinLejosOI").val(data.avLejosOi);
-      $("#avSinCercaOD").val(data.avCercaOd);
-      $("#avSinCercaOI").val(data.avCercaOi);
-
-      $("#avActualLejosOD").val(data.avActualLejosOd);
-      $("#avActualLejosOI").val(data.avActualLejosOi);
-      $("#avActualCercaOD").val(data.avActualCercaOd);
-      $("#avActualCercaOI").val(data.avActualCercaOi);
-
-      $("#avNuevaLejosOD").val(data.avNuevaLejosOd);
-      $("#avNuevaLejosOI").val(data.avNuevaLejosOi);
-      $("#avNuevaCercaOD").val(data.avNuevaCercaOd);
-      $("#avNuevaCercaOI").val(data.avNuevaCercaOi);
-
-      $("#capacidadOD").val(data.capacidadVisualOd);
-      $("#capacidadOI").val(data.capacidadVisualOi);
-
-      $("#brutaOdEsfera").val(data.brutaOdEsfera);
-      $("#brutaOdCilindro").val(data.brutaOdCilindro);
-      $("#brutaOdEje").val(data.brutaOdEje);
-
-      $("#brutaOiEsfera").val(data.brutaOiEsfera);
-      $("#brutaOiCilindro").val(data.brutaOiCilindro);
-      $("#brutaOiEje").val(data.brutaOiEje);
-
-      $("#subjetivoOdEsfera").val(data.subjetivoOdEsfera);
-      $("#subjetivoOdCilindro").val(data.subjetivoOdCilindro);
-      $("#subjetivoOdEje").val(data.subjetivoOdEje);
-
-      $("#subjetivoOiEsfera").val(data.subjetivoOiEsfera);
-      $("#subjetivoOiCilindro").val(data.subjetivoOiCilindro);
-      $("#subjetivoOiEje").val(data.subjetivoOiEje);
-
-      $("#adicion").val(data.adicion);
-      $("#alturaOblea").val(data.alturaOblea);
-      $("#dip").val(data.dip);
-
-      // Reconstruimos el carrito con los detalles si existen
-      if (data.detalles && data.detalles.length > 0) {
-        carritoVenta = data.detalles;
-      } else {
-        // Modo retro-compatibilidad para consultas hechas antes del carrito
-        carritoVenta = [];
-        if (
-          data.armazonModelo &&
-          data.armazonModelo !== "Solo Consulta / Sin Producto"
-        ) {
-          carritoVenta.push({
-            tipoItem: "LENTE",
-            descripcion: data.armazonModelo,
-            subtotal: data.precioArmazon || 0,
-            material: data.material,
-            tratamiento: data.tratamiento,
-            tinte: data.tinte,
-          });
-        }
-      }
-
-      $("#aCuenta").val(data.aCuenta);
-      dibujarCarrito();
-
-      $("#btnGuardarConsulta").removeClass("d-none");
-      $("#accionesPostGuardado").removeClass("d-none");
-
-      new bootstrap.Modal(document.getElementById("modalConsulta")).show();
-    })
-    .catch(() => {
-      Swal.fire("Error", "Error al cargar la consulta", "error");
+    Swal.fire({
+        title: "Cargando...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
     });
+
+    fetch(`${API_CONSULTAS}/${consultaId}`)
+        .then((res) => {
+            if (!res.ok) throw new Error("No se pudo conectar con el servidor.");
+            return res.json();
+        })
+        .then((data) => {
+            Swal.close();
+            
+            // 1. Limpiar formulario
+            $("#formConsulta")[0].reset();
+
+            // 2. Asignar IDs (Con protección por si cliente es nulo)
+            $("#consulta_id").val(data.id);
+            if(data.paciente && data.paciente.id) {
+                $("#consulta_clienteId").val(data.paciente.id); 
+            } else if (data.cliente && data.cliente.id) {
+                // Por si tu JSON lo manda como "cliente" en lugar de "paciente"
+                $("#consulta_clienteId").val(data.cliente.id);
+            }
+
+            // 3. Datos Generales
+            $("#fechaVisita").val(data.fechaVisita || "");
+            $("#razonVisita").val(data.razonVisita || "");
+            $("#diagnosticoOftalmologo").val(data.diagnosticoOftalmologo || "");
+            $("#tratamientoMedico").val(data.tratamientoMedico || "");
+
+            // Estado de Entrega
+            $("#cajaEstadoEntrega").removeClass("d-none");
+            $("#estadoEntrega").val(data.estadoEntrega || "NO_APLICA");
+
+            // 4. Datos de Refracción y Agudeza Visual (Se quedan igual)
+            $("#avSinLejosOD").val(data.avLejosOd || "");
+            $("#avSinLejosOI").val(data.avLejosOi || "");
+            $("#avSinCercaOD").val(data.avCercaOd || "");
+            $("#avSinCercaOI").val(data.avCercaOi || "");
+
+            $("#avActualLejosOD").val(data.avActualLejosOd || "");
+            $("#avActualLejosOI").val(data.avActualLejosOi || "");
+            $("#avActualCercaOD").val(data.avActualCercaOd || "");
+            $("#avActualCercaOI").val(data.avActualCercaOi || "");
+
+            $("#avNuevaLejosOD").val(data.avNuevaLejosOd || "");
+            $("#avNuevaLejosOI").val(data.avNuevaLejosOi || "");
+            $("#avNuevaCercaOD").val(data.avNuevaCercaOd || "");
+            $("#avNuevaCercaOI").val(data.avNuevaCercaOi || "");
+
+            $("#capacidadOD").val(data.capacidadVisualOd || "");
+            $("#capacidadOI").val(data.capacidadVisualOi || "");
+
+            $("#brutaOdEsfera").val(data.brutaOdEsfera || "");
+            $("#brutaOdCilindro").val(data.brutaOdCilindro || "");
+            $("#brutaOdEje").val(data.brutaOdEje || "");
+
+            $("#brutaOiEsfera").val(data.brutaOiEsfera || "");
+            $("#brutaOiCilindro").val(data.brutaOiCilindro || "");
+            $("#brutaOiEje").val(data.brutaOiEje || "");
+
+            $("#subjetivoOdEsfera").val(data.subjetivoOdEsfera || "");
+            $("#subjetivoOdCilindro").val(data.subjetivoOdCilindro || "");
+            $("#subjetivoOdEje").val(data.subjetivoOdEje || "");
+
+            $("#subjetivoOiEsfera").val(data.subjetivoOiEsfera || "");
+            $("#subjetivoOiCilindro").val(data.subjetivoOiCilindro || "");
+            $("#subjetivoOiEje").val(data.subjetivoOiEje || "");
+
+            $("#adicion").val(data.adicion || "");
+            $("#alturaOblea").val(data.alturaOblea || "");
+            $("#dip").val(data.dip || "");
+
+            // 5. Reconstruimos el Carrito
+            if (data.detalles && data.detalles.length > 0) {
+                carritoVenta = data.detalles;
+            } else {
+                carritoVenta = [];
+                // Compatibilidad vieja
+                if (data.armazonModelo && data.armazonModelo !== "Solo Consulta / Sin Producto") {
+                    carritoVenta.push({
+                        tipoItem: "LENTE",
+                        descripcion: data.armazonModelo,
+                        subtotal: data.precioArmazon || 0,
+                        material: data.material,
+                        tratamiento: data.tratamiento,
+                        tinte: data.tinte,
+                    });
+                }
+            }
+
+            // ⭐ 6. NUEVOS DATOS FINANCIEROS (V2.0) ⭐
+            // Aseguramos que el switch se prenda si la base de datos dice "true"
+            $("#checkAplicarIva").prop("checked", data.aplicarIva === true);
+            $("#aCuenta").val(data.aCuenta || 0);
+            
+            // Dibujar Carrito (esto también dispara el cálculo de totales e IVA en pantalla)
+            dibujarCarrito();
+
+            // 7. Configuración Final de Interfaz
+            $("#btnGuardarConsulta").removeClass("d-none");
+            $("#accionesPostGuardado").removeClass("d-none");
+
+            new bootstrap.Modal(document.getElementById("modalConsulta")).show();
+        })
+        .catch((error) => {
+            // ⭐ AHORA SÍ VEREMOS EL ERROR REAL EN CONSOLA Y PANTALLA ⭐
+            console.error("ERROR CRÍTICO AL CARGAR CONSULTA:", error);
+            Swal.fire({
+                icon: "error",
+                title: "Error de lectura",
+                text: "Algo falló al procesar los datos: " + error.message,
+            });
+        });
 }
 
 // ==========================================

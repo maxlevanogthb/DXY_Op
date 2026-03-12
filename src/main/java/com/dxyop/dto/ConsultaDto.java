@@ -74,6 +74,9 @@ public class ConsultaDto {
     private Double precioArmazon;
 
     // Totales
+    private Double subtotal;
+    private Boolean aplicarIva;
+
     private Double totalPresupuesto;
     @JsonProperty("aCuenta") 
     private Double aCuenta;

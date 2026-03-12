@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
@@ -33,9 +34,9 @@ public class Pago {
     // RELACIÓN CON LA CONSULTA (Padre)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "consulta_id", nullable = false)
-    @JsonIgnoreProperties({"pagos", "cliente", "productoArmazon", "hibernateLazyInitializer", "handler"})
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
+    @JsonIgnore             // <--- ESCUDO PARA EL JSON
+    @ToString.Exclude       // <--- ESCUDO PARA LOMBOK
+    @EqualsAndHashCode.Exclude // <--- ESCUDO PARA LOMBOK
     private Consulta consulta;
 
     @PrePersist
