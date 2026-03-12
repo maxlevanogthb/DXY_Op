@@ -38,4 +38,8 @@ public class ProductoService {
             repository.save(p);
         });
     }
+
+    public void saveAll(List<Producto> productos) {
+        repository.saveAll(productos);
+    }
 }

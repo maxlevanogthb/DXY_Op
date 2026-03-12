@@ -65,4 +65,6 @@ public class Producto {
 
     private Double precioCosto;
     private Double porcentajeComision;
+
+    
 }

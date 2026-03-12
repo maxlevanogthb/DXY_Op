@@ -146,25 +146,47 @@
                             </li>
                         </ul>
 
-                        <div class="row g-2 mb-3 bg-body-tertiary p-3 rounded align-items-end">
+                        <div class="row g-2 mb-3 bg-body-tertiary p-3 rounded align-items-end shadow-sm">
                             <input type="hidden" id="nuevoId">
 
-                            <div class="col-md-4"> <label class="small fw-bold text-muted">Nombre</label>
-                                <input type="text" id="nuevoNombre" class="form-control"
+                            <div class="col-md-3">
+                                <label class="small fw-bold text-muted mb-1">Nombre *</label>
+                                <input type="text" id="nuevoNombre" class="form-control form-control-sm"
                                     placeholder="Ej. Hi-Index 1.67">
                             </div>
-                            <div class="col-md-3">
-                                <label class="small fw-bold text-muted">Precio Base</label>
-                                <div class="input-group">
-                                    <span class="input-group-text">$</span>
-                                    <input type="number" id="nuevoPrecio" class="form-control" placeholder="0.00">
+
+                            <div class="col-md-2">
+                                <label class="small fw-bold text-muted mb-1">Costo *</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-body">$</span>
+                                    <input type="number" id="nuevoCosto" class="form-control" placeholder="0.00">
                                 </div>
                             </div>
-                            <div class="col-md-5 d-flex gap-2"> <button class="btn btn-success w-100"
-                                    id="btnGuardarOpcion" onclick="guardarOpcion()">
-                                    <i class="fas fa-plus me-2"></i>Agregar al Catálogo
+
+                            <div class="col-md-2">
+                                <label class="small fw-bold text-info mb-1">Comisión</label>
+                                <div class="input-group input-group-sm">
+                                    <input type="number" id="nuevoComision" class="form-control border-info"
+                                        placeholder="0">
+                                    <span class="input-group-text bg-info text-white border-info">%</span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-2">
+                                <label class="small fw-bold text-success mb-1">P. Venta</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-success text-white border-success">$</span>
+                                    <input type="number" id="nuevoPrecio"
+                                        class="form-control border-success text-success fw-bold" placeholder="0.00">
+                                </div>
+                            </div>
+
+                            <div class="col-md-3 d-flex gap-2">
+                                <button class="btn btn-success btn-sm w-100 shadow-sm" id="btnGuardarOpcion"
+                                    onclick="guardarOpcion()">
+                                    <i class="fas fa-plus me-2"></i>Agregar
                                 </button>
-                                <button class="btn btn-secondary d-none" id="btnCancelarEdicion"
+                                <button class="btn btn-secondary btn-sm d-none shadow-sm" id="btnCancelarEdicion"
                                     onclick="cancelarEdicionOpcion()" title="Cancelar Edición">
                                     <i class="fas fa-times"></i>
                                 </button>
@@ -176,8 +198,8 @@
                                 <thead class="table-secondary">
                                     <tr>
                                         <th>Descripción</th>
-                                        <th style="width: 200px;">Precio Sugerido</th>
-                                        <th style="width: 100px;" class="text-end">Acción</th>
+                                        <th style="width: 200px;" class="text-end pe-4">Costos y Venta</th>
+                                        <th style="width: 100px;" class="text-center">Acción</th>
                                     </tr>
                                 </thead>
                                 <tbody id="tablaCuerpo">
@@ -516,6 +538,7 @@
                                 </div>
                             </div>
                         </div>
+                        
                         <div class="card border-0 shadow-sm mb-4">
                             <div class="card-header bg-dark text-white fw-bold">
                                 <i class="fas fa-paint-roller me-2"></i> Apariencia del Sistema
@@ -548,6 +571,18 @@
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                        <div class="card border-warning border-opacity-50 shadow-sm mt-4 bg-warning bg-opacity-10">
+                            <div class="card-body">
+                                <h6 class="text-warning-emphasis fw-bold mb-2"><i class="fas fa-magic me-2"></i>Actualización Masiva de Precios Antiguos</h6>
+                                <p class="small text-body-secondary mb-3">
+                                    Si su sistema tiene productos de inventario o catálogos clínicos creados antes de la Versión 2.0 (sin costo base registrado), haga clic en este botón. 
+                                    El sistema tomará el precio actual como "Costo" y calculará el nuevo Precio de Venta sumando la comisión.
+                                </p>
+                                <button type="button" class="btn btn-warning text-dark fw-bold shadow-sm" onclick="ejecutarActualizacionMasiva()">
+                                    <i class="fas fa-bolt me-2"></i>Aplicar Comisión a Catálogo Viejo
+                                </button>
                             </div>
                         </div>
                     </div>

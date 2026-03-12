@@ -106,20 +106,24 @@ async function cargarCategorias(idSeleccionar = null) {
   }
 }
 
+// Reemplaza cargarEstilosArmazon por esta versión:
 async function cargarEstilosArmazon(nombreSeleccionar = null) {
   try {
-    // Usamos el endpoint nuevo de Catálogos Clínicos
     const res = await fetch("/api/opciones-lente?categoria=TIPO_ARMAZON");
     const estilos = await res.json();
 
     const select = document.getElementById("subTipo");
-    select.innerHTML = '<option value="">Seleccionar estilo...</option>';
-    estilos.forEach((e) => select.add(new Option(e.nombre, e.nombre)));
+    select.innerHTML =
+      '<option value="" data-costo="0">Seleccionar estilo...</option>';
 
-    // Auto-selecciona el nuevo estilo
-    if (nombreSeleccionar) {
-      select.value = nombreSeleccionar;
-    }
+    estilos.forEach((e) => {
+      const option = new Option(e.nombre, e.nombre);
+      // ⭐ GUARDAMOS EL COSTO EN EL HTML DE LA OPCIÓN ⭐
+      option.dataset.costo = e.precioCosto || 0;
+      select.add(option);
+    });
+
+    if (nombreSeleccionar) select.value = nombreSeleccionar;
   } catch (e) {
     console.error(e);
   }
@@ -195,9 +199,13 @@ function inicializarTabla() {
         render: (data, type, row) => {
           const costo = row.precioCosto || 0;
           const venta = row.precioVenta || 0;
-          
-          const format = (num) => "$" + parseFloat(num).toLocaleString("es-MX", { minimumFractionDigits: 2 });
-          
+
+          const format = (num) =>
+            "$" +
+            parseFloat(num).toLocaleString("es-MX", {
+              minimumFractionDigits: 2,
+            });
+
           return `
             <div class="d-flex flex-column align-items-end" style="line-height: 1.2;">
                 <span class="small text-muted mb-1" title="Precio Costo (Sin Comisión)">
@@ -279,60 +287,63 @@ function inicializarFiltros() {
 // ==========================================
 
 function abrirModalNuevo() {
-    $("#formProducto")[0].reset();
-    $("#productoId").val("");
-    $("#divSubtipo").hide();
-    $("#nombrePreview").text("...");
-    
-    $("#porcentajeComision").val(comisionGlobal);
-    
-    $("#modalTitulo").html('<i class="fas fa-box-open me-2"></i>Nuevo Producto');
-    new bootstrap.Modal(document.getElementById("modalProducto")).show();
+  $("#formProducto")[0].reset();
+  $("#productoId").val("");
+  $("#divSubtipo").hide();
+  $("#nombrePreview").text("...");
+
+  $("#porcentajeComision").val(comisionGlobal);
+
+  $("#modalTitulo").html('<i class="fas fa-box-open me-2"></i>Nuevo Producto');
+  new bootstrap.Modal(document.getElementById("modalProducto")).show();
 }
 
 function editarProducto(id) {
-    fetch(APIURL + "/" + id)
-        .then(res => res.json())
-        .then(prod => {
-            $("#productoId").val(prod.id);
-            $("#marca").val(prod.marca);
-            $("#modelo").val(prod.modelo);
-            $("#color").val(prod.color);
-            $("#talla").val(prod.talla);
-            $("#stock").val(prod.stock);
-            
-            let costo = prod.precioCosto;
-            let comision = prod.porcentajeComision;
-            let ventaOriginal = prod.precioVenta || 0;
+  fetch(APIURL + "/" + id)
+    .then((res) => res.json())
+    .then((prod) => {
+      $("#productoId").val(prod.id);
+      $("#marca").val(prod.marca);
+      $("#modelo").val(prod.modelo);
+      $("#color").val(prod.color);
+      $("#talla").val(prod.talla);
+      $("#stock").val(prod.stock);
 
-            // Si es un producto viejo (Costo 0 o vacío)
-            if (costo === null || costo === undefined || costo === 0) {
-                costo = ventaOriginal; // El precio histórico se convierte en el Costo Base
-                comision = comisionGlobal; // ⭐ INYECTAMOS LA COMISIÓN GLOBAL SOLITA
-            } else if (comision === null || comision === undefined) {
-                comision = comisionGlobal;
-            }
+      let costo = prod.precioCosto;
+      let comision = prod.porcentajeComision;
+      let ventaOriginal = prod.precioVenta || 0;
 
-            $("#precioCosto").val(costo || 0);
-            $("#porcentajeComision").val(comision);
+      // Si es un producto viejo (Costo 0 o vacío)
+      if (costo === null || costo === undefined || costo === 0) {
+        costo = ventaOriginal; // El precio histórico se convierte en el Costo Base
+        comision = comisionGlobal; // ⭐ INYECTAMOS LA COMISIÓN GLOBAL SOLITA
+      } else if (comision === null || comision === undefined) {
+        comision = comisionGlobal;
+      }
 
-            // ========================================================
+      $("#precioCosto").val(costo || 0);
+      $("#porcentajeComision").val(comision);
 
-            const catId = (prod.tipo && typeof prod.tipo === "object") ? prod.tipo.id : prod.tipo;
-            $("#categoria").val(catId);
-            
-            verificarSubtipo(); 
-            if (prod.subTipo) $("#subTipo").val(prod.subTipo);
+      // ========================================================
 
-            actualizarPreview();
+      const catId =
+        prod.tipo && typeof prod.tipo === "object" ? prod.tipo.id : prod.tipo;
+      $("#categoria").val(catId);
 
-            // Al recalcular ahora, respetará el precio original
-            calcularPrecioVenta();
+      verificarSubtipo();
+      if (prod.subTipo) $("#subTipo").val(prod.subTipo);
 
-            $("#modalTitulo").html('<i class="fas fa-edit me-2"></i>Editar Producto');
-            new bootstrap.Modal(document.getElementById("modalProducto")).show();
-        })
-        .catch(err => Swal.fire("Error", "No se pudo cargar el producto", "error"));
+      actualizarPreview();
+
+      // Al recalcular ahora, respetará el precio original
+      calcularPrecioVenta();
+
+      $("#modalTitulo").html('<i class="fas fa-edit me-2"></i>Editar Producto');
+      new bootstrap.Modal(document.getElementById("modalProducto")).show();
+    })
+    .catch((err) =>
+      Swal.fire("Error", "No se pudo cargar el producto", "error"),
+    );
 }
 
 function guardarProducto() {
@@ -483,29 +494,86 @@ function crearTipoInSitu(modalId) {
 function crearEstiloInSitu(modalId) {
   Swal.fire({
     title: "Nuevo Estilo / Montura",
+    width: "600px",
     html: `
-            <div class="text-start mt-3">
-                <div class="mb-3">
-                    <label class="form-label fw-bold small">Nombre del Estilo *</label>
-                    <input type="text" id="swal-estilo-nombre" class="form-control" placeholder="Ej. Aviador, Cat Eye, Ovalado...">
+        <div class="text-start mt-3">
+            <div class="mb-3">
+                <label class="form-label fw-bold small">Nombre del Estilo *</label>
+                <input type="text" id="swal-estilo-nombre" class="form-control" placeholder="Ej. Aviador, Cat Eye...">
+            </div>
+            <div class="row g-2 mb-3">
+                <div class="col-4">
+                    <label class="form-label fw-bold small">Costo *</label>
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-body-tertiary">$</span>
+                        <input type="number" id="swal-estilo-costo" class="form-control" placeholder="0.00">
+                    </div>
+                </div>
+                <div class="col-4">
+                    <label class="form-label fw-bold small text-info">Comisión</label>
+                    <div class="input-group input-group-sm">
+                        <input type="number" id="swal-estilo-comision" class="form-control border-info" value="${comisionGlobal || 0}">
+                        <span class="input-group-text bg-info text-white border-info">%</span>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <label class="form-label fw-bold small text-success">P. Venta</label>
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-success text-white border-success">$</span>
+                        <input type="number" id="swal-estilo-precio" class="form-control border-success text-success fw-bold" placeholder="0.00">
+                    </div>
                 </div>
             </div>
-        `,
+        </div>
+    `,
     showCancelButton: true,
     confirmButtonColor: "#0d6efd",
     confirmButtonText: '<i class="fas fa-save"></i> Guardar',
     cancelButtonText: "Cancelar",
     target: document.getElementById(modalId),
+    didOpen: () => {
+      const inputCosto = document.getElementById("swal-estilo-costo");
+      const inputComision = document.getElementById("swal-estilo-comision");
+      const inputPrecio = document.getElementById("swal-estilo-precio");
+
+      const calcularDesdeComision = () => {
+        const costo = parseFloat(inputCosto.value) || 0;
+        const comision = parseFloat(inputComision.value) || 0;
+        if (costo > 0)
+          inputPrecio.value = (costo * (1 + comision / 100)).toFixed(2);
+        else inputPrecio.value = "";
+      };
+
+      const calcularDesdePrecio = () => {
+        const costo = parseFloat(inputCosto.value) || 0;
+        const precio = parseFloat(inputPrecio.value) || 0;
+        if (costo > 0 && precio >= costo)
+          inputComision.value = ((precio / costo - 1) * 100).toFixed(2);
+        else inputComision.value = 0;
+      };
+
+      inputCosto.addEventListener("input", calcularDesdeComision);
+      inputComision.addEventListener("input", calcularDesdeComision);
+      inputPrecio.addEventListener("input", calcularDesdePrecio);
+    },
     preConfirm: () => {
       const nombre = document.getElementById("swal-estilo-nombre").value.trim();
-      if (!nombre) {
-        Swal.showValidationMessage("El nombre es obligatorio");
+      const costo = document.getElementById("swal-estilo-costo").value;
+      const comision = document.getElementById("swal-estilo-comision").value;
+      const precio = document.getElementById("swal-estilo-precio").value;
+
+      if (!nombre || !costo || !precio) {
+        Swal.showValidationMessage(
+          "El nombre, costo y precio son obligatorios",
+        );
         return false;
       }
       return {
         categoria: "TIPO_ARMAZON",
         nombre: nombre,
-        precioBase: 0.0,
+        precioCosto: parseFloat(costo) || 0,
+        porcentajeComision: parseFloat(comision) || 0,
+        precioBase: parseFloat(precio) || 0,
       };
     },
   }).then((result) => {
@@ -526,7 +594,7 @@ function crearEstiloInSitu(modalId) {
             timer: 2000,
             target: document.getElementById(modalId),
           });
-          cargarEstilosArmazon(nuevaOpcion.nombre); // Recarga y auto-selecciona el nuevo nombre
+          cargarEstilosArmazon(nuevaOpcion.nombre);
         })
         .catch((err) =>
           Swal.fire({
@@ -548,12 +616,12 @@ function crearEstiloInSitu(modalId) {
 function calcularDesdeComision() {
   const costo = parseFloat($("#precioCosto").val()) || 0;
   const comision = parseFloat($("#porcentajeComision").val()) || 0;
-  
+
   if (costo > 0) {
-      const precioVenta = costo + (costo * (comision / 100));
-      $("#precio").val(precioVenta.toFixed(2));
+    const precioVenta = costo + costo * (comision / 100);
+    $("#precio").val(precioVenta.toFixed(2));
   } else {
-      $("#precio").val("");
+    $("#precio").val("");
   }
 }
 
@@ -561,12 +629,12 @@ function calcularDesdeComision() {
 function calcularDesdePrecio() {
   const costo = parseFloat($("#precioCosto").val()) || 0;
   const precio = parseFloat($("#precio").val()) || 0;
-  
+
   if (costo > 0 && precio >= costo) {
-      const nuevaComision = ((precio / costo) - 1) * 100;
-      $("#porcentajeComision").val(nuevaComision.toFixed(2));
+    const nuevaComision = (precio / costo - 1) * 100;
+    $("#porcentajeComision").val(nuevaComision.toFixed(2));
   } else {
-      $("#porcentajeComision").val(0);
+    $("#porcentajeComision").val(0);
   }
 }
 
@@ -574,4 +642,26 @@ function calcularDesdePrecio() {
 $(document).ready(function () {
   $("#precioCosto, #porcentajeComision").on("input", calcularDesdeComision);
   $("#precio").on("input", calcularDesdePrecio); // Ahora el precio final ajusta la comisión
+  $("#subTipo").on("change", function () {
+    const opcionSeleccionada = $(this).find("option:selected");
+    const costoEstilo = parseFloat(opcionSeleccionada.data("costo")) || 0;
+
+    // Solo sugerimos el costo si estamos en modo "Nuevo Producto" (ID vacío) o si el costo actual es 0
+    const idProductoActual = $("#productoId").val();
+    const costoActual = parseFloat($("#precioCosto").val()) || 0;
+
+    if (costoEstilo > 0 && (!idProductoActual || costoActual === 0)) {
+      $("#precioCosto").val(costoEstilo);
+      calcularDesdeComision(); // Disparamos la función que ya tenías para que calcule la comisión y el P.Venta
+
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        icon: "info",
+        title: `Se sugirió el costo base de $${costoEstilo} correspondiente a este estilo.`,
+        showConfirmButton: false,
+        timer: 3000,
+      });
+    }
+  });
 });

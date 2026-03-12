@@ -26,8 +26,15 @@ public class OpcionLente {
     @Column(name = "precio_base")
     private BigDecimal precioBase; // El precio sugerido
 
+    @Column(name = "precio_costo")
+    private Double precioCosto = 0.0;
+
+    @Column(name = "porcentaje_comision")
+    private Double porcentajeComision = 0.0;
+
     // Constructor vacío obligatorio para JPA
     public OpcionLente() {}
+    
 
     // Constructor útil
     public OpcionLente(String categoria, String nombre, BigDecimal precioBase) {
@@ -48,4 +55,26 @@ public class OpcionLente {
 
     public BigDecimal getPrecioBase() { return precioBase; }
     public void setPrecioBase(BigDecimal precioBase) { this.precioBase = precioBase; }
+
+
+    public Double getPrecioCosto() {
+        return precioCosto;
+    }
+
+
+    public void setPrecioCosto(Double precioCosto) {
+        this.precioCosto = precioCosto;
+    }
+
+
+    public Double getPorcentajeComision() {
+        return porcentajeComision;
+    }
+
+
+    public void setPorcentajeComision(Double porcentajeComision) {
+        this.porcentajeComision = porcentajeComision;
+    } 
+
+    
 }

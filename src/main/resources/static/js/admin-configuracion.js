@@ -668,3 +668,34 @@ function togglePassword(inputId) {
         icon.classList.add('fa-eye');
     }
 }
+
+// ====================================================================
+// FUNCIÓN DEL BOTÓN MÁGICO (ACTUALIZACIÓN MASIVA V2.0)
+// ====================================================================
+function ejecutarActualizacionMasiva() {
+    Swal.fire({
+        title: '¿Actualizar catálogo antiguo?',
+        html: `Esta acción buscará todos los productos y opciones clínicas que <b>no tengan un costo base registrado</b>.<br><br>Asignará su precio actual como costo y le sumará la comisión global.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ffc107',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: '<i class="fas fa-bolt text-dark"></i> Sí, actualizar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({ title: 'Procesando...', html: 'Recalculando precios y comisiones...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
+
+            fetch('/api/configuracion/aplicar-comision-masiva', { method: 'POST' })
+            .then(async res => {
+                if (res.ok) return res.json();
+                throw new Error(await res.text());
+            })
+            .then(data => {
+                Swal.fire({ icon: 'success', title: '¡Éxito!', text: 'Productos actualizados.', confirmButtonColor: '#198754' });
+                if(typeof cargarTabla === "function") cargarTabla(document.getElementById('categoriaActual').value);
+            })
+            .catch(err => Swal.fire('Error', err.message, 'error'));
+        }
+    });
+}

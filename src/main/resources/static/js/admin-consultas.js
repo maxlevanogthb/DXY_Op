@@ -14,8 +14,15 @@ document.addEventListener("DOMContentLoaded", () => {
     .then((data) => {
       configGeneral = data;
       console.log("Configuración cargada:", configGeneral);
+      
+      // Inyectar el IVA real configurado en la etiqueta del HTML
+      const porcentajeIvaBD = configGeneral.porcentajeImpuesto || 0;
+      const lblIva = document.getElementById("lblPorcentajeIva");
+      if (lblIva) {
+          lblIva.textContent = porcentajeIvaBD;
+      }
     })
-    .catch((err) => console.warn("Usando IVA por defecto (16%)", err));
+    .catch((err) => console.warn("Error cargando configuración", err));
   // 1. Inicializar Modal si existe
   const el = document.getElementById("modalHistorial");
   if (el) {
@@ -99,9 +106,8 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // 7. Listener de Pagos
-  $("#aCuenta").on("input change", function () {
-    dibujarCarrito();
-  });
+  $("#aCuenta").on("input change", dibujarCarrito);
+  $("#checkAplicarIva").on("change", dibujarCarrito);
 });
 
 // ==========================================
@@ -122,6 +128,7 @@ function abrirModalConsulta(idPaciente, nombrePaciente) {
 
   $("#cajaEstadoEntrega").addClass("d-none");
   $("#checkArmazonPropio").prop("checked", false).trigger("change");
+  $("#checkAplicarIva").prop("checked", false);
 
   // 2. Valores por defecto (Fecha de hoy)
   const hoy = new Date().toISOString().split("T")[0];
@@ -585,7 +592,7 @@ function dibujarCarrito() {
   const tbody = $("#carritoBody");
   tbody.empty();
 
-  let sumaArticulos = 0; // Suma pura de los precios de los productos
+  let sumaArticulos = 0; // Este es el SUBTOTAL puro
 
   carritoVenta.forEach((item, index) => {
     sumaArticulos += item.subtotal;
@@ -595,6 +602,7 @@ function dibujarCarrito() {
     if (item.tipoItem === "CONSULTA") badgeColor = "bg-info text-dark";
     if (item.tipoItem === "ACCESORIO") badgeColor = "bg-warning text-dark";
     if (item.tipoItem === "GOTAS") badgeColor = "bg-success";
+    if (item.tipoItem === "SERVICIO") badgeColor = "bg-warning text-dark";
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
@@ -615,29 +623,46 @@ function dibujarCarrito() {
       '<tr><td colspan="4" class="text-center text-muted py-3 small"><i class="fas fa-shopping-basket mb-1 fs-5 d-block"></i>Lista vacía</td></tr>',
     );
   }
-
-  // --- NUEVOS CÁLCULOS DINÁMICOS ---
+  
+  const aplicarIva = $("#checkAplicarIva").is(":checked");
+  // Extraemos el IVA de tu configuración de BD, o usamos 16% por defecto
   const porcentajeIva = configGeneral.porcentajeImpuesto || 0;
-  const montoIva = sumaArticulos * (porcentajeIva / 100);
-  const totalConIva = sumaArticulos + montoIva;
+  
+  let montoIva = 0;
+  
+  if (aplicarIva) {
+      // El doctor activó el switch: Calculamos el impuesto
+      montoIva = sumaArticulos * (porcentajeIva / 100);
+      $("#filaIva").removeClass("d-none"); // Mostramos la fila del desglose
+      $("#lblPorcentajeIva").text(porcentajeIva);
+  } else {
+      $("#filaIva").addClass("d-none"); // Ocultamos el IVA si está apagado
+  }
 
-  // Actualizamos los campos ocultos que se van al servidor
-  $("#totalPresupuesto").val(totalConIva.toFixed(2));
+  const totalFinal = sumaArticulos + montoIva;
 
-  // Actualizamos los displays visuales
-  // (Nota: Asegúrate de tener un ID 'displayIva' en tu HTML si quieres mostrarlo separado)
-  $("#displayTotal").text("$" + totalConIva.toFixed(2));
+  // Actualizamos los displays de texto
+  $("#displaySubtotalVenta").text("$" + sumaArticulos.toFixed(2));
+  $("#displayMontoIva").text("+$" + montoIva.toFixed(2));
+  $("#displayTotal").text("$" + totalFinal.toFixed(2));
 
+  // Actualizamos la variable oculta que se envía a Java
+  $("#totalPresupuesto").val(totalFinal.toFixed(2));
+
+  // --- MATEMÁTICA DE LA DEUDA ---
   const aCuenta = parseFloat($("#aCuenta").val()) || 0;
-  const restante = totalConIva - aCuenta;
+  let restante = totalFinal - aCuenta;
+  
+  // Evitar valores negativos si el cliente da más de anticipo (cambio)
+  if(restante < 0) restante = 0; 
 
   $("#restante").val(restante.toFixed(2));
   $("#displayRestante").text("$" + restante.toFixed(2));
 
   const elRestante = document.getElementById("displayRestante");
   if (elRestante) {
-    if (restante > 0.1) elRestante.className = "text-danger fw-bold";
-    else elRestante.className = "text-success fw-bold";
+    if (restante > 0.1) elRestante.className = "text-danger fw-bold mb-0";
+    else elRestante.className = "text-success fw-bold mb-0"; // Se pinta verde si ya liquidó
   }
 }
 
@@ -1032,85 +1057,112 @@ function enviarReciboPorCorreo(idConsulta) {
 // H. CREACIÓN IN-SITU: CATÁLOGOS CLÍNICOS (Micas)
 // ==========================================
 function crearLenteInSitu(categoriaClinica, selectId, modalId) {
-  const nombreBonito =
-    categoriaClinica.charAt(0) + categoriaClinica.slice(1).toLowerCase();
+    const nombreBonito = categoriaClinica.charAt(0) + categoriaClinica.slice(1).toLowerCase();
 
-  Swal.fire({
-    title: `Nuevo ${nombreBonito}`,
-    html: `
+    Swal.fire({
+        title: `Nuevo ${nombreBonito}`,
+        width: "600px", 
+        html: `
             <div class="text-start mt-3">
                 <div class="mb-3">
                     <label class="form-label fw-bold small">Descripción / Nombre *</label>
                     <input type="text" id="swal-lente-nombre" class="form-control" placeholder="Ej. Policarbonato HD">
                 </div>
-                <div class="mb-0">
-                    <label class="form-label fw-bold small">Precio Base Sugerido</label>
-                    <div class="input-group">
-                        <span class="input-group-text">$</span>
-                        <input type="number" id="swal-lente-precio" class="form-control" placeholder="0.00">
+                <div class="row g-2 mb-3">
+                    <div class="col-4">
+                        <label class="form-label fw-bold small">Costo *</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-body-tertiary">$</span>
+                            <input type="number" id="swal-lente-costo" class="form-control" placeholder="0.00">
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label fw-bold small text-info">Comisión</label>
+                        <div class="input-group input-group-sm">
+                            <input type="number" id="swal-lente-comision" class="form-control border-info" value="${configGeneral.porcentajeComisionTarjeta || 0}">
+                            <span class="input-group-text bg-info text-white border-info">%</span>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label fw-bold small text-success">P. Venta</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-success text-white border-success">$</span>
+                            <input type="number" id="swal-lente-precio" class="form-control border-success text-success fw-bold" placeholder="0.00">
+                        </div>
                     </div>
                 </div>
             </div>
         `,
-    showCancelButton: true,
-    confirmButtonColor: "#212529",
-    confirmButtonText: '<i class="fas fa-save"></i> Guardar',
-    cancelButtonText: "Cancelar",
-    target: document.getElementById(modalId),
-    preConfirm: () => {
-      const nombre = document.getElementById("swal-lente-nombre").value.trim();
-      const precio = document.getElementById("swal-lente-precio").value;
-      if (!nombre) {
-        Swal.showValidationMessage("La descripción es obligatoria");
-        return false;
-      }
-      return {
-        categoria: categoriaClinica,
-        nombre: nombre,
-        precioBase: precio ? parseFloat(precio) : 0.0,
-      };
-    },
-  }).then((result) => {
-    if (result.isConfirmed) {
-      fetch("/api/opciones-lente", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(result.value),
-      })
-        .then((res) => res.json())
-        .then((nuevaOpcion) => {
-          Swal.fire({
-            toast: true,
-            position: "top-end",
-            icon: "success",
-            title: "Agregado al catálogo",
-            showConfirmButton: false,
-            timer: 2000,
-            target: document.getElementById(modalId),
-          });
+        showCancelButton: true,
+        confirmButtonColor: "#212529",
+        confirmButtonText: '<i class="fas fa-save"></i> Guardar',
+        cancelButtonText: "Cancelar",
+        target: document.getElementById(modalId),
+        
+        didOpen: () => {
+            const inputCosto = document.getElementById("swal-lente-costo");
+            const inputComision = document.getElementById("swal-lente-comision");
+            const inputPrecio = document.getElementById("swal-lente-precio");
 
-          // ⭐ MAGIA: Inyectamos la nueva opción en el select y la seleccionamos
-          const selectElement = document.getElementById(selectId);
-          if (selectElement) {
-            const option = new Option(nuevaOpcion.nombre, nuevaOpcion.nombre);
-            option.dataset.precio = nuevaOpcion.precioBase; // Guardamos el precio para el carrito
-            selectElement.add(option);
-            selectElement.value = nuevaOpcion.nombre;
+            const calcularDesdeComision = () => {
+                const costo = parseFloat(inputCosto.value) || 0;
+                const comision = parseFloat(inputComision.value) || 0;
+                if (costo > 0) inputPrecio.value = (costo * (1 + comision / 100)).toFixed(2);
+                else inputPrecio.value = "";
+            };
 
-            // Disparamos el recálculo de totales
-            calcularTotales();
-          }
-        })
-        .catch((err) =>
-          Swal.fire({
-            title: "Error",
-            text: "No se pudo guardar",
-            icon: "error",
-            target: document.getElementById(modalId),
-          }),
-        );
-    }
-  });
+            const calcularDesdePrecio = () => {
+                const costo = parseFloat(inputCosto.value) || 0;
+                const precio = parseFloat(inputPrecio.value) || 0;
+                if (costo > 0 && precio >= costo) inputComision.value = ((precio / costo - 1) * 100).toFixed(2);
+                else inputComision.value = 0;
+            };
+
+            inputCosto.addEventListener("input", calcularDesdeComision);
+            inputComision.addEventListener("input", calcularDesdeComision);
+            inputPrecio.addEventListener("input", calcularDesdePrecio);
+        },
+        preConfirm: () => {
+            const nombre = document.getElementById("swal-lente-nombre").value.trim();
+            const costo = document.getElementById("swal-lente-costo").value;
+            const comision = document.getElementById("swal-lente-comision").value;
+            const precio = document.getElementById("swal-lente-precio").value;
+
+            if (!nombre || !costo || !precio) {
+                Swal.showValidationMessage("El nombre, costo y precio son obligatorios");
+                return false;
+            }
+            return {
+                categoria: categoriaClinica,
+                nombre: nombre,
+                precioCosto: parseFloat(costo) || 0,
+                porcentajeComision: parseFloat(comision) || 0,
+                precioBase: parseFloat(precio) || 0 
+            };
+        },
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch("/api/opciones-lente", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(result.value),
+            })
+            .then((res) => res.json())
+            .then((nuevaOpcion) => {
+                Swal.fire({ toast: true, position: "top-end", icon: "success", title: "Agregado al catálogo", showConfirmButton: false, timer: 2000, target: document.getElementById(modalId) });
+                
+                const selectElement = document.getElementById(selectId);
+                if (selectElement) {
+                    const option = new Option(nuevaOpcion.nombre, nuevaOpcion.nombre);
+                    option.dataset.precio = nuevaOpcion.precioBase; 
+                    selectElement.add(option);
+                    selectElement.value = nuevaOpcion.nombre;
+                    calcularTotales();
+                }
+            })
+            .catch((err) => Swal.fire({ title: "Error", text: "No se pudo guardar", icon: "error", target: document.getElementById(modalId) }));
+        }
+    });
 }
 
 // ==========================================

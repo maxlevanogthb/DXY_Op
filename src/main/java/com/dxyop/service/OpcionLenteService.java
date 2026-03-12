@@ -28,4 +28,13 @@ public class OpcionLenteService {
     public void delete(Long id) {
         repository.deleteById(id);
     }
+
+    public List<OpcionLente> getAllOpciones() {
+        return repository.findAll();
+    }
+
+    // Guardar una lista completa de golpe (Optimizado para base de datos)
+    public void saveAll(List<OpcionLente> opciones) {
+        repository.saveAll(opciones);
+    }
 }

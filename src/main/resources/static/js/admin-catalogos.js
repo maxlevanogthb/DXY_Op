@@ -1,38 +1,65 @@
-// Actualizado para coincidir con tu OpcionLenteController
-const API_URL = '/api/opciones-lente'; 
+const API_URL = "/api/opciones-lente";
 
-document.addEventListener('DOMContentLoaded', () => {
-    cargarTabla('MATERIAL'); // Cargar la primera pestaña por defecto
+document.addEventListener("DOMContentLoaded", () => {
+  cargarTabla("MATERIAL");
+
+  $("#nuevoCosto, #nuevoComision").on("input", () => {
+    const costo = parseFloat($("#nuevoCosto").val()) || 0;
+    const comision = parseFloat($("#nuevoComision").val()) || 0;
+    if (costo > 0)
+      $("#nuevoPrecio").val((costo * (1 + comision / 100)).toFixed(2));
+    else $("#nuevoPrecio").val("");
+  });
+
+  $("#nuevoPrecio").on("input", () => {
+    const costo = parseFloat($("#nuevoCosto").val()) || 0;
+    const precio = parseFloat($("#nuevoPrecio").val()) || 0;
+    if (costo > 0 && precio >= costo)
+      $("#nuevoComision").val(((precio / costo - 1) * 100).toFixed(2));
+    else $("#nuevoComision").val(0);
+  });
 });
 
-// 1. Cargar datos según la categoría seleccionada
 function cargarTabla(categoria) {
-    document.getElementById('categoriaActual').value = categoria;
-    
-    // Limpiar si había algo a medias al cambiar de pestaña
-    cancelarEdicionOpcion(); 
+  document.getElementById("categoriaActual").value = categoria;
+  cancelarEdicionOpcion(); // Limpia y auto-asigna la comisión global
 
-    const tbody = document.getElementById('tablaCuerpo');
-    tbody.innerHTML = '<tr><td colspan="3" class="text-center">Cargando...</td></tr>';
+  const tbody = document.getElementById("tablaCuerpo");
+  tbody.innerHTML =
+    '<tr><td colspan="3" class="text-center">Cargando...</td></tr>';
 
-    fetch(`${API_URL}?categoria=${categoria}`)
-        .then(res => res.json())
-        .then(data => {
-            tbody.innerHTML = '';
-            
-            if (data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted py-3">No hay opciones registradas</td></tr>';
-                return;
-            }
+  fetch(`${API_URL}?categoria=${categoria}`)
+    .then((res) => res.json())
+    .then((data) => {
+      tbody.innerHTML = "";
+      if (data.length === 0) {
+        tbody.innerHTML =
+          '<tr><td colspan="3" class="text-center text-muted py-3">No hay opciones registradas</td></tr>';
+        return;
+      }
 
-            data.forEach(item => {
-                const precioF = item.precioBase ? `$${parseFloat(item.precioBase).toFixed(2)}` : '$0.00';
-                tbody.innerHTML += `
+      data.forEach((item) => {
+        const costo = item.precioCosto || 0;
+        const venta = item.precioBase || 0;
+        const format = (num) =>
+          "$" +
+          parseFloat(num).toLocaleString("es-MX", { minimumFractionDigits: 2 });
+
+        tbody.innerHTML += `
                     <tr>
                         <td class="fw-bold">${item.nombre}</td>
-                        <td class="fw-bold text-success">${precioF}</td>
-                        <td class="text-end">
-                            <div class="btn-group">
+                        <td class="text-end pe-4">
+                            <div class="d-flex flex-column align-items-end" style="line-height: 1.2;">
+                                <span class="small text-muted mb-1" title="Costo (Sin Comisión)">
+                                    <i class="fas fa-box-open opacity-50 me-1"></i>${format(costo)}
+                                </span>
+                                <span class="fw-bold text-success fs-6" title="Precio Venta (Con Comisión)">
+                                    <i class="fas fa-tag opacity-50 me-1"></i>${format(venta)}
+                                </span>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <div class="btn-group shadow-sm">
                                 <button class="btn btn-sm btn-outline-warning" onclick="editarOpcion(${item.id})" title="Editar">
                                     <i class="fas fa-edit"></i>
                                 </button>
@@ -43,124 +70,139 @@ function cargarTabla(categoria) {
                         </td>
                     </tr>
                 `;
-            });
-        })
-        .catch(err => console.error("Error al cargar la tabla", err));
-}
-
-// 2. Guardar (Crear o Actualizar)
-function guardarOpcion() {
-    const id = document.getElementById('nuevoId').value;
-    const categoria = document.getElementById('categoriaActual').value;
-    const nombre = document.getElementById('nuevoNombre').value.trim();
-    const precio = document.getElementById('nuevoPrecio').value;
-
-    if (!nombre) {
-        Swal.fire('Atención', 'El nombre es obligatorio', 'warning');
-        return;
-    }
-
-    const data = {
-        categoria: categoria,
-        nombre: nombre,
-        precioBase: precio ? parseFloat(precio) : 0.00
-    };
-
-    // Lógica inteligente: PUT si hay ID, POST si es nuevo
-    const url = id ? `${API_URL}/${id}` : API_URL;
-    const metodo = id ? 'PUT' : 'POST';
-
-    fetch(url, { 
-        method: metodo,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
+      });
     })
-    .then(res => {
-        if (res.ok) {
-            Swal.fire({
-                toast: true, position: 'top-end', icon: 'success', 
-                title: id ? 'Actualizado correctamente' : 'Guardado correctamente', 
-                showConfirmButton: false, timer: 2000
-            });
-            cancelarEdicionOpcion(); // Limpiamos los inputs
-            cargarTabla(categoria); // Recargar tabla
-        } else {
-            Swal.fire('Error', 'No se pudo guardar', 'error');
-        }
-    });
+    .catch((err) => console.error("Error al cargar la tabla", err));
 }
 
-// 3. NUEVA FUNCIÓN: Cargar datos para editar
-function editarOpcion(id) {
-    fetch(`${API_URL}/${id}`)
-        .then(res => res.json())
-        .then(opcion => {
-            // Subir datos a los inputs
-            document.getElementById('nuevoId').value = opcion.id;
-            document.getElementById('nuevoNombre').value = opcion.nombre;
-            document.getElementById('nuevoPrecio').value = opcion.precioBase;
+function guardarOpcion() {
+  const id = document.getElementById("nuevoId").value;
+  const categoria = document.getElementById("categoriaActual").value;
+  const nombre = document.getElementById("nuevoNombre").value.trim();
 
-            // Cambiar UI del botón
-            const btnGuardar = document.getElementById('btnGuardarOpcion');
-            if(btnGuardar) {
-                btnGuardar.innerHTML = '<i class="fas fa-sync-alt me-2"></i>Actualizar Cambios';
-                btnGuardar.classList.remove('btn-success');
-                btnGuardar.classList.add('btn-warning');
-            }
-            
-            // Mostrar botón cancelar
-            const btnCancelar = document.getElementById('btnCancelarEdicion');
-            if(btnCancelar) btnCancelar.classList.remove('d-none');
-            
-            // Hacer focus
-            document.getElementById('nuevoNombre').focus();
-        });
-}
+  if (!nombre) {
+    Swal.fire("Atención", "El nombre es obligatorio", "warning");
+    return;
+  }
 
-// 4. NUEVA FUNCIÓN: Limpiar inputs y restaurar botones
-function cancelarEdicionOpcion() {
-    const inputId = document.getElementById('nuevoId');
-    if(inputId) inputId.value = '';
-    
-    const inputNombre = document.getElementById('nuevoNombre');
-    if(inputNombre) inputNombre.value = '';
-    
-    const inputPrecio = document.getElementById('nuevoPrecio');
-    if(inputPrecio) inputPrecio.value = '';
-    
-    // Restaurar UI original
-    const btnGuardar = document.getElementById('btnGuardarOpcion');
-    if(btnGuardar) {
-        btnGuardar.innerHTML = '<i class="fas fa-plus me-2"></i>Agregar al Catálogo';
-        btnGuardar.classList.remove('btn-warning');
-        btnGuardar.classList.add('btn-success');
+  const data = {
+    categoria: categoria,
+    nombre: nombre,
+    precioCosto: parseFloat(document.getElementById("nuevoCosto").value) || 0,
+    porcentajeComision:
+      parseFloat(document.getElementById("nuevoComision").value) || 0,
+    precioBase: parseFloat(document.getElementById("nuevoPrecio").value) || 0,
+  };
+
+  const url = id ? `${API_URL}/${id}` : API_URL;
+  const metodo = id ? "PUT" : "POST";
+
+  fetch(url, {
+    method: metodo,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  }).then((res) => {
+    if (res.ok) {
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        icon: "success",
+        title: id ? "Actualizado" : "Guardado",
+        showConfirmButton: false,
+        timer: 2000,
+      });
+      cancelarEdicionOpcion();
+      cargarTabla(categoria);
+    } else {
+      Swal.fire("Error", "No se pudo guardar", "error");
     }
-    
-    const btnCancelar = document.getElementById('btnCancelarEdicion');
-    if(btnCancelar) btnCancelar.classList.add('d-none');
+  });
 }
 
-// 5. Eliminar Opción
-function eliminarOpcion(id) {
-    Swal.fire({
-        title: '¿Eliminar?',
-        text: "Esta opción dejará de aparecer en nuevas consultas.",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        confirmButtonText: 'Sí, borrar'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            const categoria = document.getElementById('categoriaActual').value;
-            fetch(`${API_URL}/${id}`, { method: 'DELETE' })
-                .then(res => {
-                    if (res.ok) {
-                        cargarTabla(categoria);
-                        Swal.fire({toast:true, position:'top-end', icon:'success', title:'Borrado', showConfirmButton:false, timer:2000});
-                    } else {
-                        Swal.fire('Error', 'No se puede eliminar porque ya está asignado a un paciente.', 'error');
-                    }
-                });
-        }
+function editarOpcion(id) {
+  fetch(`${API_URL}/${id}`)
+    .then((res) => res.json())
+    .then((opcion) => {
+      document.getElementById("nuevoId").value = opcion.id;
+      document.getElementById("nuevoNombre").value = opcion.nombre;
+      document.getElementById("nuevoCosto").value = opcion.precioCosto || 0;
+      document.getElementById("nuevoComision").value =
+        opcion.porcentajeComision || 0;
+      document.getElementById("nuevoPrecio").value = opcion.precioBase || 0;
+
+      const btnGuardar = document.getElementById("btnGuardarOpcion");
+      if (btnGuardar) {
+        btnGuardar.innerHTML = '<i class="fas fa-sync-alt me-1"></i>Actualizar';
+        btnGuardar.classList.remove("btn-success");
+        btnGuardar.classList.add("btn-warning", "text-dark");
+      }
+
+      const btnCancelar = document.getElementById("btnCancelarEdicion");
+      if (btnCancelar) btnCancelar.classList.remove("d-none");
+
+      document.getElementById("nuevoNombre").focus();
     });
+}
+
+function cancelarEdicionOpcion() {
+  const inputId = document.getElementById("nuevoId");
+  if (inputId) inputId.value = "";
+
+  const inputNombre = document.getElementById("nuevoNombre");
+  if (inputNombre) inputNombre.value = "";
+
+  // Leer la comisión global de la otra pestaña para inyectarla por defecto
+  const comisionGlobalVal = document.getElementById("confComision")
+    ? parseFloat(document.getElementById("confComision").value)
+    : 0;
+
+  document.getElementById("nuevoCosto").value = "";
+  document.getElementById("nuevoComision").value = isNaN(comisionGlobalVal)
+    ? 0
+    : comisionGlobalVal;
+  document.getElementById("nuevoPrecio").value = "";
+
+  const btnGuardar = document.getElementById("btnGuardarOpcion");
+  if (btnGuardar) {
+    btnGuardar.innerHTML = '<i class="fas fa-plus me-1"></i>Agregar';
+    btnGuardar.classList.remove("btn-warning", "text-dark");
+    btnGuardar.classList.add("btn-success");
+  }
+
+  const btnCancelar = document.getElementById("btnCancelarEdicion");
+  if (btnCancelar) btnCancelar.classList.add("d-none");
+}
+
+function eliminarOpcion(id) {
+  Swal.fire({
+    title: "¿Eliminar?",
+    text: "Esta opción dejará de aparecer en nuevas consultas.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    confirmButtonText: "Sí, borrar",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      const categoria = document.getElementById("categoriaActual").value;
+      fetch(`${API_URL}/${id}`, { method: "DELETE" }).then((res) => {
+        if (res.ok) {
+          cargarTabla(categoria);
+          Swal.fire({
+            toast: true,
+            position: "top-end",
+            icon: "success",
+            title: "Borrado",
+            showConfirmButton: false,
+            timer: 2000,
+          });
+        } else {
+          Swal.fire(
+            "Error",
+            "No se puede eliminar porque ya está asignado a un paciente.",
+            "error",
+          );
+        }
+      });
+    }
+  });
 }
