@@ -17,34 +17,38 @@
     </div>
 
     <div class="row mb-4">
-        <div class="col-md-6 col-lg-4 mb-3">
+        <div class="col-md-6 col-lg-3 mb-3">
             <div class="card border-0 shadow-sm border-start border-success border-5 h-100">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-muted text-uppercase mb-1 small fw-bold">Ingresos de Hoy (Caja)</h6>
-                            <h3 class="fw-bold text-success mb-0" id="kpiVentaHoy">$0.00</h3>
-                        </div>
-                        <div class="bg-success bg-opacity-10 p-3 rounded-circle text-success">
-                            <i class="fas fa-coins fa-2x"></i>
-                        </div>
-                    </div>
+                    <h6 class="text-muted text-uppercase mb-1 small fw-bold">Ingreso Bruto (Hoy)</h6>
+                    <h3 class="fw-bold text-success mb-0" id="kpiIngresoBruto">$0.00</h3>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-6 col-lg-4 mb-3">
+        <div class="col-md-6 col-lg-3 mb-3">
+            <div class="card border-0 shadow-sm border-start border-primary border-5 h-100">
+                <div class="card-body">
+                    <h6 class="text-muted text-uppercase mb-1 small fw-bold">Ganancia Libre (Hoy)</h6>
+                    <h3 class="fw-bold text-primary mb-0" id="kpiGananciaNeta">$0.00</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3 mb-3">
+            <div class="card border-0 shadow-sm border-start border-warning border-5 h-100">
+                <div class="card-body">
+                    <h6 class="text-muted text-uppercase mb-1 small fw-bold">IVA Retenido (Hoy)</h6>
+                    <h3 class="fw-bold text-warning mb-0" id="kpiIva">$0.00</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3 mb-3">
             <div class="card border-0 shadow-sm border-start border-danger border-5 h-100">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-muted text-uppercase mb-1 small fw-bold">Total por Cobrar</h6>
-                            <h3 class="fw-bold text-danger mb-0" id="kpiPorCobrar">$0.00</h3>
-                        </div>
-                        <div class="bg-danger bg-opacity-10 p-3 rounded-circle text-danger">
-                            <i class="fas fa-file-invoice-dollar fa-2x"></i>
-                        </div>
-                    </div>
+                    <h6 class="text-muted text-uppercase mb-1 small fw-bold">Total por Cobrar</h6>
+                    <h3 class="fw-bold text-danger mb-0" id="kpiPorCobrar">$0.00</h3>
                 </div>
             </div>
         </div>
@@ -166,6 +170,20 @@
                                 </tr>
                             </thead>
                             <tbody></tbody>
+                            <tfoot class="table-group-divider">
+                                <tr>
+                                    <td colspan="4" class="text-end fw-bold text-muted small pb-0 pt-3">Costo Mercancía (Est. Global):</td>
+                                    <td class="text-end fw-bold text-muted small pb-0 pt-3" id="cajaCosto">-$0.00</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="text-end fw-bold text-warning small pt-1">Impuestos (IVA a Declarar):</td>
+                                    <td class="text-end fw-bold text-warning small pt-1" id="cajaIvaR">-$0.00</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" class="text-end fw-bold text-primary fs-6">GANANCIA NETA DEL DÍA:</td>
+                                    <td class="text-end fw-bold text-primary fs-6" id="cajaGanancia">+$0.00</td>
+                                </tr>
+                            </tfoot>
                         </table>
                     </div>
                 </div>

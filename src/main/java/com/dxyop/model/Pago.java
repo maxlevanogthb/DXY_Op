@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name = "pagos")
@@ -45,5 +46,22 @@ public class Pago {
         if (this.fechaPago == null) {
             this.fechaPago = LocalDateTime.now();
         }
+    }
+
+    // --- PUENTE SEGURO PARA EL FRONTEND ---
+    @JsonProperty("pacienteNombre")
+    public String getPacienteNombre() {
+        if (this.consulta != null && this.consulta.getPaciente() != null) {
+            return this.consulta.getPaciente().getNombre();
+        }
+        return "General";
+    }
+
+    @JsonProperty("aplicaIva")
+    public boolean isAplicaIva() {
+        if (this.consulta != null && this.consulta.getAplicarIva() != null) {
+            return this.consulta.getAplicarIva();
+        }
+        return false;
     }
 }

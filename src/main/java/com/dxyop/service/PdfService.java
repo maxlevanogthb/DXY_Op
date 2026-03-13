@@ -131,7 +131,31 @@ public class PdfService {
         totalesTable.setWidthPercentage(40);
         totalesTable.setHorizontalAlignment(Element.ALIGN_RIGHT);
         
+        Double totalFinal = consulta.getTotalPresupuesto() != null ? consulta.getTotalPresupuesto() : 0.0;
+        Double subtotal = consulta.getSubtotal() != null ? consulta.getSubtotal() : totalFinal;
+        boolean aplicaIva = consulta.getAplicarIva() != null && consulta.getAplicarIva();
+
+        if (aplicaIva) {
+            Double porcentajeIva = config.getPorcentajeImpuesto() != null ? config.getPorcentajeImpuesto() : 16.0;
+            Double montoIva = subtotal * (porcentajeIva / 100.0);
+
+            agregarFilaTotal(totalesTable, "Subtotal:", DF.format(subtotal), FONT_CUERPO);
+            agregarFilaTotal(totalesTable, "IVA (" + porcentajeIva + "%):", "+ " + DF.format(montoIva), FONT_CUERPO);
+            
+            // Línea separadora sutil para la suma
+            PdfPCell lineaSuma = new PdfPCell(new Phrase(" "));
+            lineaSuma.setBorder(Rectangle.BOTTOM);
+            lineaSuma.setColspan(2);
+            totalesTable.addCell(lineaSuma);
+        }
+
         agregarFilaTotal(totalesTable, "Total:", DF.format(consulta.getTotalPresupuesto() != null ? consulta.getTotalPresupuesto() : 0), FONT_TITULO);
+        // Espacio en blanco para separar el pago del total
+        PdfPCell espacio = new PdfPCell(new Phrase(" "));
+        espacio.setBorder(Rectangle.NO_BORDER);
+        espacio.setColspan(2);
+        totalesTable.addCell(espacio);
+
         agregarFilaTotal(totalesTable, "A Cuenta:", DF.format(consulta.getACuenta() != null ? consulta.getACuenta() : 0), FONT_CUERPO);
         agregarFilaTotal(totalesTable, "Restante:", DF.format(consulta.getRestante() != null ? consulta.getRestante() : 0), FONT_CUERPO_BOLD);
 
@@ -364,11 +388,24 @@ public class PdfService {
         document.add(Chunk.NEWLINE);
 
         PdfPTable tablaTotales = new PdfPTable(2);
-        tablaTotales.setWidthPercentage(40);
+        tablaTotales.setWidthPercentage(45); // Un poco más ancha para que quepa bien el texto
         tablaTotales.setHorizontalAlignment(Element.ALIGN_RIGHT);
 
-        agregarFilaTotal(tablaTotales, "COSTO TOTAL:", DF.format(total), FONT_CUERPO_BOLD);
+        //DESGLOSE DE IVA DINÁMICO
+        boolean aplicaIva = consulta.getAplicarIva() != null && consulta.getAplicarIva();
+
+        if (aplicaIva) {
+            Double subtotal = consulta.getSubtotal() != null ? consulta.getSubtotal() : total;
+            Double porcentajeIva = config.getPorcentajeImpuesto() != null ? config.getPorcentajeImpuesto() : 16.0;
+            Double montoIva = subtotal * (porcentajeIva / 100.0);
+
+            agregarFilaTotal(tablaTotales, "SUBTOTAL:", DF.format(subtotal), FONT_CUERPO);
+            agregarFilaTotal(tablaTotales, "IVA (" + porcentajeIva + "%):", "+ " + DF.format(montoIva), FONT_CUERPO);
+        }
+
+        agregarFilaTotal(tablaTotales, "COSTO TOTAL GENERAL:", DF.format(total), FONT_CUERPO_BOLD);
         agregarFilaTotal(tablaTotales, "TOTAL PAGADO:", "- " + DF.format(pagado), FONT_CUERPO);
+        
         PdfPCell linea = new PdfPCell(new Phrase(" "));
         linea.setBorder(Rectangle.BOTTOM);
         linea.setColspan(2);
