@@ -1,6 +1,7 @@
 const APIURL = "/api/productos";
 let dataTable;
 let comisionGlobal = 0;
+let extraEstiloActual = 0;
 
 // Traer configuración al cargar la página
 fetch("/api/configuracion")
@@ -106,20 +107,17 @@ async function cargarCategorias(idSeleccionar = null) {
   }
 }
 
-// Reemplaza cargarEstilosArmazon por esta versión:
 async function cargarEstilosArmazon(nombreSeleccionar = null) {
   try {
     const res = await fetch("/api/opciones-lente?categoria=TIPO_ARMAZON");
     const estilos = await res.json();
 
     const select = document.getElementById("subTipo");
-    select.innerHTML =
-      '<option value="" data-costo="0">Seleccionar estilo...</option>';
+    select.innerHTML = '<option value="" data-extra="0">Seleccionar estilo...</option>';
 
     estilos.forEach((e) => {
       const option = new Option(e.nombre, e.nombre);
-      // ⭐ GUARDAMOS EL COSTO EN EL HTML DE LA OPCIÓN ⭐
-      option.dataset.costo = e.precioCosto || 0;
+      option.dataset.extra = e.precioBase || 0;
       select.add(option);
     });
 
@@ -192,7 +190,7 @@ function inicializarTabla() {
         },
       },
 
-      // COL 4: PRECIO (Verde y fuente monoespaciada para números)
+     // COL 4: PRECIO (Oculta Costo si no es Admin)
       {
         data: null,
         className: "text-end align-middle font-monospace py-3",
@@ -200,21 +198,24 @@ function inicializarTabla() {
           const costo = row.precioCosto || 0;
           const venta = row.precioVenta || 0;
 
-          const format = (num) =>
-            "$" +
-            parseFloat(num).toLocaleString("es-MX", {
-              minimumFractionDigits: 2,
-            });
+          const format = (num) => "$" + parseFloat(num).toLocaleString("es-MX", { minimumFractionDigits: 2 });
 
-          return `
-            <div class="d-flex flex-column align-items-end" style="line-height: 1.2;">
-                <span class="small text-muted mb-1" title="Precio Costo (Sin Comisión)">
-                    <i class="fas fa-box-open opacity-50 me-1"></i>${format(costo)}
-                </span>
-                <span class="fw-bold text-success fs-6" title="Precio Venta (Con Comisión)">
-                    <i class="fas fa-tag opacity-50 me-1"></i>${format(venta)}
-                </span>
-            </div>`;
+          let html = `<div class="d-flex flex-column align-items-end" style="line-height: 1.2;">`;
+          
+          // Solo si es Admin pintamos el gris pequeñito con el costo
+          if (ES_ADMIN) {
+              html += `<span class="small text-muted mb-1" title="Precio Costo (Sin Comisión)">
+                  <i class="fas fa-box-open opacity-50 me-1"></i>${format(costo)}
+              </span>`;
+          }
+          
+          // El precio de venta lo ven todos
+          html += `<span class="fw-bold text-success fs-6" title="Precio Venta">
+                  <i class="fas fa-tag opacity-50 me-1"></i>${format(venta)}
+              </span>
+          </div>`;
+          
+          return html;
         },
       },
 
@@ -240,22 +241,24 @@ function inicializarTabla() {
         },
       },
 
-      // COL 6: ACCIONES (Botones limpios)
+      // COL 6: ACCIONES (Oculta Eliminar si no es Admin)
       {
         data: null,
         className: "text-center align-middle py-3",
         orderable: false,
-        render: (data) => `
-                    <div class="btn-group shadow-sm">
-                        <button class="btn btn-sm btn-light border text-primary hover-shadow" onclick="editarProducto(${data.id})" title="Editar">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-sm btn-light border text-danger hover-shadow" onclick="eliminarProducto(${data.id})" title="Desactivar">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                    </div>`,
+        render: (data) => {
+            // El botón de editar lo tienen ambos
+            let botones = `<button class="btn btn-sm btn-light border text-primary hover-shadow" onclick="editarProducto(${data.id})" title="Editar"><i class="fas fa-edit"></i></button>`;
+            
+            // El botón de eliminar solo lo tiene el Admin
+            if (ES_ADMIN) {
+                botones += `<button class="btn btn-sm btn-light border text-danger hover-shadow ms-1" onclick="eliminarProducto(${data.id})" title="Desactivar"><i class="fas fa-trash-alt"></i></button>`;
+            }
+            
+            return `<div class="btn-group shadow-sm">${botones}</div>`;
+        },
       },
-    ],
+      ],
     // Opciones visuales extra de DataTables
     language: {
       url: "https://cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json",
@@ -290,8 +293,11 @@ function abrirModalNuevo() {
   $("#formProducto")[0].reset();
   $("#productoId").val("");
   $("#divSubtipo").hide();
+  
+  $("#subTipo").val("");
+  extraEstiloActual = 0; 
+  
   $("#nombrePreview").text("...");
-
   $("#porcentajeComision").val(comisionGlobal);
 
   $("#modalTitulo").html('<i class="fas fa-box-open me-2"></i>Nuevo Producto');
@@ -333,10 +339,13 @@ function editarProducto(id) {
       verificarSubtipo();
       if (prod.subTipo) $("#subTipo").val(prod.subTipo);
 
+      // ¡Esta línea tuya está perfecta aquí!
+      extraEstiloActual = parseFloat($("#subTipo").find("option:selected").data("extra")) || 0;
+
       actualizarPreview();
 
-      // Al recalcular ahora, respetará el precio original
-      calcularPrecioVenta();
+      // EN LUGAR DE RECALCULAR, PONEMOS EL PRECIO EXACTO QUE VIENE DE LA BD
+      $("#precio").val(ventaOriginal ? parseFloat(ventaOriginal).toFixed(2) : "");
 
       $("#modalTitulo").html('<i class="fas fa-edit me-2"></i>Editar Producto');
       new bootstrap.Modal(document.getElementById("modalProducto")).show();
@@ -346,33 +355,47 @@ function editarProducto(id) {
     );
 }
 
+
 function guardarProducto() {
+  // 1. Validar que el formulario cumpla con los campos requeridos (HTML)
   if (!$("#formProducto")[0].checkValidity()) {
     $("#formProducto")[0].reportValidity();
     return;
   }
 
   const id = $("#productoId").val();
-  const marca = $("#marca").val().trim();
-  const modelo = $("#modelo").val().trim();
-  const color = $("#color").val().trim();
+
+  // 2. Extraer texto de forma segura (Evita el error 'trim of undefined')
+  const marca = ($("#marca").val() || "").trim();
+  const modelo = ($("#modelo").val() || "").trim();
+  const color = ($("#color").val() || "").trim();
+  const talla = ($("#talla").val() || "").trim();
+  
+  // Generamos el nombre inteligente
   const nombre = `${marca} ${modelo} ${color ? "- " + color : ""}`.trim();
 
+  // 3. Extraer datos financieros dependiendo del ROL
+  // Si el campo existe (es Admin), tomamos lo que escribió. Si no (es Recepción), mandamos 0.
+  const costoVal = $("#precioCosto").length > 0 ? parseFloat($("#precioCosto").val()) : 0;
+  const comisionVal = $("#porcentajeComision").length > 0 ? parseFloat($("#porcentajeComision").val()) : 0;
+
+  // 4. Construir el objeto exactamente como lo espera tu backend en Java
   const producto = {
     id: id ? parseInt(id) : null,
     nombre: nombre,
     marca: marca,
     modelo: modelo,
     color: color,
-    talla: $("#talla").val().trim(),
+    talla: talla,
     tipo: { id: parseInt($("#categoria").val()) },
-    subTipo: $("#subTipo").val(),
-    precioVenta: parseFloat($("#precio").val()), // Ajustado para enviar al backend
+    subTipo: $("#subTipo").val() || null,
+    precioVenta: parseFloat($("#precio").val()) || 0,
     stock: parseInt($("#stock").val()) || 0,
-    precioCosto: parseFloat($("#precioCosto").val()) || 0,
-    porcentajeComision: parseFloat($("#porcentajeComision").val()) || 0,
+    precioCosto: costoVal,
+    porcentajeComision: comisionVal,
   };
 
+  // 5. Enviar a la base de datos (PostgreSQL)
   fetch(APIURL + (id ? "/" + id : ""), {
     method: id ? "PUT" : "POST",
     headers: { "Content-Type": "application/json" },
@@ -380,13 +403,12 @@ function guardarProducto() {
   })
     .then((res) => {
       if (res.ok) {
-        bootstrap.Modal.getInstance(
-          document.getElementById("modalProducto"),
-        ).hide();
+        // Cerrar modal, recargar tabla y mostrar éxito
+        bootstrap.Modal.getInstance(document.getElementById("modalProducto")).hide();
         dataTable.ajax.reload(null, false);
-        Swal.fire("Éxito", "Producto guardado", "success");
+        Swal.fire("Éxito", "Producto guardado correctamente", "success");
       } else {
-        throw new Error("Error en servidor");
+        throw new Error("Error en el servidor al intentar guardar");
       }
     })
     .catch((err) => Swal.fire("Error", err.message, "error"));
@@ -612,56 +634,69 @@ function crearEstiloInSitu(modalId) {
 // F. CÁLCULO BIDIRECCIONAL DE PRECIOS
 // ==========================================
 
-// 1. De Costo/Comisión hacia Precio
+// 1. De Costo/Comisión hacia Precio (Solo para ADMIN)
 function calcularDesdeComision() {
+  // Si el campo de costo no existe en el HTML (Recepción), no hacemos nada
+  if ($("#precioCosto").length === 0) return;
+
   const costo = parseFloat($("#precioCosto").val()) || 0;
   const comision = parseFloat($("#porcentajeComision").val()) || 0;
 
+  // El precio base es Costo + Comisión. Y a eso siempre le sumamos el Estilo.
   if (costo > 0) {
-    const precioVenta = costo + costo * (comision / 100);
+    const precioVenta = costo + (costo * (comision / 100)) + extraEstiloActual;
     $("#precio").val(precioVenta.toFixed(2));
+  } else if (extraEstiloActual > 0) {
+    // Si aún no pone costo pero ya eligió estilo, mostramos lo del estilo
+    $("#precio").val(extraEstiloActual.toFixed(2));
   } else {
     $("#precio").val("");
   }
 }
 
-// 2. De Precio hacia Comisión (La Magia Inversa)
+// 2. De Precio hacia Comisión (Solo para ADMIN)
 function calcularDesdePrecio() {
-  const costo = parseFloat($("#precioCosto").val()) || 0;
-  const precio = parseFloat($("#precio").val()) || 0;
+  if ($("#precioCosto").length === 0) return;
 
-  if (costo > 0 && precio >= costo) {
-    const nuevaComision = (precio / costo - 1) * 100;
+  const costo = parseFloat($("#precioCosto").val()) || 0;
+  const precioVentaTotal = parseFloat($("#precio").val()) || 0;
+
+  // Al precio total le restamos el estilo para saber cuánto ganamos por el armazón base
+  const precioRealArmazon = precioVentaTotal - extraEstiloActual;
+
+  if (costo > 0 && precioRealArmazon >= costo) {
+    const nuevaComision = ((precioRealArmazon / costo) - 1) * 100;
     $("#porcentajeComision").val(nuevaComision.toFixed(2));
   } else {
     $("#porcentajeComision").val(0);
   }
 }
 
-// Disparar los cálculos cuando el usuario escriba
+// 3. Disparar los cálculos cuando el usuario escriba o cambie opciones
 $(document).ready(function () {
   $("#precioCosto, #porcentajeComision").on("input", calcularDesdeComision);
-  $("#precio").on("input", calcularDesdePrecio); // Ahora el precio final ajusta la comisión
+  $("#precio").on("input", calcularDesdePrecio); 
+
+  $("#marca, #modelo, #color").on("input", actualizarPreview);
+  
   $("#subTipo").on("change", function () {
     const opcionSeleccionada = $(this).find("option:selected");
-    const costoEstilo = parseFloat(opcionSeleccionada.data("costo")) || 0;
+    const nuevoExtra = parseFloat(opcionSeleccionada.data("extra")) || 0;
 
-    // Solo sugerimos el costo si estamos en modo "Nuevo Producto" (ID vacío) o si el costo actual es 0
-    const idProductoActual = $("#productoId").val();
-    const costoActual = parseFloat($("#precioCosto").val()) || 0;
-
-    if (costoEstilo > 0 && (!idProductoActual || costoActual === 0)) {
-      $("#precioCosto").val(costoEstilo);
-      calcularDesdeComision(); // Disparamos la función que ya tenías para que calcule la comisión y el P.Venta
-
-      Swal.fire({
-        toast: true,
-        position: "top-end",
-        icon: "info",
-        title: `Se sugirió el costo base de $${costoEstilo} correspondiente a este estilo.`,
-        showConfirmButton: false,
-        timer: 3000,
-      });
+    if ($("#precioCosto").length > 0) {
+        // == MODO ADMIN ==
+        extraEstiloActual = nuevoExtra;
+        calcularDesdeComision(); // Recalcula sumando costo + comisión + estilo
+    } else {
+        // == MODO RECEPCIÓN ==
+        const inputPrecio = $("#precio");
+        let precioVentaActual = parseFloat(inputPrecio.val()) || 0;
+        
+        // Restamos el estilo anterior y sumamos el nuevo sin tocar comisión
+        precioVentaActual = (precioVentaActual - extraEstiloActual) + nuevoExtra;
+        inputPrecio.val(precioVentaActual > 0 ? precioVentaActual.toFixed(2) : "");
+        
+        extraEstiloActual = nuevoExtra;
     }
   });
 });

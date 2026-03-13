@@ -19,6 +19,13 @@ public class SecurityConfig {
             .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin())) 
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/login", "/h2-console/**").permitAll()
+                
+                // REGLAS
+                // Solo el ADMIN puede ver Finanzas, Configuración y Borrar cosas.
+                .requestMatchers("/admin/configuracion/**", "/api/configuracion/**").hasRole("ADMIN")
+                .requestMatchers("/admin/ventas/**", "/api/dashboard/**").hasRole("ADMIN")
+                
+                // Cualquier otra página (/admin/citas, /admin/pacientes) la pueden ver ambos.
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

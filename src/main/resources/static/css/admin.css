@@ -335,3 +335,70 @@ body.sb-sidenav-toggled #sidebar-wrapper {
 
 .cursor-pointer { cursor: pointer; }
 
+/* --- Arreglo de contraste para tabla de productos en modo oscuro --- */
+
+/* Asegura que el texto básico de las celdas sea claro en modo oscuro */
+[data-bs-theme="dark"] #tablaProductos tbody tr td {
+    color: #f8f9fa; /* Usa el color claro por defecto de Bootstrap */
+}
+
+/* Corrige específicamente el nombre/modelo del producto en la columna 2 */
+[data-bs-theme="dark"] #tablaProductos .fw-bold.text-dark.fs-6 {
+    color: #fff !important; /* Forza el texto a blanco puro */
+}
+
+/* Mejora la visibilidad de los precios en la columna 4 */
+[data-bs-theme="dark"] #tablaProductos .text-end.align-middle.font-monospace .text-muted {
+    color: #ced4da !important; /* Aclara el precio de costo superior */
+}
+[data-bs-theme="dark"] #tablaProductos .text-end.align-middle.font-monospace .text-success {
+    color: #2fb344 !important; /* Usa un verde más brillante para el precio de venta */
+}
+
+/* Fuerza a que cualquier texto "oscuro" de la tabla se vuelva blanco en modo oscuro */
+[data-bs-theme="dark"] #tablaProductos .text-dark {
+    color: #f8f9fa !important;
+}
+
+/* --- Arreglo de capas para modales sobre barra de resumen --- */
+
+/* Asegura que el fondo oscuro del modal esté por encima de la barra */
+.modal-backdrop {
+    z-index: 1040 !important; /* Capa estándar de Bootstrap para el fondo */
+}
+
+/* Asegura que el contenido del modal esté por encima de todo */
+.modal {
+    z-index: 1050 !important; /* Capa estándar de Bootstrap para el modal */
+}
+
+/* Este es el truco clave:
+   Le bajamos la prioridad visual a la barra de resumen 
+   solo cuando un modal está abierto.
+*/
+body.modal-open .sticky-summary,
+body.modal-open .fixed-bottom-summary {
+    z-index: 1030 !important; /* Ligeramente por debajo del modal-backdrop */
+}
+
+/* --- Castigo para los encabezados pegajosos de las tablas --- */
+body.modal-open th,
+body.modal-open thead,
+body.modal-open .sticky-top,
+body.modal-open [style*="position: sticky"] {
+    z-index: 0 !important; /* Obliga al encabezado a irse al fondo cuando hay un modal */
+}
+
+/* Por si acaso, elevamos el modal a una capa ridículamente alta */
+.modal {
+    z-index: 9999 !important;
+}
+.modal-backdrop {
+    z-index: 9998 !important;
+}
+
+/* --- Rescate de las Alertas (SweetAlert) --- */
+/* Asegura que los mensajes de éxito salgan por encima del modal 9999 */
+.swal2-container {
+    z-index: 10000 !important;
+}

@@ -1,17 +1,21 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:fragment="layout(content, scripts)" data-bs-theme="light">
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+    th:fragment="layout(content, scripts)" data-bs-theme="light">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${appConfig.nombreComercial != null ? appConfig.nombreComercial + ' | Panel Admin' : 'Óptica DXY | Panel Admin'}">Óptica DXY | Panel Admin</title>
-    
+    <title
+        th:text="${appConfig.nombreComercial != null ? appConfig.nombreComercial + ' | Panel Admin' : 'Óptica DXY | Panel Admin'}">
+        Óptica DXY | Panel Admin</title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <link href="/css/admin.css" rel="stylesheet">
 
     <script>
-        (function() {
+        (function () {
             // Leemos la memoria del navegador
             const temaColor = localStorage.getItem('dxy_color') || '#0d6efd';
             const modoOscuro = localStorage.getItem('dxy_dark') === 'true';
@@ -34,7 +38,7 @@
                 const rgb = hexToRgb(temaColor);
                 document.documentElement.style.setProperty('--bs-primary', temaColor);
                 document.documentElement.style.setProperty('--bs-primary-rgb', rgb);
-                
+
                 // Forzamos los botones primarios para que usen la variable
                 const style = document.createElement('style');
                 style.innerHTML = `
@@ -51,76 +55,84 @@
         })();
     </script>
 </head>
+
 <body>
 
-<div class="d-flex" id="wrapper">
-    <div class="border-end" id="sidebar-wrapper">
-        <div class="sidebar-heading border-bottom text-center py-3">
-            <img th:if="${appConfig.logoSistema != null}" th:src="${appConfig.logoSistema}" alt="Logo" style="max-height: 40px; max-width: 100%;" class="mb-2 rounded">
-            <i th:unless="${appConfig.logoSistema != null}" class="fas fa-glasses fs-3 mb-2 text-white"></i>
-            <br>
-            <span class="fw-bold" th:text="${appConfig.nombreComercial != null ? appConfig.nombreComercial : 'Óptica DXY'}">Óptica DXY</span>
-        </div>
-        
-        <div class="list-group list-group-flush mt-2">
-            <a href="/admin/citas" class="list-group-item list-group-item-action">
-                <i class="fas fa-calendar-alt me-2"></i> Agenda de Citas
-            </a>
-            <a href="/admin/potenciales" class="list-group-item list-group-item-action">
-                <i class="fas fa-user-plus me-2"></i> Clientes Potenciales
-            </a>
-            <a href="/admin/pacientes" class="list-group-item list-group-item-action">
-                <i class="fas fa-user-check me-2"></i> Pacientes
-            </a>
-            <a href="/admin/productos" class="list-group-item list-group-item-action">
-                 <i class="fas fa-boxes-stacked me-2"></i> Productos 
-            </a>
-            <a href="/admin/ventas" class="list-group-item list-group-item-action">
-                <i class="fas fa-chart-line me-2"></i> Ventas y Finanzas
-            </a>
-            <a href="/admin/configuracion" class="list-group-item list-group-item-action">
-                <i class="fas fa-cog me-2"></i> Configuración
-            </a>
-        </div>
-    </div>
-
-    <div id="page-content-wrapper">
-        
-        <nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom px-3 shadow-sm sticky-top">
-            <button class="btn btn-outline-primary btn-sm" id="sidebarToggle">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="ms-auto d-flex align-items-center">
-                <div class="dropdown">
-                    <a class="text-decoration-none d-flex align-items-center dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-user-circle text-muted fs-5 me-2"></i>
-                        <span class="me-3 text-muted small fw-bold" sec:authentication="name">Usuario</span>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2" aria-labelledby="dropdownMenuLink">
-                        <li>
-                            <a class="dropdown-item text-danger" href="/logout">
-                                <i class="fas fa-sign-out-alt me-2"></i> Cerrar Sesión
-                            </a>
-                        </li>
-                    </ul>
-                </div>
+    <div class="d-flex" id="wrapper">
+        <div class="border-end" id="sidebar-wrapper">
+            <div class="sidebar-heading border-bottom text-center py-3">
+                <img th:if="${appConfig.logoSistema != null}" th:src="${appConfig.logoSistema}" alt="Logo"
+                    style="max-height: 40px; max-width: 100%;" class="mb-2 rounded">
+                <i th:unless="${appConfig.logoSistema != null}" class="fas fa-glasses fs-3 mb-2 text-white"></i>
+                <br>
+                <span class="fw-bold"
+                    th:text="${appConfig.nombreComercial != null ? appConfig.nombreComercial : 'Óptica DXY'}">Óptica
+                    DXY</span>
             </div>
-        </nav>
 
-        <div class="container-fluid px-4 py-4">
-            <div th:replace="${content}"></div>
+            <div class="list-group list-group-flush mt-2">
+                <a href="/admin/citas" class="list-group-item list-group-item-action">
+                    <i class="fas fa-calendar-alt me-2"></i> Agenda de Citas
+                </a>
+                <a href="/admin/potenciales" class="list-group-item list-group-item-action">
+                    <i class="fas fa-user-plus me-2"></i> Clientes Potenciales
+                </a>
+                <a href="/admin/pacientes" class="list-group-item list-group-item-action">
+                    <i class="fas fa-user-check me-2"></i> Pacientes
+                </a>
+
+                <a href="/admin/productos" class="list-group-item list-group-item-action">
+                    <i class="fas fa-boxes-stacked me-2"></i> Productos
+                </a>
+                <a sec:authorize="hasRole('ADMIN')" href="/admin/ventas" class="list-group-item list-group-item-action">
+                    <i class="fas fa-chart-line me-2"></i> Ventas y Finanzas
+                </a>
+                <a sec:authorize="hasRole('ADMIN')" href="/admin/configuracion"
+                    class="list-group-item list-group-item-action">
+                    <i class="fas fa-cog me-2"></i> Configuración
+                </a>
+            </div>
+        </div>
+
+        <div id="page-content-wrapper">
+
+            <nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom px-3 shadow-sm sticky-top">
+                <button class="btn btn-outline-primary btn-sm" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="ms-auto d-flex align-items-center">
+                    <div class="dropdown">
+                        <a class="text-decoration-none d-flex align-items-center dropdown-toggle" href="#" role="button"
+                            id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle text-muted fs-5 me-2"></i>
+                            <span class="me-3 text-muted small fw-bold" sec:authentication="name">Usuario</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2"
+                            aria-labelledby="dropdownMenuLink">
+                            <li>
+                                <a class="dropdown-item text-danger" href="/logout">
+                                    <i class="fas fa-sign-out-alt me-2"></i> Cerrar Sesión
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="container-fluid px-4 py-4">
+                <div th:replace="${content}"></div>
+            </div>
         </div>
     </div>
-</div>
 
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<script>
-        (function() {
+    <script>
+        (function () {
             // Leemos la memoria del navegador
             const temaColor = localStorage.getItem('dxy_color') || '#0d6efd';
             const modoOscuro = localStorage.getItem('dxy_dark') === 'true';
@@ -143,12 +155,12 @@
                 const rgb = hexToRgb(temaColor);
                 document.documentElement.style.setProperty('--bs-primary', temaColor);
                 document.documentElement.style.setProperty('--bs-primary-rgb', rgb);
-                
+
                 // ⭐ EL FIX ESTÁ AQUÍ: Forzar variables de enlaces de Bootstrap ⭐
                 document.documentElement.style.setProperty('--bs-link-color', temaColor);
                 document.documentElement.style.setProperty('--bs-link-color-rgb', rgb);
                 document.documentElement.style.setProperty('--bs-link-hover-color', temaColor);
-                
+
                 // Forzamos los botones primarios para que usen la variable
                 const style = document.createElement('style');
                 style.innerHTML = `
@@ -176,7 +188,8 @@
         })();
     </script>
 
-<div th:replace="${scripts}"></div>
+    <div th:replace="${scripts}"></div>
 
 </body>
+
 </html>

@@ -13,17 +13,29 @@ public class DataInitializer {
     @Bean
     public CommandLineRunner initDatabase(UsuarioRepository repository, PasswordEncoder passwordEncoder) {
         return args -> {
-            // Si la tabla de usuarios está vacía, creamos el super usuario
+            // Si la tabla de usuarios está vacía, creamos los usuarios base
             if (repository.count() == 0) {
+                // 1. El Super Administrador (El Doctor)
                 Usuario admin = new Usuario();
                 admin.setNombreCompleto("Doctor Administrador");
                 admin.setUsername("admin");
-                admin.setPassword(passwordEncoder.encode("admin123")); // Contraseña por defecto
+                admin.setPassword(passwordEncoder.encode("admin123"));
                 admin.setRol("ROLE_ADMIN");
                 admin.setActivo(true);
-                
                 repository.save(admin);
-                System.out.println("✅ USUARIO MAESTRO CREADO: Usuario: admin | Contraseña: admin123");
+                
+                // 2. La Recepcionista (Asistente)
+                Usuario recepcion = new Usuario();
+                recepcion.setNombreCompleto("Asistente Recepción");
+                recepcion.setUsername("recepcion");
+                recepcion.setPassword(passwordEncoder.encode("recepcion123"));
+                recepcion.setRol("ROLE_RECEPCION");
+                recepcion.setActivo(true);
+                repository.save(recepcion);
+
+                System.out.println("✅ USUARIOS CREADOS:");
+                System.out.println("   - Admin: admin / admin123");
+                System.out.println("   - Recepción: recepcion / recepcion123");
             }
         };
     }
