@@ -8,6 +8,7 @@
 
     <div th:fragment="content">
         <link href="/css/citas.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="text-primary fw-bold"><i class="fas fa-calendar-alt me-2"></i> Agenda de Citas</h2>
@@ -103,12 +104,12 @@
                                 <div class="col-md-4">
                                     <label class="form-label fw-bold"><i class="fas fa-clock me-1"></i> Hora
                                         Inicio</label>
-                                    <input type="time" class="form-control" id="citaHoraInicio" required>
+                                    <input type="text" class="form-control bg-white" id="citaHoraInicio" placeholder="00:00" required readonly>
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label fw-bold"><i class="fas fa-stopwatch me-1"></i> Hora
                                         Fin</label>
-                                    <input type="time" class="form-control" id="citaHoraFin" required>
+                                    <input type="text" class="form-control bg-white" id="citaHoraFin" placeholder="00:00" required readonly>
                                 </div>
 
                                 <div class="col-md-6">
@@ -168,6 +169,8 @@
     <div th:fragment="scripts">
         <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.11/locales/es.global.min.js"></script>
+
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
         <script src="/js/admin-citas.js"></script>
     </div>

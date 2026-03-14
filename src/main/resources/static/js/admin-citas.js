@@ -23,6 +23,22 @@ document.addEventListener('DOMContentLoaded', function() {
             cargarRazonesVisita();
         });
 
+    // --- NUEVO: INICIALIZAR FLATPICKR PARA SAFARI ---
+    flatpickr("#citaHoraInicio", {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i", // Formato 24 horas (ej. 14:30)
+        time_24hr: true
+    });
+
+    flatpickr("#citaHoraFin", {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i", // Formato 24 horas
+        time_24hr: true
+    });
+    // -------------------------------------------------
+
     // Lógica para sumar la duración dinámica
     document.getElementById('citaHoraInicio').addEventListener('change', function() {
         const horaInicio = this.value; 
@@ -33,7 +49,15 @@ document.addEventListener('DOMContentLoaded', function() {
             
             let horasFormateadas = fechaTemp.getHours().toString().padStart(2, '0');
             let minutosFormateados = fechaTemp.getMinutes().toString().padStart(2, '0');
-            document.getElementById('citaHoraFin').value = `${horasFormateadas}:${minutosFormateados}`;
+            
+            // Actualizamos el valor real
+            const inputFin = document.getElementById('citaHoraFin');
+            inputFin.value = `${horasFormateadas}:${minutosFormateados}`;
+            
+            // Y le avisamos a Flatpickr (si existe) que el valor cambió mágicamente
+            if (inputFin._flatpickr) {
+                inputFin._flatpickr.setDate(`${horasFormateadas}:${minutosFormateados}`);
+            }
         }
     });
 

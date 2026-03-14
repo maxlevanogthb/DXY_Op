@@ -1204,13 +1204,18 @@ function enviarReciboPorCorreo(idConsulta) {
 // ==========================================
 // H. CREACIÓN IN-SITU: CATÁLOGOS CLÍNICOS (Micas)
 // ==========================================
-function crearLenteInSitu(categoriaClinica, selectId) {
+function crearLenteInSitu(
+  categoriaClinica,
+  selectId,
+  modalId = "modalConsulta",
+) {
   const nombreBonito =
     categoriaClinica.charAt(0) + categoriaClinica.slice(1).toLowerCase();
 
   Swal.fire({
     title: `Nuevo ${nombreBonito}`,
     width: "600px",
+    target: document.getElementById(modalId), // ¡Aquí es donde la magia ocurre!
     html: `
             <div class="text-start mt-3">
                 <div class="mb-3">
@@ -1308,6 +1313,7 @@ function crearLenteInSitu(categoriaClinica, selectId) {
             title: "Agregado al catálogo",
             showConfirmButton: false,
             timer: 2000,
+            target: document.getElementById(modalId), // También anclamos el toast al modal
           });
 
           const selectElement = document.getElementById(selectId);
@@ -1324,6 +1330,7 @@ function crearLenteInSitu(categoriaClinica, selectId) {
             title: "Error",
             text: "No se pudo guardar",
             icon: "error",
+            target: document.getElementById(modalId),
           }),
         );
     }
@@ -1657,12 +1664,11 @@ function crearProductoRapidoInSitu() {
         })
           .then((res) => res.json())
           .then((nuevoProd) => {
-            
             // 1. EL FIX MÁGICO: Inyectar el nombre de la categoría a la fuerza si Java no lo trajo
             const catSelect = document.getElementById("swal-prod-cat");
             const nomCat = catSelect.options[catSelect.selectedIndex].text;
             if (!nuevoProd.tipo) nuevoProd.tipo = {};
-            nuevoProd.tipo.nombre = nomCat; 
+            nuevoProd.tipo.nombre = nomCat;
 
             // 2. Guardamos en memoria global y refrescamos los selectores
             catalogoGlobal.push(nuevoProd);
@@ -1670,11 +1676,14 @@ function crearProductoRapidoInSitu() {
 
             // 3. EFECTO DOMINÓ: Seleccionar las listas automáticamente para que el producto sea visible
             setTimeout(() => {
-                $("#busqMarca").val(nuevoProd.marca).trigger('change');
-                $("#busqModelo").val(nuevoProd.modelo).trigger('change');
-                const colorVal = (nuevoProd.color && nuevoProd.color.trim() !== "") ? nuevoProd.color : "N/A";
-                $("#busqColor").val(colorVal).trigger('change');
-                $("#busqTalla").val(nuevoProd.id).trigger('change'); 
+              $("#busqMarca").val(nuevoProd.marca).trigger("change");
+              $("#busqModelo").val(nuevoProd.modelo).trigger("change");
+              const colorVal =
+                nuevoProd.color && nuevoProd.color.trim() !== ""
+                  ? nuevoProd.color
+                  : "N/A";
+              $("#busqColor").val(colorVal).trigger("change");
+              $("#busqTalla").val(nuevoProd.id).trigger("change");
             }, 100);
 
             // 4. TU LÓGICA ORIGINAL INTACTA: Notificación, textos y cálculos
@@ -1690,16 +1699,16 @@ function crearProductoRapidoInSitu() {
             $("#selectProducto").val(nuevoProd.id);
 
             // Ahora nomTipo es 100% seguro porque lo inyectamos en el paso 1
-            const nomTipo = nuevoProd.tipo.nombre; 
+            const nomTipo = nuevoProd.tipo.nombre;
             const desc = `${nomTipo} ${nuevoProd.marca} ${nuevoProd.modelo}`;
 
             $("#armazonModelo").val(desc).addClass("bg-success text-white");
             $("#precioArmazon").val(nuevoProd.precioVenta);
-            
+
             setTimeout(() => {
-                $("#armazonModelo").removeClass("bg-success text-white");
+              $("#armazonModelo").removeClass("bg-success text-white");
             }, 1000);
-            
+
             calcularTotales();
           });
       }
