@@ -17,6 +17,7 @@ public class ConsultaDto {
 
     private LocalDate fechaVisita;
     private String razonVisita;
+    private String antecedentesClinicos;
     private String diagnosticoOftalmologo;
     // ---  RECETA MÉDICA PARA FARMACIA ---
     private String tratamientoMedico;

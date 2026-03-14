@@ -65,22 +65,34 @@
                             <input type="hidden" id="citaPacienteId">
 
                             <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label class="form-label text-primary fw-bold"><i class="fas fa-search me-1"></i>
-                                        Buscar o Crear Paciente</label>
-                                    <input type="text" class="form-control" id="citaNombre" autocomplete="off"
-                                        placeholder="Escribe el nombre..." required>
-                                    <div id="sugerenciasPacientes"
-                                        class="list-group position-absolute w-100 shadow-sm z-index-dropdown"
-                                        style="display: none; max-height: 200px; overflow-y: auto;"></div>
-                                    <small class="text-muted">Busca uno existente o escribe un nombre nuevo para crearlo
-                                        automáticamente.</small>
+                                <div class="col-md-7 position-relative">
+                                    <label class="form-label text-primary fw-bold">
+                                        <i class="fas fa-search me-1"></i> Buscar o Crear Paciente *
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="citaNombre" autocomplete="off"
+                                            placeholder="Escribe el nombre del paciente..." required>
+                                        <button class="btn btn-outline-secondary d-none" type="button" id="btnLimpiarPaciente" title="Limpiar selección">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    
+                                    <div id="sugerenciasPacientes" 
+                                        class="list-group position-absolute w-100 shadow rounded-bottom border-top-0 d-none" 
+                                        style="max-height: 200px; overflow-y: auto; z-index: 1050; top: 100%;">
+                                    </div>
+                                    
+                                    <small class="text-muted" id="helpNombreCita">
+                                        Escribe para buscar. Si no existe, se creará como prospecto.
+                                    </small>
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label text-primary fw-bold"><i class="fas fa-phone me-1"></i>
-                                        Teléfono</label>
+                                
+                                <div class="col-md-5">
+                                    <label class="form-label text-primary fw-bold">
+                                        <i class="fas fa-phone me-1"></i> Teléfono
+                                    </label>
                                     <input type="tel" class="form-control" id="citaTelefono"
-                                        placeholder="Ej. 5512345678" required>
+                                        placeholder="Ej. 5512345678">
                                 </div>
 
                                 <div class="col-md-4">

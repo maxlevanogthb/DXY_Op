@@ -161,7 +161,7 @@ function guardarCita() {
         return;
     }
 
-    // --- NUEVO: EL PAYLOAD MÁGICO PARA EL BACKEND ---
+    // --- NUEVO: EL PAYLOAD PARA EL BACKEND ---
     const payload = {
         inicio: `${fecha}T${horaInicio}:00`,
         fin: `${fecha}T${horaFin}:00`,
@@ -170,7 +170,8 @@ function guardarCita() {
         notas: document.getElementById('citaNotas').value,
         // Agrupamos al paciente como lo pide Java
         paciente: {
-            id: pacienteId ? parseInt(pacienteId) : null,
+            // Si hay ID, Spring Boot sabe que NO debe crear uno nuevo
+            id: pacienteId ? parseInt(pacienteId) : null, 
             nombre: document.getElementById('citaNombre').value,
             telefono: document.getElementById('citaTelefono').value,
             motivo: document.getElementById('citaTipo').value
@@ -221,7 +222,7 @@ function eliminarCita(id) {
 }
 
 // ==========================================
-// NUEVO: BUSCADOR DE PACIENTES
+// NUEVO: BUSCADOR DE PACIENTES (A PRUEBA DE FALLOS CSS Y TEXTO)
 // ==========================================
 function inicializarBuscadorPacientes() {
     let timerBusqueda;
@@ -229,56 +230,113 @@ function inicializarBuscadorPacientes() {
     const inputTelefono = document.getElementById('citaTelefono');
     const inputId = document.getElementById('citaPacienteId');
     const divSugerencias = document.getElementById('sugerenciasPacientes');
+    const btnLimpiar = document.getElementById('btnLimpiarPaciente');
+    const helpText = document.getElementById('helpNombreCita');
+
+    if(!inputNombre || !divSugerencias) return;
 
     inputNombre.addEventListener('input', function(e) {
         clearTimeout(timerBusqueda);
-        const texto = e.target.value.toLowerCase();
+        
+        // Limpiamos espacios y pasamos a minúsculas
+        const texto = e.target.value.trim().toLowerCase();
 
-        // Si el usuario modifica el nombre, asumimos que es alguien nuevo o diferente
-        inputId.value = '';
+        if (inputId && inputId.value) {
+            limpiarSeleccion(false); 
+        }
 
         if (texto.length < 2) {
-            divSugerencias.style.display = 'none';
+            divSugerencias.classList.add('d-none');
+            divSugerencias.style.display = 'none'; // Forzamos ocultar
             return;
         }
 
         timerBusqueda = setTimeout(() => {
-            // Buscamos en la base de datos
             fetch('/api/pacientes')
                 .then(res => res.json())
                 .then(pacientes => {
-                    const filtrados = pacientes.filter(p => p.nombre.toLowerCase().includes(texto));
+                    
+                    // Filtro robusto (protege contra nulos y limpia espacios)
+                    const filtrados = pacientes.filter(p => {
+                        if (!p.nombre) return false;
+                        const nombreBD = p.nombre.trim().toLowerCase();
+                        return nombreBD.includes(texto);
+                    });
+                    
+                    console.log(`Coincidencias encontradas: ${filtrados.length}`); // Chismoso 2.0
+                    
                     divSugerencias.innerHTML = '';
                     
                     if (filtrados.length > 0) {
                         filtrados.forEach(p => {
                             const a = document.createElement('a');
                             a.className = 'list-group-item list-group-item-action cursor-pointer';
-                            a.innerHTML = `<strong>${p.nombre}</strong> <small class="text-muted ms-2">📞 ${p.telefono}</small>`;
+                            a.innerHTML = `<div class="d-flex justify-content-between align-items-center">
+                                             <span class="fw-bold">${p.nombre}</span>
+                                             <span class="badge bg-secondary rounded-pill"><i class="fas fa-phone fa-xs"></i> ${p.telefono || 'N/A'}</span>
+                                           </div>`;
                             
-                            // Al hacer clic en la sugerencia
                             a.onclick = function() {
                                 inputNombre.value = p.nombre;
-                                inputTelefono.value = p.telefono;
-                                inputId.value = p.id;
+                                if(inputTelefono) inputTelefono.value = p.telefono || '';
+                                if(inputId) inputId.value = p.id;
+                                
+                                inputNombre.readOnly = true;
+                                inputNombre.classList.add('bg-body-secondary', 'border-success');
+                                if(btnLimpiar) btnLimpiar.classList.remove('d-none');
+                                
+                                divSugerencias.classList.add('d-none');
                                 divSugerencias.style.display = 'none';
+                                
+                                if(helpText) helpText.innerHTML = '<span class="text-success fw-bold"><i class="fas fa-check-circle"></i> Paciente enlazado correctamente.</span>';
                             };
                             divSugerencias.appendChild(a);
                         });
-                        divSugerencias.style.display = 'block';
+                        
+                        // FORZAMOS LA VISIBILIDAD POR SOBRE CUALQUIER REGLA
+                        divSugerencias.classList.remove('d-none');
+                        divSugerencias.style.display = 'block'; 
+                        // Aseguramos que flote por encima del modal
+                        divSugerencias.style.zIndex = '9999'; 
+                        
                     } else {
+                        divSugerencias.classList.add('d-none');
                         divSugerencias.style.display = 'none';
                     }
-                });
-        }, 300); // Pequeño retraso para no saturar el servidor al teclear rápido
+                })
+                .catch(err => console.error("Error al buscar:", err));
+        }, 300);
     });
 
-    // Ocultar sugerencias si se hace clic fuera
+    if(btnLimpiar) {
+        btnLimpiar.addEventListener('click', () => limpiarSeleccion(true));
+    }
+
+    function limpiarSeleccion(limpiarTexto = true) {
+        if(inputId) inputId.value = '';
+        inputNombre.readOnly = false;
+        inputNombre.classList.remove('bg-body-secondary', 'border-success');
+        
+        if(limpiarTexto) {
+            inputNombre.value = '';
+            if(inputTelefono) inputTelefono.value = '';
+            inputNombre.focus();
+        }
+        
+        if(btnLimpiar) btnLimpiar.classList.add('d-none');
+        if(helpText) helpText.innerHTML = 'Escribe para buscar. Si no existe, se creará como prospecto.';
+        
+        divSugerencias.style.display = 'none';
+    }
+
+    // Cerrar sugerencias si hace clic en otra parte
     document.addEventListener('click', function(e) {
         if (e.target.id !== 'citaNombre') {
             divSugerencias.style.display = 'none';
         }
     });
+
+    window.limpiarBuscadorPaciente = () => limpiarSeleccion(true);
 }
 
 // ==========================================

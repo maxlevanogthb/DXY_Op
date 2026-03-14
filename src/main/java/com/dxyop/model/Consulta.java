@@ -34,6 +34,9 @@ public class Consulta {
     @Column(name = "razon_visita")
     private String razonVisita;
 
+    @Column(length = 1000, name = "antecedentes_clinicos", columnDefinition = "TEXT")
+    private String antecedentesClinicos;
+
     @Column(length = 1000)
     private String diagnosticoOftalmologo;
 

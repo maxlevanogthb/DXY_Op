@@ -95,12 +95,11 @@
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label for="telefono" class="form-label fw-bold small text-muted">Teléfono *</label>
+                                    <label for="telefono" class="form-label fw-bold small text-muted">Teléfono</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-body-tertiary"><i
                                                 class="fas fa-phone text-muted"></i></span>
-                                        <input type="tel" class="form-control" id="telefono" required
-                                            placeholder="55 1234 5678">
+                                        <input type="tel" class="form-control" id="telefono" placeholder="55 1234 5678">
                                     </div>
                                 </div>
 
@@ -204,6 +203,14 @@
                                         <option value="ENTREGADO">🟢 Entregado al Paciente</option>
                                         <option value="NO_APLICA">⚪ No Aplica (Solo Consulta)</option>
                                     </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-primary">
+                                        <i class="fas fa-history me-1"></i> Antecedentes Clínicos (Uso Interno)
+                                    </label>
+                                    <textarea id="antecedentesClinicos" class="form-control" rows="2"
+                                        placeholder="Ej. Diabetes, hipertensión, cirugías previas..."></textarea>
                                 </div>
 
                                 <div class="col-12 mb-3 border-top pt-3">

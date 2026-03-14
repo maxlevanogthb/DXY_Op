@@ -137,6 +137,7 @@ public class ConsultaService {
         // --- DATOS MÉDICOS ---
         consulta.setFechaVisita(dto.getFechaVisita());
         consulta.setRazonVisita(dto.getRazonVisita());
+        consulta.setAntecedentesClinicos(dto.getAntecedentesClinicos());
         consulta.setDiagnosticoOftalmologo(dto.getDiagnosticoOftalmologo());
         consulta.setTratamientoMedico(dto.getTratamientoMedico());
 
@@ -256,5 +257,15 @@ public class ConsultaService {
         }
 
         return consulta;
+    }
+
+    public void eliminarConsulta(Long id) {
+        // Buscamos si existe
+        Consulta consulta = consultaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Consulta no encontrada"));
+                
+        // La borramos (Gracias al cascade = CascadeType.ALL que le pusimos antes a la entidad, 
+        // Postgres borrará automáticamente los detalles y pagos sin quejarse).
+        consultaRepository.delete(consulta);
     }
 }

@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
   inicializarFiltros();
   cargarCategorias();
   cargarEstilosArmazon();
-  cargarMarcas();
+  //cargarMarcas();
 
   // 2. Listeners para vista previa del nombre
 ["categoria", "tipo_id", "marcaSelect", "marcaInput", "modelo", "color"].forEach((id) => {
@@ -155,7 +155,6 @@ async function cargarCategorias(idSeleccionar = null) {
 }
 
 async function adaptarFormularioPorCategoria() {
-
     const catSelect = document.getElementById("categoria") || document.getElementById("tipo_id");
     if (!catSelect || !catSelect.value) return;
 
@@ -165,25 +164,28 @@ async function adaptarFormularioPorCategoria() {
     const inputM = document.getElementById("marcaInput");
     const btnM = document.getElementById("btnToggleMarca");
 
-    // 1. Mostrar/Ocultar y cargar marcas según la categoría
+    // 1. Lógica de visibilidad
     if (textoCat.includes("armaz") || textoCat.includes("contacto")) {
-        // Es Lente o Contacto -> Mostramos la lista desplegable
+        // Modo Óptico: Mostramos Select
         selectM.classList.remove('d-none');
         inputM.classList.add('d-none');
-        inputM.value = ""; 
         btnM.classList.remove('d-none');
         
+        // Decidimos qué marcas traer de la BD
         const catBD = textoCat.includes("contacto") ? "MARCA_CONTACTO" : "MARCA_ARMAZON";
-        await cargarMarcasAPI(catBD);
+        await cargarMarcas(catBD); // Usamos la función unificada
     } else {
-        // Son Gotas o Accesorios -> Mostramos input de texto libre
+        // Modo Misceláneo (Gotas, estuches): Mostramos Input
         selectM.classList.add('d-none');
         inputM.classList.remove('d-none');
         btnM.classList.add('d-none');
+        // Limpiamos el input para que no se quede pegada una marca de lentes
+        inputM.value = ""; 
     }
+    actualizarPreview();
 }
 
-async function cargarMarcasAPI(categoriaFiltro, marcaSeleccionar = null) {
+/*async function cargarMarcasAPI(categoriaFiltro, marcaSeleccionar = null) {
     try {
         const res = await fetch(`/api/opciones-lente?categoria=${categoriaFiltro}`);
         const marcas = await res.json();
@@ -196,7 +198,7 @@ async function cargarMarcasAPI(categoriaFiltro, marcaSeleccionar = null) {
     } catch (e) {
         console.error("Error cargando marcas:", e);
     }
-}
+}*/
 
 async function cargarEstilosArmazon(nombreSeleccionar = null) {
   try {
@@ -218,20 +220,37 @@ async function cargarEstilosArmazon(nombreSeleccionar = null) {
   }
 }
 
-// Carga las marcas desde la BD al abrir la página
-async function cargarMarcas(nombreSeleccionar = null) {
-  try {
-    const res = await fetch("/api/opciones-lente?categoria=MARCA");
-    const marcas = await res.json();
-    const select = document.getElementById("marca");
+
+async function cargarMarcas(categoriaFiltro = "MARCA_ARMAZON", marcaSeleccionar = null) {
+    const select = document.getElementById("marcaSelect");
     
-    select.innerHTML = '<option value="">Seleccionar marca...</option>';
-    marcas.forEach((m) => select.add(new Option(m.nombre, m.nombre)));
-    
-    if (nombreSeleccionar) select.value = nombreSeleccionar;
-  } catch (e) {
-    console.error(e);
-  }
+    // 🛡️ SEGURIDAD: Si el elemento no existe en el HTML actual, salimos sin error
+    if (!select) {
+        console.warn("⚠️ No se encontró 'marcaSelect' en el DOM.");
+        return;
+    }
+
+    try {
+        // Si no mandan categoría (al inicio), usamos Armazón por defecto
+        const url = `/api/opciones-lente?categoria=${categoriaFiltro}`;
+        const res = await fetch(url);
+        
+        if (!res.ok) throw new Error("Error en la respuesta del servidor");
+        
+        const marcas = await res.json();
+
+        select.innerHTML = '<option value="">Seleccionar marca...</option>';
+        marcas.forEach((m) => {
+            const option = new Option(m.nombre, m.nombre);
+            select.add(option);
+        });
+
+        if (marcaSeleccionar) {
+            select.value = marcaSeleccionar;
+        }
+    } catch (e) {
+        console.error("❌ Error cargando marcas:", e);
+    }
 }
 
 function inicializarTabla() {
@@ -417,55 +436,86 @@ function abrirModalNuevo() {
 
   new bootstrap.Modal(document.getElementById("modalProducto")).show();
 }
-function editarProducto(id) {
-  fetch(APIURL + "/" + id)
-    .then((res) => res.json())
-    .then((prod) => {
-      $("#productoId").val(prod.id);
-      $("#marca").val(prod.marca);
-      $("#modelo").val(prod.modelo);
-      $("#color").val(prod.color);
-      $("#talla").val(prod.talla);
-      $("#stock").val(prod.stock);
+async function editarProducto(id) {
+    try {
+        const res = await fetch(`${APIURL}/${id}`);
+        const prod = await res.json();
 
-      let costo = prod.precioCosto;
-      let comision = prod.porcentajeComision;
-      let ventaOriginal = prod.precioVenta || 0;
+        // 1. Llenar campos básicos
+        $("#productoId").val(prod.id);
+        $("#modelo").val(prod.modelo);
+        $("#color").val(prod.color);
+        $("#talla").val(prod.talla);
+        $("#stock").val(prod.stock);
 
-      // Si es un producto viejo (Costo 0 o vacío)
-      if (costo === null || costo === undefined || costo === 0) {
-        costo = ventaOriginal; // El precio histórico se convierte en el Costo Base
-        comision = comisionGlobal; // ⭐ INYECTAMOS LA COMISIÓN GLOBAL SOLITA
-      } else if (comision === null || comision === undefined) {
-        comision = comisionGlobal;
-      }
+        // 2. Lógica de Precios y Migración
+        let costo = prod.precioCosto;
+        let comision = prod.porcentajeComision;
+        let ventaOriginal = prod.precioVenta || 0;
 
-      $("#precioCosto").val(costo || 0);
-      $("#porcentajeComision").val(comision);
+        // Si es un producto migrado (Costo 0 o nulo)
+        if (costo === null || costo === undefined || costo === 0) {
+            costo = ventaOriginal; 
+            comision = comisionGlobal; 
+        } else if (comision === null || comision === undefined) {
+            comision = comisionGlobal;
+        }
 
-      // ========================================================
+        $("#precioCosto").val(costo || 0);
+        $("#porcentajeComision").val(comision);
+        // Ponemos el precio exacto de la BD sin recalcular todavía
+        $("#precio").val(ventaOriginal ? parseFloat(ventaOriginal).toFixed(2) : "");
 
-      const catId =
-        prod.tipo && typeof prod.tipo === "object" ? prod.tipo.id : prod.tipo;
-      $("#categoria").val(catId);
+        // 3. Categoría y Adaptación del Formulario
+        const catId = prod.tipo && typeof prod.tipo === "object" ? prod.tipo.id : prod.tipo;
+        $("#categoria").val(catId);
 
-      verificarSubtipo();
-      if (prod.subTipo) $("#subTipo").val(prod.subTipo);
+        // Adaptamos el formulario (Select vs Input) antes de seguir
+        await adaptarFormularioPorCategoria();
 
-      // ¡Esta línea tuya está perfecta aquí!
-      extraEstiloActual = parseFloat($("#subTipo").find("option:selected").data("extra")) || 0;
+        // 4. Lógica Inteligente de la Marca
+        const selectM = document.getElementById("marcaSelect");
+        const inputM = document.getElementById("marcaInput");
+        const btnM = document.getElementById("btnToggleMarca");
 
-      actualizarPreview();
+        if (prod.marca) {
+            // Verificamos si la marca existe en las opciones del SELECT
+            const existeEnSelect = [...selectM.options].some(opt => opt.value === prod.marca);
 
-      // EN LUGAR DE RECALCULAR, PONEMOS EL PRECIO EXACTO QUE VIENE DE LA BD
-      $("#precio").val(ventaOriginal ? parseFloat(ventaOriginal).toFixed(2) : "");
+            if (existeEnSelect) {
+                // Modo catálogo: la marca está en la lista
+                selectM.value = prod.marca;
+                selectM.classList.remove("d-none");
+                inputM.classList.add("d-none");
+            } else {
+                // Modo manual: la marca no está en el catálogo, activamos el input libre
+                inputM.value = prod.marca;
+                selectM.classList.add("d-none");
+                inputM.classList.remove("d-none");
+            }
+        }
 
-      $("#modalTitulo").html('<i class="fas fa-edit me-2"></i>Editar Producto');
-      new bootstrap.Modal(document.getElementById("modalProducto")).show();
-    })
-    .catch((err) =>
-      Swal.fire("Error", "No se pudo cargar el producto", "error"),
-    );
+        // 5. Subtipo (Estilo de Armazón)
+        verificarSubtipo();
+        if (prod.subTipo) {
+            $("#subTipo").val(prod.subTipo);
+        }
+        
+        // Actualizamos el extra del estilo actual basado en la selección
+        const opcionEstilo = $("#subTipo").find("option:selected");
+        extraEstiloActual = parseFloat(opcionEstilo.data("extra")) || 0;
+
+        // 6. Finalizar UI
+        actualizarPreview();
+        $("#modalTitulo").html('<i class="fas fa-edit me-2"></i>Editar Producto');
+        
+        const modal = new bootstrap.Modal(document.getElementById("modalProducto"));
+        modal.show();
+
+    } catch (err) {
+        console.error("Error al cargar producto:", err);
+        Swal.fire("Error", "No se pudo cargar la información del producto", "error");
+    }
 }
 
 

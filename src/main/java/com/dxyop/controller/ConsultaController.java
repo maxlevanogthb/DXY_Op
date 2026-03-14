@@ -154,4 +154,14 @@ public class ConsultaController {
         // Buscamos deudas menores o iguales a 50 centavos (pagado)
         return ResponseEntity.ok(consultaRepository.findByRestanteLessThanEqualOrderByFechaVisitaDesc(0.5));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminarConsulta(@PathVariable Long id) {
+        try {
+            consultaService.eliminarConsulta(id);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }
