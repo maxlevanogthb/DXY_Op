@@ -8,6 +8,16 @@ let carritoVenta = [];
 let configGeneral = { porcentajeImpuesto: 16 };
 
 document.addEventListener("DOMContentLoaded", () => {
+  // --- ÁRBITRO PARA MODALES (Evita bloqueo de inputs) ---
+  // Esto permite que se pueda escribir en SweetAlert aunque esté sobre un modal de Bootstrap
+  const modalConsultaEl = document.getElementById("modalConsulta");
+  if (modalConsultaEl) {
+    modalConsultaEl.addEventListener("shown.bs.modal", () => {
+      // Desactiva la restricción de foco de Bootstrap para este modal
+      $(modalConsultaEl).off("focusin.bs.modal");
+    });
+  }
+
   // --- NUEVA LÓGICA: CARGAR CONFIGURACIÓN ---
   fetch("/api/configuracion")
     .then((res) => res.json())
@@ -190,36 +200,43 @@ async function cargarDatosBuscador() {
 // Función auxiliar para buscar independientemente de si dice "Armazon", "Armazón" o "Lente"
 // Función auxiliar para buscar exactamente lo que corresponde a cada pestaña
 function coincideCategoria(producto, filtroPrincipal) {
-    if (!filtroPrincipal) return true;
-    
-    const catFiltro = String(filtroPrincipal).toLowerCase();
-    
-    // Extraemos los nombres de forma segura
-    const tipoNombre = (producto && producto.tipo && producto.tipo.nombre) 
-                       ? String(producto.tipo.nombre).toLowerCase() 
-                       : "";
-                       
-    const subTipoNombre = (producto && producto.subTipo) 
-                          ? String(producto.subTipo).toLowerCase() 
-                          : "";
+  if (!filtroPrincipal) return true;
 
-    // 1. Pestaña "Lentes" -> Debe mostrar "Armazones" (pero ignorar lentes de contacto)
-    if (catFiltro === "lente") {
-        return tipoNombre.includes("armaz") || (tipoNombre.includes("lente") && !tipoNombre.includes("contacto"));
-    }
-    
-    // 2. Pestaña "L. Contacto" -> Muestra solo lentes de contacto
-    if (catFiltro === "contacto") {
-        return tipoNombre.includes("contacto");
-    }
-    
-    // 3. Pestaña "Gotas/Líq" -> Muestra gotas o soluciones
-    if (catFiltro === "gotas") {
-        return tipoNombre.includes("gota") || tipoNombre.includes("líq") || tipoNombre.includes("liq");
-    }
+  const catFiltro = String(filtroPrincipal).toLowerCase();
 
-    // 4. Default (Accesorios, Reparaciones, etc.)
-    return tipoNombre.includes(catFiltro) || subTipoNombre.includes(catFiltro);
+  // Extraemos los nombres de forma segura
+  const tipoNombre =
+    producto && producto.tipo && producto.tipo.nombre
+      ? String(producto.tipo.nombre).toLowerCase()
+      : "";
+
+  const subTipoNombre =
+    producto && producto.subTipo ? String(producto.subTipo).toLowerCase() : "";
+
+  // 1. Pestaña "Lentes" -> Debe mostrar "Armazones" (pero ignorar lentes de contacto)
+  if (catFiltro === "lente") {
+    return (
+      tipoNombre.includes("armaz") ||
+      (tipoNombre.includes("lente") && !tipoNombre.includes("contacto"))
+    );
+  }
+
+  // 2. Pestaña "L. Contacto" -> Muestra solo lentes de contacto
+  if (catFiltro === "contacto") {
+    return tipoNombre.includes("contacto");
+  }
+
+  // 3. Pestaña "Gotas/Líq" -> Muestra gotas o soluciones
+  if (catFiltro === "gotas") {
+    return (
+      tipoNombre.includes("gota") ||
+      tipoNombre.includes("líq") ||
+      tipoNombre.includes("liq")
+    );
+  }
+
+  // 4. Default (Accesorios, Reparaciones, etc.)
+  return tipoNombre.includes(catFiltro) || subTipoNombre.includes(catFiltro);
 }
 
 function filtrarMarcas() {
@@ -1312,353 +1329,229 @@ function crearLenteInSitu(categoriaClinica, selectId) {
 }
 
 // ==========================================
-// I. CREACIÓN IN-SITU: PRODUCTOS RÁPIDOS (CORREGIDO Y ESTRICTO)
+// I. CREACIÓN IN-SITU: PRODUCTOS RÁPIDOS (BLINDADO Y FILTRADO)
 // ==========================================
 function crearProductoRapidoInSitu() {
   const tabActiva = $('input[name="tipoProducto"]:checked').val() || "LENTE";
+  
+  let catMarcas = "MARCA_ARMAZON";
+  if (tabActiva === "CONTACTO") catMarcas = "MARCA_CONTACTO";
 
   Promise.all([
     fetch("/api/tipos-producto").then((res) => res.json()),
-    fetch("/api/opciones-lente?categoria=TIPO_ARMAZON").then((res) =>
-      res.json(),
-    ),
-  ]).then(([tipos, estilos]) => {
-    let opcionesCategoria = "";
-    tipos.forEach((t) => {
-      let selected = "";
-      if (tabActiva === "LENTE" && t.nombre.toLowerCase().includes("armaz"))
-        selected = "selected";
-      if (
-        tabActiva === "CONTACTO" &&
-        t.nombre.toLowerCase().includes("contacto")
-      )
-        selected = "selected";
-      if (
-        tabActiva === "GOTAS" &&
-        (t.nombre.toLowerCase().includes("gota") ||
-          t.nombre.toLowerCase().includes("liquido"))
-      )
-        selected = "selected";
-      if (
-        tabActiva === "ACCESORIO" &&
-        t.nombre.toLowerCase().includes("accesorio")
-      )
-        selected = "selected";
-
-      opcionesCategoria += `<option value="${t.id}" ${selected}>${t.nombre}</option>`;
+    fetch(`/api/opciones-lente?categoria=${catMarcas}`).then((res) => res.json()),
+    fetch("/api/opciones-lente?categoria=TIPO_ARMAZON").then((res) => res.json()),
+  ]).then(([tiposTotales, marcas, estilos]) => {
+    
+    // ⭐ 1. FILTRAR LAS CATEGORÍAS SEGÚN LA PESTAÑA ⭐
+    const tiposFiltrados = tiposTotales.filter(t => {
+        const nom = t.nombre.toLowerCase();
+        if (tabActiva === "LENTE") return nom.includes("armaz");
+        if (tabActiva === "CONTACTO") return nom.includes("contacto");
+        if (tabActiva === "GOTAS") return nom.includes("gota") || nom.includes("liq");
+        if (tabActiva === "ACCESORIO") return nom.includes("accesorio");
+        return true;
     });
+
+    let opcionesCategoria = "";
+    tiposFiltrados.forEach((t) => {
+      opcionesCategoria += `<option value="${t.id}">${t.nombre}</option>`;
+    });
+
+    let opcionesMarcas = '<option value="">Seleccionar marca...</option>';
+    marcas.forEach((m) => opcionesMarcas += `<option value="${m.nombre}">${m.nombre}</option>`);
 
     let opcionesEstilo = '<option value="">Seleccionar estilo...</option>';
-    estilos.forEach((e) => {
-      opcionesEstilo += `<option value="${e.nombre}">${e.nombre}</option>`;
-    });
+    estilos.forEach((e) => opcionesEstilo += `<option value="${e.nombre}">${e.nombre}</option>`);
 
     Swal.fire({
       title: "Alta Rápida de Producto",
-      width: "600px",
+      target: document.getElementById('modalConsulta'),
+      width: "650px",
       html: `
-                <div class="text-start mt-2">
-                    <div class="row g-2 mb-3">
-                        <div class="col-sm-6">
-                            <label class="form-label fw-bold small">Categoría *</label>
-                            <div class="input-group input-group-sm">
-                                <select id="swal-prod-cat" class="form-select">${opcionesCategoria}</select>
-                                <input type="text" id="swal-new-cat" class="form-control d-none" placeholder="Nueva categoría...">
-                                <button type="button" class="btn btn-outline-primary" id="btn-toggle-cat" title="Crear nueva categoría">
-                                    <i class="fas fa-plus"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-6" id="div-swal-estilo">
-                            <label class="form-label fw-bold small text-primary">Estilo / Montura</label>
-                            <div class="input-group input-group-sm">
-                                <select id="swal-prod-estilo" class="form-select border-primary">${opcionesEstilo}</select>
-                                <input type="text" id="swal-new-estilo" class="form-control border-primary d-none" placeholder="Nuevo estilo...">
-                                <button type="button" class="btn btn-outline-primary" id="btn-toggle-estilo" title="Crear nuevo estilo">
-                                    <i class="fas fa-plus"></i>
-                                </button>
-                            </div>
-                        </div>
+        <div class="text-start mt-2">
+            <div class="row g-2 mb-3">
+                <div class="col-sm-6">
+                    <label class="form-label fw-bold small">Categoría *</label>
+                    <select id="swal-prod-cat" class="form-select form-select-sm">${opcionesCategoria}</select>
+                </div>
+                <div class="col-sm-6">
+                    <label class="form-label fw-bold small">Marca *</label>
+                    <div id="swal-caja-marca-select" class="input-group input-group-sm">
+                        <select id="swal-prod-marca" class="form-select">${opcionesMarcas}</select>
+                        <input type="text" id="swal-new-marca" class="form-control d-none" placeholder="Nueva marca...">
+                        <button class="btn btn-outline-primary" type="button" id="btn-toggle-marca"><i class="fas fa-plus"></i></button>
                     </div>
-
-                    <div class="row g-2 mb-3">
-                        <div class="col-6">
-                            <label class="form-label fw-bold small">Marca *</label>
-                            <input type="text" id="swal-prod-marca" class="form-control form-control-sm" placeholder="Ej. Ray-Ban">
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label fw-bold small">Modelo *</label>
-                            <input type="text" id="swal-prod-modelo" class="form-control form-control-sm" placeholder="Ej. RB2140">
-                        </div>
-                    </div>
-                    
-                    <div class="row g-2 mb-3">
-                        <div class="col-4">
-                            <label class="form-label fw-bold small text-muted">Color</label>
-                            <input type="text" id="swal-prod-color" class="form-control form-control-sm" placeholder="Ej. Negro">
-                        </div>
-                        <div class="col-4 offset-4">
-                            <label class="form-label fw-bold small text-muted">Stock Inicial</label>
-                            <input type="number" id="swal-prod-stock" class="form-control form-control-sm" value="1" min="1">
-                        </div>
-                    </div>
-
-                    <div class="row g-2 mb-3">
-                        <div class="col-4">
-                            <label class="form-label fw-bold small">Costo *</label>
-                            <div class="input-group input-group-sm">
-                                <span class="input-group-text bg-body-tertiary">$</span>
-                                <input type="number" id="swal-prod-costo" class="form-control" placeholder="0.00">
-                            </div>
-                        </div>
-                        <div class="col-4">
-                            <label class="form-label fw-bold small text-info">Comisión</label>
-                            <div class="input-group input-group-sm">
-                                <input type="number" id="swal-prod-comision" class="form-control border-info" value="${configGeneral.porcentajeComisionTarjeta || 0}">
-                                <span class="input-group-text bg-info text-white border-info">%</span>
-                            </div>
-                        </div>
-                        <div class="col-4">
-                            <label class="form-label fw-bold small text-success">P. Venta</label>
-                            <div class="input-group input-group-sm">
-                                <span class="input-group-text bg-success text-white border-success">$</span>
-                                <input type="number" id="swal-prod-precio" class="form-control border-success text-success fw-bold" placeholder="0.00">
-                            </div>
-                        </div>
+                    <input type="text" id="swal-prod-marca-text" class="form-control form-control-sm d-none" placeholder="Escriba la marca...">
+                </div>
+            </div>
+            <div class="row g-2 mb-3">
+                <div class="col-sm-6" id="div-swal-estilo">
+                    <label class="form-label fw-bold small text-primary">Estilo / Montura</label>
+                    <div class="input-group input-group-sm">
+                        <select id="swal-prod-estilo" class="form-select border-primary">${opcionesEstilo}</select>
+                        <input type="text" id="swal-new-estilo" class="form-control border-primary d-none" placeholder="Nuevo estilo...">
+                        <button class="btn btn-outline-primary" type="button" id="btn-toggle-estilo"><i class="fas fa-plus"></i></button>
                     </div>
                 </div>
-            `,
+                <div class="col-sm-6">
+                    <label class="form-label fw-bold small">Modelo *</label>
+                    <input type="text" id="swal-prod-modelo" class="form-control form-control-sm">
+                </div>
+            </div>
+            <div class="row g-2 mb-3">
+                <div class="col-4">
+                    <label class="form-label fw-bold small text-muted">Color</label>
+                    <input type="text" id="swal-prod-color" class="form-control form-control-sm">
+                </div>
+                <div class="col-4">
+                    <label class="form-label fw-bold small text-muted">Stock</label>
+                    <input type="number" id="swal-prod-stock" class="form-control form-control-sm" value="1" min="1">
+                </div>
+                <div class="col-4">
+                    <label class="form-label fw-bold small">Costo *</label>
+                    <input type="number" id="swal-prod-costo" class="form-control form-control-sm" placeholder="0.00">
+                </div>
+            </div>
+            <div class="row g-2">
+                <div class="col-6">
+                    <label class="form-label fw-bold small text-info">Comisión (%)</label>
+                    <input type="number" id="swal-prod-comision" class="form-control form-control-sm border-info" value="${configGeneral.porcentajeComisionTarjeta || 0}">
+                </div>
+                <div class="col-6">
+                    <label class="form-label fw-bold small text-success">Precio Venta (Auto)</label>
+                    <input type="number" id="swal-prod-precio" class="form-control form-control-sm border-success fw-bold" placeholder="0.00">
+                </div>
+            </div>
+        </div>`,
       showCancelButton: true,
-      confirmButtonColor: "#198754",
-      confirmButtonText: '<i class="fas fa-box"></i> Guardar y Usar',
-      cancelButtonText: "Cancelar",
-
+      confirmButtonText: '<i class="fas fa-save me-1"></i> Guardar y Usar',
       didOpen: () => {
-        const selCat = document.getElementById("swal-prod-cat");
-        const inpCat = document.getElementById("swal-new-cat");
-        const btnCat = document.getElementById("btn-toggle-cat");
+          const selCat = document.getElementById("swal-prod-cat");
+          const divEstilo = document.getElementById("div-swal-estilo");
+          const cajaSelect = document.getElementById("swal-caja-marca-select");
+          const cajaTexto = document.getElementById("swal-prod-marca-text");
 
-        const selEstilo = document.getElementById("swal-prod-estilo");
-        const inpEstilo = document.getElementById("swal-new-estilo");
-        const btnEstilo = document.getElementById("btn-toggle-estilo");
-        const divEstilo = document.getElementById("div-swal-estilo");
-
-        const verificarArmazon = () => {
-          const textoCat = inpCat.classList.contains("d-none")
-            ? selCat.options[selCat.selectedIndex]?.text.toLowerCase() || ""
-            : inpCat.value.toLowerCase();
-
-          if (textoCat.includes("armaz")) {
-            divEstilo.classList.remove("d-none");
-          } else {
-            divEstilo.classList.add("d-none");
-            selEstilo.value = "";
-            inpEstilo.value = "";
-          }
-        };
-
-        selCat.addEventListener("change", verificarArmazon);
-        inpCat.addEventListener("input", verificarArmazon);
-        verificarArmazon();
-
-        btnCat.addEventListener("click", () => {
-          selCat.classList.toggle("d-none");
-          inpCat.classList.toggle("d-none");
-          btnCat.innerHTML = selCat.classList.contains("d-none")
-            ? '<i class="fas fa-times text-danger"></i>'
-            : '<i class="fas fa-plus"></i>';
-          inpCat.value = "";
-          verificarArmazon();
-        });
-
-        btnEstilo.addEventListener("click", () => {
-          selEstilo.classList.toggle("d-none");
-          inpEstilo.classList.toggle("d-none");
-          btnEstilo.innerHTML = selEstilo.classList.contains("d-none")
-            ? '<i class="fas fa-times text-danger"></i>'
-            : '<i class="fas fa-plus"></i>';
-          inpEstilo.value = "";
-        });
-
-        const inputCosto = document.getElementById("swal-prod-costo");
-        const inputComision = document.getElementById("swal-prod-comision");
-        const inputPrecio = document.getElementById("swal-prod-precio");
-
-        function calcularDesdeComision() {
-          const costo = parseFloat(inputCosto.value) || 0;
-          const comision = parseFloat(inputComision.value) || 0;
-          if (costo > 0) {
-            inputPrecio.value = (costo * (1 + comision / 100)).toFixed(2);
-          } else {
-            inputPrecio.value = "";
-          }
-        }
-
-        function calcularDesdePrecio() {
-          const costo = parseFloat(inputCosto.value) || 0;
-          const precio = parseFloat(inputPrecio.value) || 0;
-          if (costo > 0 && precio >= costo) {
-            const nuevaComision = (precio / costo - 1) * 100;
-            inputComision.value = nuevaComision.toFixed(2);
-          } else {
-            inputComision.value = 0;
-          }
-        }
-
-        inputCosto.addEventListener("input", calcularDesdeComision);
-        inputComision.addEventListener("input", calcularDesdeComision);
-        inputPrecio.addEventListener("input", calcularDesdePrecio);
-      },
-
-      preConfirm: async () => {
-        const isNewCat = !document
-          .getElementById("swal-new-cat")
-          .classList.contains("d-none");
-        const isNewEstilo = !document
-          .getElementById("swal-new-estilo")
-          .classList.contains("d-none");
-
-        const catSelectVal = document.getElementById("swal-prod-cat").value;
-        const catNewVal = document.getElementById("swal-new-cat").value.trim();
-
-        const estiloSelectVal =
-          document.getElementById("swal-prod-estilo").value;
-        const estiloNewVal = document
-          .getElementById("swal-new-estilo")
-          .value.trim();
-
-        const marca = document.getElementById("swal-prod-marca").value.trim();
-        const modelo = document.getElementById("swal-prod-modelo").value.trim();
-        const color = document.getElementById("swal-prod-color").value.trim();
-        const costo = document.getElementById("swal-prod-costo").value;
-        const comision = document.getElementById("swal-prod-comision").value;
-        const precio = document.getElementById("swal-prod-precio").value;
-        const stock = document.getElementById("swal-prod-stock").value;
-
-        if (!marca || !modelo || !costo || !precio || !stock) {
-          Swal.showValidationMessage(
-            "Marca, Modelo, Costo y Precio son obligatorios",
-          );
-          return false;
-        }
-        if (isNewCat && !catNewVal) {
-          Swal.showValidationMessage("Escribe el nombre de la nueva Categoría");
-          return false;
-        }
-
-        try {
-          let finalCatId = catSelectVal;
-          let finalEstilo = estiloSelectVal;
-          const nombreCatEval = isNewCat
-            ? catNewVal.toLowerCase()
-            : document
-                .getElementById("swal-prod-cat")
-                .options[
-                  document.getElementById("swal-prod-cat").selectedIndex
-                ].text.toLowerCase();
-
-          const esArmazon = nombreCatEval.includes("armaz");
-
-          if (isNewCat) {
-            const resCat = await fetch("/api/tipos-producto", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                nombre: catNewVal,
-                icono: "fas fa-box",
-                descripcion: "Agregado desde consulta",
-              }),
-            });
-            if (!resCat.ok) throw new Error("Fallo al crear categoría");
-            const dataCat = await resCat.json();
-            finalCatId = dataCat.id;
-          }
-
-          if (esArmazon && isNewEstilo && estiloNewVal) {
-            const resEst = await fetch("/api/opciones-lente", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                categoria: "TIPO_ARMAZON",
-                nombre: estiloNewVal,
-                precioBase: 0,
-              }),
-            });
-            if (!resEst.ok) throw new Error("Fallo al crear estilo");
-            const dataEst = await resEst.json();
-            finalEstilo = dataEst.nombre;
-          }
-
-          return {
-            nombre: `${marca} ${modelo} ${color ? "- " + color : ""}`.trim(),
-            marca: marca,
-            modelo: modelo,
-            color: color,
-            talla: "Única",
-            tipo: { id: parseInt(finalCatId) },
-            subTipo: esArmazon ? finalEstilo : null,
-            precioCosto: parseFloat(costo) || 0,
-            porcentajeComision: parseFloat(comision) || 0,
-            precioVenta: parseFloat(precio),
-            stock: parseInt(stock),
+          // ⭐ 2. LÓGICA DINÁMICA DE INTERFAZ ⭐
+          const adaptarUI = () => {
+              if (selCat.selectedIndex === -1) return;
+              const textoCat = selCat.options[selCat.selectedIndex].text.toLowerCase();
+              
+              // Ocultar Estilo si no es armazón
+              divEstilo.classList.toggle("d-none", !textoCat.includes("armaz"));
+              
+              // Intercambiar inputs de Marca
+              if (textoCat.includes("armaz") || textoCat.includes("contacto")) {
+                  cajaSelect.classList.remove("d-none");
+                  cajaTexto.classList.add("d-none");
+              } else {
+                  cajaSelect.classList.add("d-none");
+                  cajaTexto.classList.remove("d-none");
+              }
           };
-        } catch (error) {
-          Swal.showValidationMessage(error.message);
-          return false;
-        }
+          
+          selCat.onchange = adaptarUI;
+          adaptarUI(); // Ejecutar al abrir
+
+          // Toggles de los botones "+"
+          document.getElementById('btn-toggle-marca').onclick = () => { 
+              document.getElementById('swal-prod-marca').classList.toggle('d-none');
+              const i = document.getElementById('swal-new-marca'); i.classList.toggle('d-none');
+              if(!i.classList.contains('d-none')) i.focus();
+          };
+          document.getElementById('btn-toggle-estilo').onclick = () => { 
+              document.getElementById('swal-prod-estilo').classList.toggle('d-none');
+              const i = document.getElementById('swal-new-estilo'); i.classList.toggle('d-none');
+              if(!i.classList.contains('d-none')) i.focus();
+          };
+
+          // Cálculos
+          const c = document.getElementById('swal-prod-costo');
+          const m = document.getElementById('swal-prod-comision');
+          const p = document.getElementById('swal-prod-precio');
+          const calc = () => { if(c.value > 0) p.value = (parseFloat(c.value) * (1 + parseFloat(m.value)/100)).toFixed(2); };
+          c.oninput = calc; m.oninput = calc;
       },
-    }).then((result) => {
-      if (result.isConfirmed) {
-        fetch("/api/productos", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(result.value),
-        })
-          .then((res) => res.json())
-          .then((nuevoProd) => {
-            // ⭐ EL TOAST YA NO USA "target", APARECERÁ LIBREMENTE
-            Swal.fire({
-              toast: true,
-              position: "top-end",
-              icon: "success",
-              title: "Producto listo",
-              showConfirmButton: false,
-              timer: 2500,
-            });
+      preConfirm: async () => {
+          const catId = document.getElementById("swal-prod-cat").value;
+          const catNombre = document.getElementById("swal-prod-cat").options[document.getElementById("swal-prod-cat").selectedIndex].text.toLowerCase();
+          
+          // Atrapar Marca
+          let marcaFinal = "";
+          let isNewMarca = false;
 
-            catalogoGlobal.push(nuevoProd);
-            $("#selectProducto").val(nuevoProd.id);
+          if (catNombre.includes("armaz") || catNombre.includes("contacto")) {
+              const iNew = document.getElementById("swal-new-marca");
+              isNewMarca = !iNew.classList.contains("d-none");
+              marcaFinal = isNewMarca ? iNew.value.trim() : document.getElementById("swal-prod-marca").value;
+          } else {
+              marcaFinal = document.getElementById("swal-prod-marca-text").value.trim();
+          }
 
-            // ⭐ OBTENEMOS EL NOMBRE DE LA CATEGORÍA DIRECTAMENTE DE LA BD PARA EVITAR ERRORES
-            const catName =
-              nuevoProd.tipo && nuevoProd.tipo.nombre
-                ? nuevoProd.tipo.nombre
-                : "Producto";
-            const desc = `${catName} ${nuevoProd.marca} ${nuevoProd.modelo} ${nuevoProd.color ? "- " + nuevoProd.color : ""}`;
+          const isNewEstilo = !document.getElementById("swal-new-estilo").classList.contains("d-none");
+          let estiloFinal = isNewEstilo ? document.getElementById("swal-new-estilo").value.trim() : document.getElementById("swal-prod-estilo").value;
+          
+          const modelo = document.getElementById("swal-prod-modelo").value.trim();
+          const costo = document.getElementById("swal-prod-costo").value;
+          const precio = document.getElementById("swal-prod-precio").value;
 
-            $("#armazonModelo").val(desc).addClass("bg-success text-white");
-            $("#precioArmazon").val(nuevoProd.precioVenta || 0);
+          if (!marcaFinal || !modelo || !costo || !precio) {
+              Swal.showValidationMessage("Marca, Modelo, Costo y Precio son requeridos");
+              return false;
+          }
 
-            setTimeout(
-              () => $("#armazonModelo").removeClass("bg-success text-white"),
-              800,
-            );
+          try {
+              if (isNewMarca && (catNombre.includes("armaz") || catNombre.includes("contacto"))) {
+                  const catDestino = catNombre.includes("contacto") ? "MARCA_CONTACTO" : "MARCA_ARMAZON";
+                  await fetch("/api/opciones-lente", {
+                      method: "POST", headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ categoria: catDestino, nombre: marcaFinal, precioBase: 0 })
+                  });
+              }
 
-            calcularTotales();
-          })
-          .catch((err) =>
-            Swal.fire({
-              title: "Error",
-              text: "No se pudo crear: " + err.message,
-              icon: "error",
-            }),
-          );
+              if (catNombre.includes("armaz") && isNewEstilo && estiloFinal) {
+                  await fetch("/api/opciones-lente", {
+                      method: "POST", headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ categoria: "TIPO_ARMAZON", nombre: estiloFinal, precioBase: 0 })
+                  });
+              }
+
+              return {
+                  nombre: `${marcaFinal} ${modelo} ${document.getElementById("swal-prod-color").value}`.trim(),
+                  marca: marcaFinal,
+                  modelo: modelo,
+                  color: document.getElementById("swal-prod-color").value.trim(),
+                  talla: "Única",
+                  tipo: { id: parseInt(catId) },
+                  subTipo: catNombre.includes("armaz") ? estiloFinal : null,
+                  precioCosto: parseFloat(costo),
+                  precioVenta: parseFloat(precio),
+                  porcentajeComision: parseFloat(document.getElementById("swal-prod-comision").value) || 0,
+                  stock: parseInt(document.getElementById("swal-prod-stock").value) || 1,
+                  activo: true
+              };
+          } catch (err) {
+              Swal.showValidationMessage("Error interno al guardar dependencias");
+          }
       }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch("/api/productos", {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(result.value),
+            }).then(res => res.json()).then(nuevoProd => {
+                Swal.fire({ toast: true, position: "top-end", icon: "success", title: "Producto creado", showConfirmButton: false, timer: 1500 });
+                catalogoGlobal.push(nuevoProd);
+                $("#selectProducto").val(nuevoProd.id);
+                $("#armazonModelo").val(nuevoProd.nombre).addClass("bg-success text-white");
+                $("#precioArmazon").val(nuevoProd.precioVenta);
+                setTimeout(() => $("#armazonModelo").removeClass("bg-success text-white"), 1000);
+                calcularTotales();
+            });
+        }
     });
   });
 }
-
 // ==========================================================
 // FUNCIÓN: QUITAR COMISIÓN (VENDER AL COSTO BASE)
 // ==========================================================

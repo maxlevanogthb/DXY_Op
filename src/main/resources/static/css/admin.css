@@ -402,3 +402,27 @@ body.modal-open [style*="position: sticky"] {
 .swal2-container {
     z-index: 10000 !important;
 }
+
+/* --- Arreglo Global para tablas en Modo Oscuro --- */
+
+/* Asegura que el nombre del paciente y botones de acción se vean siempre */
+[data-bs-theme="dark"] .table tbody td, 
+[data-bs-theme="dark"] .table tbody td * {
+    color: #dee2e6 !important; /* Gris muy claro/blanco */
+}
+
+/* El botón de estado de cuenta/pagos que era negro, ahora será gris acero */
+[data-bs-theme="dark"] .btn-outline-dark {
+    color: #f8f9fa !important;
+    border-color: #f8f9fa !important;
+}
+
+[data-bs-theme="dark"] .btn-outline-dark:hover {
+    background-color: #f8f9fa !important;
+    color: #212529 !important;
+}
+
+/* El texto de los inputs en el modo oscuro */
+[data-bs-theme="dark"] .form-control {
+    color: #fff !important;
+}

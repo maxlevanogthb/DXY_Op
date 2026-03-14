@@ -154,7 +154,7 @@ function abrirModalNuevo() {
 
   const hoy = new Date().toISOString().split("T")[0];
   $("#fecha").val(hoy);
-  $("#fechaNacimiento").val("");
+  $("#edad").val("");
 
   new bootstrap.Modal(document.getElementById("pacienteModal")).show();
 }
@@ -165,7 +165,7 @@ function editarPaciente(id) {
     .then((paciente) => {
       $("#pacienteId").val(paciente.id);
       $("#nombre").val(paciente.nombre);
-      $("#fechaNacimiento").val(paciente.fechaNacimiento);
+      $("#edad").val(paciente.edad);
       $("#telefono").val(paciente.telefono);
       $("#email").val(paciente.email);
       $("#graduacion").val(paciente.graduacionActual);
@@ -193,7 +193,7 @@ function guardarPaciente() {
   const paciente = {
     id: id ? parseInt(id) : null,
     nombre: $("#nombre").val(),
-    fechaNacimiento: $("#fechaNacimiento").val(),
+    edad: $("#edad").val(),
     telefono: $("#telefono").val(),
     email: $("#email").val(),
     graduacionActual: $("#graduacion").val(),

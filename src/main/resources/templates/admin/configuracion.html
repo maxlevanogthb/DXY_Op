@@ -121,27 +121,39 @@
 
                         <ul class="nav nav-pills mb-4 justify-content-center" id="pills-tab" role="tablist">
                             <li class="nav-item">
-                                <button class="nav-link active px-4 shadow-sm" data-bs-toggle="pill" type="button"
+                                <button class="nav-link active px-3 shadow-sm" data-bs-toggle="pill" type="button"
                                     onclick="cargarTabla('MATERIAL')">
-                                    <i class="fas fa-layer-group me-2"></i>Materiales
+                                    <i class="fas fa-layer-group me-1"></i>Materiales
                                 </button>
                             </li>
                             <li class="nav-item">
-                                <button class="nav-link px-4 shadow-sm" data-bs-toggle="pill" type="button"
+                                <button class="nav-link px-3 shadow-sm" data-bs-toggle="pill" type="button"
                                     onclick="cargarTabla('TRATAMIENTO')">
-                                    <i class="fas fa-shield-alt me-2"></i>Tratamientos
+                                    <i class="fas fa-shield-alt me-1"></i>Tratamientos
                                 </button>
                             </li>
                             <li class="nav-item">
-                                <button class="nav-link px-4 shadow-sm" data-bs-toggle="pill" type="button"
+                                <button class="nav-link px-3 shadow-sm" data-bs-toggle="pill" type="button"
                                     onclick="cargarTabla('TINTE')">
-                                    <i class="fas fa-palette me-2"></i>Tintes
+                                    <i class="fas fa-palette me-1"></i>Tintes
                                 </button>
                             </li>
                             <li class="nav-item">
-                                <button class="nav-link px-4 shadow-sm" data-bs-toggle="pill" type="button"
+                                <button class="nav-link px-3 shadow-sm" data-bs-toggle="pill" type="button"
                                     onclick="cargarTabla('TIPO_ARMAZON')">
-                                    <i class="fas fa-glasses me-2"></i>Estilos Armazón
+                                    <i class="fas fa-glasses me-1"></i>Estilos Armazón
+                                </button>
+                            </li>
+                            <li class="nav-item ms-3 border-start ps-3 border-secondary">
+                                <button class="nav-link px-3 shadow-sm btn-outline-info" data-bs-toggle="pill" type="button"
+                                    onclick="cargarTabla('MARCA_ARMAZON')">
+                                    <i class="fas fa-tags me-1"></i>Marcas (Armazón)
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link px-3 shadow-sm btn-outline-info" data-bs-toggle="pill" type="button"
+                                    onclick="cargarTabla('MARCA_CONTACTO')">
+                                    <i class="fas fa-eye me-1"></i>Marcas (Contacto)
                                 </button>
                             </li>
                         </ul>
@@ -149,13 +161,13 @@
                         <div class="row g-2 mb-3 bg-body-tertiary p-3 rounded align-items-end shadow-sm">
                             <input type="hidden" id="nuevoId">
 
-                            <div class="col-md-3">
-                                <label class="small fw-bold text-muted mb-1">Nombre *</label>
+                            <div class="col-md-3" id="colNombre">
+                                <label class="small fw-bold text-muted mb-1">Nombre / Descripción *</label>
                                 <input type="text" id="nuevoNombre" class="form-control form-control-sm"
-                                    placeholder="Ej. Hi-Index 1.67">
+                                    placeholder="Ej. Hi-Index 1.67 / Ray-Ban">
                             </div>
 
-                            <div class="col-md-2">
+                            <div class="col-md-2 campo-precio">
                                 <label class="small fw-bold text-muted mb-1">Costo *</label>
                                 <div class="input-group input-group-sm">
                                     <span class="input-group-text bg-body">$</span>
@@ -163,7 +175,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-2">
+                            <div class="col-md-2 campo-precio">
                                 <label class="small fw-bold text-info mb-1">Comisión</label>
                                 <div class="input-group input-group-sm">
                                     <input type="number" id="nuevoComision" class="form-control border-info"
@@ -172,7 +184,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-2">
+                            <div class="col-md-2 campo-precio">
                                 <label class="small fw-bold text-success mb-1">P. Venta</label>
                                 <div class="input-group input-group-sm">
                                     <span class="input-group-text bg-success text-white border-success">$</span>
@@ -181,7 +193,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-3 d-flex gap-2">
+                            <div class="col-md-3 d-flex gap-2" id="colBotones">
                                 <button class="btn btn-success btn-sm w-100 shadow-sm" id="btnGuardarOpcion"
                                     onclick="guardarOpcion()">
                                     <i class="fas fa-plus me-2"></i>Agregar
@@ -198,7 +210,8 @@
                                 <thead class="table-secondary">
                                     <tr>
                                         <th>Descripción</th>
-                                        <th style="width: 200px;" class="text-end pe-4">Costos y Venta</th>
+                                        <th style="width: 200px;" class="text-end pe-4" id="thPrecios">Costos y Venta
+                                        </th>
                                         <th style="width: 100px;" class="text-center">Acción</th>
                                     </tr>
                                 </thead>
@@ -538,7 +551,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="card border-0 shadow-sm mb-4">
                             <div class="card-header bg-dark text-white fw-bold">
                                 <i class="fas fa-paint-roller me-2"></i> Apariencia del Sistema
@@ -575,12 +588,16 @@
                         </div>
                         <div class="card border-warning border-opacity-50 shadow-sm mt-4 bg-warning bg-opacity-10">
                             <div class="card-body">
-                                <h6 class="text-warning-emphasis fw-bold mb-2"><i class="fas fa-magic me-2"></i>Actualización Masiva de Precios Antiguos</h6>
+                                <h6 class="text-warning-emphasis fw-bold mb-2"><i
+                                        class="fas fa-magic me-2"></i>Actualización Masiva de Precios Antiguos</h6>
                                 <p class="small text-body-secondary mb-3">
-                                    Si su sistema tiene productos de inventario o catálogos clínicos creados antes de la Versión 2.0 (sin costo base registrado), haga clic en este botón. 
-                                    El sistema tomará el precio actual como "Costo" y calculará el nuevo Precio de Venta sumando la comisión.
+                                    Si su sistema tiene productos de inventario o catálogos clínicos creados antes de la
+                                    Versión 2.0 (sin costo base registrado), haga clic en este botón.
+                                    El sistema tomará el precio actual como "Costo" y calculará el nuevo Precio de Venta
+                                    sumando la comisión.
                                 </p>
-                                <button type="button" class="btn btn-warning text-dark fw-bold shadow-sm" onclick="ejecutarActualizacionMasiva()">
+                                <button type="button" class="btn btn-warning text-dark fw-bold shadow-sm"
+                                    onclick="ejecutarActualizacionMasiva()">
                                     <i class="fas fa-bolt me-2"></i>Aplicar Comisión a Catálogo Viejo
                                 </button>
                             </div>

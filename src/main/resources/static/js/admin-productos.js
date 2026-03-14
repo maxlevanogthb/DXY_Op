@@ -16,13 +16,37 @@ document.addEventListener("DOMContentLoaded", () => {
   inicializarFiltros();
   cargarCategorias();
   cargarEstilosArmazon();
+  cargarMarcas();
 
   // 2. Listeners para vista previa del nombre
-  ["marca", "modelo", "color"].forEach((id) => {
-    const input = document.getElementById(id);
-    if (input) input.addEventListener("input", actualizarPreview);
-  });
+["categoria", "tipo_id", "marcaSelect", "marcaInput", "modelo", "color"].forEach((id) => {
+        const input = document.getElementById(id);
+        if (input) {
+            $(input).on("input change", actualizarPreview);
+        }
+    });
+
+  // Escuchar cambios en la Categoría para adaptar Marcas y Estilos
+    const selectCategoria = document.getElementById("categoria") || document.getElementById("tipo_id");
+    if (selectCategoria) {
+        selectCategoria.addEventListener("change", adaptarFormularioPorCategoria);
+    }
+
+    // Botón para alternar entre Select e Input de Marca
+    const btnToggleMarca = document.getElementById('btnToggleMarca');
+    if (btnToggleMarca) {
+        btnToggleMarca.addEventListener('click', () => {
+            const selectM = document.getElementById('marcaSelect');
+            const inputM = document.getElementById('marcaInput');
+            selectM.classList.toggle('d-none');
+            inputM.classList.toggle('d-none');
+            if (!inputM.classList.contains('d-none')) inputM.focus();
+            
+            actualizarPreview(); // Disparar preview al cambiar modo
+        });
+    }
 });
+
 
 // ==========================================
 // A. UTILIDADES (Aquí estaba el error)
@@ -42,11 +66,34 @@ function debounce(func, wait) {
 // ==========================================
 
 function actualizarPreview() {
-  const marca = document.getElementById("marca").value;
-  const modelo = document.getElementById("modelo").value;
-  const color = document.getElementById("color").value;
-  const nombre = `${marca} ${modelo} ${color ? "- " + color : ""}`.trim();
-  document.getElementById("nombrePreview").textContent = nombre || "...";
+    // 1. Atrapar la Categoría
+    const catSelect = document.getElementById("categoria") || document.getElementById("tipo_id");
+    if (!catSelect || catSelect.selectedIndex === -1) return;
+    const textoCat = catSelect.options[catSelect.selectedIndex].text.toLowerCase();
+
+    // 2. Atrapar la Marca (Saber si es Select o Input)
+    let marca = "";
+    if (textoCat.includes("armaz") || textoCat.includes("contacto")) {
+        const inputNewMarca = document.getElementById("marcaInput");
+        const selectMarca = document.getElementById("marcaSelect");
+        // Revisa si el input oculto está activo (el usuario le dio al '+')
+        const isNew = inputNewMarca && !inputNewMarca.classList.contains("d-none");
+        marca = isNew ? inputNewMarca.value.trim() : (selectMarca ? selectMarca.value : "");
+    } else {
+        const inputMarca = document.getElementById("marcaInput");
+        marca = inputMarca ? inputMarca.value.trim() : "";
+    }
+
+    // 3. Atrapar Modelo y Color
+    const modelo = ($("#modelo").val() || "").trim();
+    const color = ($("#color").val() || "").trim();
+
+    // 4. Armar el nombre final
+    let nombre = `${marca} ${modelo}`.trim();
+    if (color) nombre += ` - ${color}`;
+
+    // 5. Pintar en pantalla
+    $("#nombrePreview").text(nombre || "...");
 }
 
 function verificarSubtipo() {
@@ -107,6 +154,50 @@ async function cargarCategorias(idSeleccionar = null) {
   }
 }
 
+async function adaptarFormularioPorCategoria() {
+
+    const catSelect = document.getElementById("categoria") || document.getElementById("tipo_id");
+    if (!catSelect || !catSelect.value) return;
+
+    const textoCat = catSelect.options[catSelect.selectedIndex].text.toLowerCase();
+    
+    const selectM = document.getElementById("marcaSelect");
+    const inputM = document.getElementById("marcaInput");
+    const btnM = document.getElementById("btnToggleMarca");
+
+    // 1. Mostrar/Ocultar y cargar marcas según la categoría
+    if (textoCat.includes("armaz") || textoCat.includes("contacto")) {
+        // Es Lente o Contacto -> Mostramos la lista desplegable
+        selectM.classList.remove('d-none');
+        inputM.classList.add('d-none');
+        inputM.value = ""; 
+        btnM.classList.remove('d-none');
+        
+        const catBD = textoCat.includes("contacto") ? "MARCA_CONTACTO" : "MARCA_ARMAZON";
+        await cargarMarcasAPI(catBD);
+    } else {
+        // Son Gotas o Accesorios -> Mostramos input de texto libre
+        selectM.classList.add('d-none');
+        inputM.classList.remove('d-none');
+        btnM.classList.add('d-none');
+    }
+}
+
+async function cargarMarcasAPI(categoriaFiltro, marcaSeleccionar = null) {
+    try {
+        const res = await fetch(`/api/opciones-lente?categoria=${categoriaFiltro}`);
+        const marcas = await res.json();
+        const select = document.getElementById("marcaSelect");
+        
+        select.innerHTML = '<option value="">Seleccionar marca...</option>';
+        marcas.forEach((m) => select.add(new Option(m.nombre, m.nombre)));
+        
+        if (marcaSeleccionar) select.value = marcaSeleccionar;
+    } catch (e) {
+        console.error("Error cargando marcas:", e);
+    }
+}
+
 async function cargarEstilosArmazon(nombreSeleccionar = null) {
   try {
     const res = await fetch("/api/opciones-lente?categoria=TIPO_ARMAZON");
@@ -121,6 +212,22 @@ async function cargarEstilosArmazon(nombreSeleccionar = null) {
       select.add(option);
     });
 
+    if (nombreSeleccionar) select.value = nombreSeleccionar;
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+// Carga las marcas desde la BD al abrir la página
+async function cargarMarcas(nombreSeleccionar = null) {
+  try {
+    const res = await fetch("/api/opciones-lente?categoria=MARCA");
+    const marcas = await res.json();
+    const select = document.getElementById("marca");
+    
+    select.innerHTML = '<option value="">Seleccionar marca...</option>';
+    marcas.forEach((m) => select.add(new Option(m.nombre, m.nombre)));
+    
     if (nombreSeleccionar) select.value = nombreSeleccionar;
   } catch (e) {
     console.error(e);
@@ -300,10 +407,16 @@ function abrirModalNuevo() {
   $("#nombrePreview").text("...");
   $("#porcentajeComision").val(comisionGlobal);
 
+  // Restaurar el estado visual de la marca por defecto
+  $("#marcaSelect").removeClass("d-none");
+  $("#marcaInput").addClass("d-none");
+
   $("#modalTitulo").html('<i class="fas fa-box-open me-2"></i>Nuevo Producto');
+  
+  adaptarFormularioPorCategoria();
+
   new bootstrap.Modal(document.getElementById("modalProducto")).show();
 }
-
 function editarProducto(id) {
   fetch(APIURL + "/" + id)
     .then((res) => res.json())
@@ -356,8 +469,8 @@ function editarProducto(id) {
 }
 
 
-function guardarProducto() {
-  // 1. Validar que el formulario cumpla con los campos requeridos (HTML)
+async function guardarProducto() {
+  // 1. Validar que el formulario cumpla con los requerimientos de HTML
   if (!$("#formProducto")[0].checkValidity()) {
     $("#formProducto")[0].reportValidity();
     return;
@@ -365,29 +478,67 @@ function guardarProducto() {
 
   const id = $("#productoId").val();
 
-  // 2. Extraer texto de forma segura (Evita el error 'trim of undefined')
-  const marca = ($("#marca").val() || "").trim();
+  // 2. Atrapar la Categoría Seleccionada (Soporta id="categoria" o id="tipo_id")
+  const catSelect = document.getElementById("categoria") || document.getElementById("tipo_id");
+  const textoCat = catSelect.options[catSelect.selectedIndex].text.toLowerCase();
+
+  // 3. Lógica Inteligente para la MARCA
+  const inputMarca = document.getElementById("marcaInput");
+  const selectMarca = document.getElementById("marcaSelect");
+  
+  let isNewMarca = false;
+  let marcaFinal = "";
+
+  // Si es armazón o contacto, revisamos si escribió una marca nueva o usó el select
+  if (textoCat.includes("armaz") || textoCat.includes("contacto")) {
+      isNewMarca = !inputMarca.classList.contains("d-none");
+      marcaFinal = isNewMarca ? inputMarca.value.trim() : selectMarca.value;
+  } else {
+      // Si son gotas o accesorios, siempre atrapamos el input de texto libre
+      marcaFinal = inputMarca.value.trim(); 
+  }
+
+  // Validar que la marca no esté vacía
+  if (!marcaFinal) {
+      Swal.fire("Atención", "La marca es obligatoria", "warning");
+      return;
+  }
+
+  // ⭐ 4. Guardar la marca nueva en la Base de Datos (Si aplica)
+  if (isNewMarca && (textoCat.includes("armaz") || textoCat.includes("contacto"))) {
+      try {
+          const catDestino = textoCat.includes("contacto") ? "MARCA_CONTACTO" : "MARCA_ARMAZON";
+          await fetch("/api/opciones-lente", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ categoria: catDestino, nombre: marcaFinal, precioBase: 0 })
+          });
+      } catch(e) {
+          console.error("Error al guardar la nueva marca", e);
+      }
+  }
+
+  // 5. Extraer el resto de textos de forma segura
   const modelo = ($("#modelo").val() || "").trim();
   const color = ($("#color").val() || "").trim();
   const talla = ($("#talla").val() || "").trim();
   
-  // Generamos el nombre inteligente
-  const nombre = `${marca} ${modelo} ${color ? "- " + color : ""}`.trim();
+  // Generamos el nombre de producto inteligente
+  const nombre = `${marcaFinal} ${modelo} ${color ? "- " + color : ""}`.trim();
 
-  // 3. Extraer datos financieros dependiendo del ROL
-  // Si el campo existe (es Admin), tomamos lo que escribió. Si no (es Recepción), mandamos 0.
+  // 6. Extraer datos financieros dependiendo del ROL (Admin vs Recepción)
   const costoVal = $("#precioCosto").length > 0 ? parseFloat($("#precioCosto").val()) : 0;
   const comisionVal = $("#porcentajeComision").length > 0 ? parseFloat($("#porcentajeComision").val()) : 0;
 
-  // 4. Construir el objeto exactamente como lo espera tu backend en Java
+  // 7. Construir el objeto exactamente como lo espera tu backend en Java
   const producto = {
     id: id ? parseInt(id) : null,
     nombre: nombre,
-    marca: marca,
+    marca: marcaFinal,
     modelo: modelo,
     color: color,
     talla: talla,
-    tipo: { id: parseInt($("#categoria").val()) },
+    tipo: { id: parseInt(catSelect.value) },
     subTipo: $("#subTipo").val() || null,
     precioVenta: parseFloat($("#precio").val()) || 0,
     stock: parseInt($("#stock").val()) || 0,
@@ -395,23 +546,24 @@ function guardarProducto() {
     porcentajeComision: comisionVal,
   };
 
-  // 5. Enviar a la base de datos (PostgreSQL)
-  fetch(APIURL + (id ? "/" + id : ""), {
-    method: id ? "PUT" : "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(producto),
-  })
-    .then((res) => {
+  // 8. Enviar a la base de datos usando async/await
+  try {
+      const res = await fetch(APIURL + (id ? "/" + id : ""), {
+        method: id ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(producto),
+      });
+      
       if (res.ok) {
-        // Cerrar modal, recargar tabla y mostrar éxito
         bootstrap.Modal.getInstance(document.getElementById("modalProducto")).hide();
         dataTable.ajax.reload(null, false);
         Swal.fire("Éxito", "Producto guardado correctamente", "success");
       } else {
         throw new Error("Error en el servidor al intentar guardar");
       }
-    })
-    .catch((err) => Swal.fire("Error", err.message, "error"));
+  } catch (err) {
+      Swal.fire("Error", err.message, "error");
+  }
 }
 
 function eliminarProducto(id) {
@@ -670,6 +822,45 @@ function calcularDesdePrecio() {
   } else {
     $("#porcentajeComision").val(0);
   }
+}
+
+// Abre un Swal pequeño para crear la marca al vuelo (Sin precios)
+function crearMarcaInSitu(modalId) {
+  Swal.fire({
+    title: "Nueva Marca",
+    input: "text",
+    inputLabel: "Nombre de la marca",
+    inputPlaceholder: "Ej. Ray-Ban, Oakley, Prada...",
+    showCancelButton: true,
+    confirmButtonText: '<i class="fas fa-save"></i> Guardar',
+    cancelButtonText: "Cancelar",
+    target: document.getElementById(modalId),
+    preConfirm: (nombre) => {
+      if (!nombre || nombre.trim() === "") {
+        Swal.showValidationMessage("El nombre es obligatorio");
+        return false;
+      }
+      // Lo guardamos como OpcionLente, pero categoría MARCA
+      return fetch("/api/opciones-lente", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          categoria: "MARCA",
+          nombre: nombre.trim(),
+          precioBase: 0,
+          precioCosto: 0,
+          porcentajeComision: 0
+        })
+      })
+      .then(res => res.json())
+      .catch(err => Swal.showValidationMessage("Error al guardar la marca"));
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      Swal.fire({ toast: true, position: "top-end", icon: "success", title: "Marca agregada", showConfirmButton: false, timer: 2000, target: document.getElementById(modalId) });
+      cargarMarcas(result.value.nombre); // Recarga y selecciona la nueva marca
+    }
+  });
 }
 
 // 3. Disparar los cálculos cuando el usuario escriba o cambie opciones

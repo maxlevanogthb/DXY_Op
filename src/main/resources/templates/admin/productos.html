@@ -112,18 +112,27 @@
                             </h6>
                             <div class="row g-3 mb-4">
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold small text-muted">Marca *</label>
+                                    <label class="form-label small fw-bold text-muted">Marca *</label>
                                     <div class="input-group">
-                                        <span class="input-group-text bg-body-tertiary"><i
-                                                class="fas fa-tag text-muted"></i></span>
-                                        <input type="text" id="marca" class="form-control" placeholder="Ej. Ray-Ban"
-                                            required>
+                                        <span class="input-group-text"><i class="fas fa-tags"></i></span>
+
+                                        <select id="marcaSelect" class="form-select">
+                                            <option value="">Seleccionar marca...</option>
+                                        </select>
+
+                                        <input type="text" id="marcaInput" class="form-control d-none"
+                                            placeholder="Escriba la marca...">
+
+                                        <button class="btn btn-outline-primary" type="button" id="btnToggleMarca"
+                                            title="Escribir nueva marca">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label fw-bold small text-muted">Modelo *</label>
+                                    <label class="form-label small fw-bold text-muted">Modelo *</label>
                                     <input type="text" id="modelo" class="form-control"
-                                        placeholder="Ej. Wayfarer RB2140" required>
+                                        placeholder="Ej. Wayfarer RB2140">
                                 </div>
                             </div>
 
@@ -146,23 +155,27 @@
                                     <label class="form-label small fw-bold text-muted">Precio Costo *</label>
                                     <div class="input-group">
                                         <span class="input-group-text">$</span>
-                                        <input type="number" id="precioCosto" class="form-control" step="0.01" min="0" required>
+                                        <input type="number" id="precioCosto" class="form-control" step="0.01" min="0"
+                                            required>
                                     </div>
                                 </div>
-                                
+
                                 <div class="col-md-4">
                                     <label class="form-label small fw-bold text-info">Comisión (%)</label>
                                     <div class="input-group">
-                                        <input type="number" id="porcentajeComision" class="form-control border-info" step="0.1" min="0">
+                                        <input type="number" id="porcentajeComision" class="form-control border-info"
+                                            step="0.1" min="0">
                                         <span class="input-group-text bg-info text-white border-info">%</span>
                                     </div>
                                 </div>
-                                
+
                                 <div class="col-md-4">
                                     <label class="form-label small fw-bold text-success">Precio Venta (Auto)</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-success text-white border-success">$</span>
-                                        <input type="number" id="precio" class="form-control border-success fw-bold text-success bg-body-tertiary" readonly required>
+                                        <input type="number" id="precio"
+                                            class="form-control border-success fw-bold text-success bg-body-tertiary"
+                                            readonly required>
                                     </div>
                                 </div>
                             </div>

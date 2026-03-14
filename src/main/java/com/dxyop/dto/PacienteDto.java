@@ -21,7 +21,7 @@ public class PacienteDto {
     private boolean esPacienteOficial; 
     
     // FECHAS
-    private LocalDate fechaNacimiento;
+    private Integer edad;
     private LocalDate fechaRegistro;
     
     // DATOS CLÍNICOS

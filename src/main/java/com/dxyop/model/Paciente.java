@@ -35,15 +35,15 @@ public class Paciente { // <-- CAMBIO 2: Nuevo nombre
     private boolean esPacienteOficial = false; // false = Cliente Potencial, true = Paciente Oficial
 
     // FECHAS 
-    @Column(name = "fecha_nacimiento")
-    private LocalDate fechaNacimiento;
+    @Column(name = "edad")
+    private Integer edad;
 
     // Lógica de edad (No es columna, es cálculo)
     public Integer getEdad() {
-        if (this.fechaNacimiento == null) {
+        if (this.edad == null) {
             return null;
         }
-        return Period.between(this.fechaNacimiento, LocalDate.now()).getYears();
+        return edad;
     }
 
     @Column(name = "fecha_registro", updatable = false)

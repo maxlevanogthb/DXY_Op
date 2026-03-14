@@ -50,7 +50,7 @@ public class PacienteController {
         dto.setTelefono(paciente.getTelefono());
         dto.setEmail(paciente.getEmail());
         dto.setFechaRegistro(paciente.getFechaRegistro());
-        dto.setFechaNacimiento(paciente.getFechaNacimiento());
+        dto.setEdad(paciente.getEdad());
         dto.setMotivo(paciente.getMotivo());
         dto.setGraduacionActual(paciente.getGraduacionActual());
         dto.setEsPacienteOficial(paciente.isEsPacienteOficial());
