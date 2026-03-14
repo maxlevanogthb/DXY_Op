@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
     input.addEventListener("change", calcularTotales);
   });
 
-// 4. Listeners de Micas (CORREGIDO: Suma en cualquier orden)
+  // 4. Listeners de Micas (CORREGIDO: Suma en cualquier orden)
   ["material", "tratamiento", "tinte"].forEach((id) => {
     const elId = document.getElementById(id);
     if (elId) {
@@ -58,10 +58,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const opt = e.target.options[e.target.selectedIndex];
         // Usamos || "0" para que si el atributo no existe, valga cero
         const precio = opt.getAttribute("data-precio") || "0";
-        
+
         const inputId = "precio" + id.charAt(0).toUpperCase() + id.slice(1);
         $("#" + inputId).val(precio);
-        
+
         // Ejecutamos la suma siempre
         calcularTotales();
       });
@@ -130,33 +130,36 @@ document.addEventListener("DOMContentLoaded", () => {
 // LÓGICA DE NUEVA CONSULTA (Hoja Clínica)
 // ==========================================
 function abrirModalConsulta(idPaciente, nombrePaciente) {
-  // 1. Limpiar todo rastro (Matar Fantasmas)
+  // 1. Limpiar rastro de texto
   $("#formConsulta")[0].reset();
   $("#consulta_id").val("");
   $("#consulta_clienteId").val(idPaciente);
   $("#tratamientoMedico").val("");
-  
-  // --- LIMPIEZA DE MICAS (NUEVO) ---
-  $("#precioMaterial").val("0");
-  $("#precioTratamiento").val("0");
-  $("#precioTinte").val("0");
-  const lblSubtotal = document.getElementById("displaySubtotalMicas");
-  if(lblSubtotal) lblSubtotal.textContent = "$0.00";
-  
-  // Limpiar selects (volver a "Seleccionar...")
-  $("#material, #tratamiento, #tinte").val("").trigger('change');
 
+  // 2. LIMPIEZA DE DINERO (Resetear Fantasmas)
+  $(
+    "#precioMaterial, #precioTratamiento, #precioTinte, #precioArmazon, #precioConsulta, #precioServicio",
+  ).val("0");
+
+  // Limpiar displays visuales
+  if (document.getElementById("displaySubtotalMicas"))
+    document.getElementById("displaySubtotalMicas").textContent = "$0.00";
+
+  // 3. Vaciar Carrito
   carritoVenta = [];
   dibujarCarrito();
-  
-  // Resto de tu lógica...
+
+  // 4. Resetear Interfaz
   $("#cajaEstadoEntrega").addClass("d-none");
   $("#checkArmazonPropio").prop("checked", false).trigger("change");
   $("#checkAplicarIva").prop("checked", false);
+
   const hoy = new Date().toISOString().split("T")[0];
   $("#fechaVisita").val(hoy);
+
   $("#optLente").prop("checked", true);
   actualizarInterfazCotizador("LENTE");
+
   $("#btnGuardarConsulta").removeClass("d-none");
   $("#accionesPostGuardado").addClass("d-none");
 
@@ -169,9 +172,12 @@ function abrirModalConsulta(idPaciente, nombrePaciente) {
 // A. CÁLCULOS (PREVIEW DEL ITEM ACTUAL)
 // ==========================================
 function calcularTotales() {
-  const pMaterial = parseFloat($("#precioMaterial").val()) || 0;
-  const pTratamiento = parseFloat($("#precioTratamiento").val()) || 0;
-  const pTinte = parseFloat($("#precioTinte").val()) || 0;
+  // Obtenemos valores o 0 si están vacíos
+  const pMaterial =
+    parseFloat(document.getElementById("precioMaterial")?.value) || 0;
+  const pTratamiento =
+    parseFloat(document.getElementById("precioTratamiento")?.value) || 0;
+  const pTinte = parseFloat(document.getElementById("precioTinte")?.value) || 0;
 
   const subtotalMicas = pMaterial + pTratamiento + pTinte;
 
@@ -1667,9 +1673,19 @@ function crearProductoRapidoInSitu() {
         })
           .then((res) => res.json())
           .then((nuevoProd) => {
-            // 1. EL FIX MÁGICO: Inyectar el nombre de la categoría a la fuerza si Java no lo trajo
+            // 1. OBTENER NOMBRE DE CATEGORÍA (Blindado)
             const catSelect = document.getElementById("swal-prod-cat");
-            const nomCat = catSelect.options[catSelect.selectedIndex].text;
+            const catInputNuevo = document.getElementById("swal-new-cat");
+            let nomCat = "Producto";
+
+            // Si el input de "Nueva Categoría" es visible, usamos ese texto. Si no, el del select.
+            if (catInputNuevo && !catInputNuevo.classList.contains("d-none")) {
+              nomCat = catInputNuevo.value.trim() || "Nuevo";
+            } else if (catSelect && catSelect.selectedIndex !== -1) {
+              nomCat = catSelect.options[catSelect.selectedIndex].text;
+            }
+
+            // Inyectamos el nombre para que la descripción se vea bien en el resumen
             if (!nuevoProd.tipo) nuevoProd.tipo = {};
             nuevoProd.tipo.nombre = nomCat;
 
@@ -1677,41 +1693,36 @@ function crearProductoRapidoInSitu() {
             catalogoGlobal.push(nuevoProd);
             filtrarMarcas();
 
-            // 3. EFECTO DOMINÓ: Seleccionar las listas automáticamente para que el producto sea visible
+            // 3. SELECCIÓN AUTOMÁTICA (El efecto dominó)
             setTimeout(() => {
               $("#busqMarca").val(nuevoProd.marca).trigger("change");
               $("#busqModelo").val(nuevoProd.modelo).trigger("change");
+
               const colorVal =
                 nuevoProd.color && nuevoProd.color.trim() !== ""
                   ? nuevoProd.color
                   : "N/A";
               $("#busqColor").val(colorVal).trigger("change");
               $("#busqTalla").val(nuevoProd.id).trigger("change");
-            }, 100);
+            }, 200);
 
-            // 4. TU LÓGICA ORIGINAL INTACTA: Notificación, textos y cálculos
+            // 4. ACTUALIZAR INTERFAZ FINAL
             Swal.fire({
               toast: true,
               position: "top-end",
               icon: "success",
-              title: "Producto creado",
+              title: "Producto creado y seleccionado",
               showConfirmButton: false,
-              timer: 1500,
+              timer: 2000,
+              target: document.getElementById("modalConsulta"), // Para que no se tape
             });
 
             $("#selectProducto").val(nuevoProd.id);
-
-            // Ahora nomTipo es 100% seguro porque lo inyectamos en el paso 1
-            const nomTipo = nuevoProd.tipo.nombre;
-            const desc = `${nomTipo} ${nuevoProd.marca} ${nuevoProd.modelo}`;
-
-            $("#armazonModelo").val(desc).addClass("bg-success text-white");
+            const descFinal = `${nomCat} ${nuevoProd.marca} ${nuevoProd.modelo}`;
+            $("#armazonModelo").val(descFinal);
             $("#precioArmazon").val(nuevoProd.precioVenta);
 
-            setTimeout(() => {
-              $("#armazonModelo").removeClass("bg-success text-white");
-            }, 1000);
-
+            // Forzamos el recalculo para limpiar los "fantasmas" de los 400 pesos
             calcularTotales();
           });
       }
