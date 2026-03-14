@@ -50,18 +50,20 @@ document.addEventListener("DOMContentLoaded", () => {
     input.addEventListener("change", calcularTotales);
   });
 
-  // 4. Listeners de Micas
+// 4. Listeners de Micas (CORREGIDO: Suma en cualquier orden)
   ["material", "tratamiento", "tinte"].forEach((id) => {
     const elId = document.getElementById(id);
     if (elId) {
       elId.addEventListener("change", function (e) {
         const opt = e.target.options[e.target.selectedIndex];
-        const precio = opt.getAttribute("data-precio");
-        if (precio) {
-          const inputId = "precio" + id.charAt(0).toUpperCase() + id.slice(1);
-          $("#" + inputId).val(precio);
-          calcularTotales();
-        }
+        // Usamos || "0" para que si el atributo no existe, valga cero
+        const precio = opt.getAttribute("data-precio") || "0";
+        
+        const inputId = "precio" + id.charAt(0).toUpperCase() + id.slice(1);
+        $("#" + inputId).val(precio);
+        
+        // Ejecutamos la suma siempre
+        calcularTotales();
       });
     }
   });
@@ -128,35 +130,36 @@ document.addEventListener("DOMContentLoaded", () => {
 // LÓGICA DE NUEVA CONSULTA (Hoja Clínica)
 // ==========================================
 function abrirModalConsulta(idPaciente, nombrePaciente) {
-  // 1. Limpiar todo rastro de consultas anteriores (Matar Fantasmas)
+  // 1. Limpiar todo rastro (Matar Fantasmas)
   $("#formConsulta")[0].reset();
   $("#consulta_id").val("");
   $("#consulta_clienteId").val(idPaciente);
-
-  // Matar fantasma de la Receta Médica
   $("#tratamientoMedico").val("");
+  
+  // --- LIMPIEZA DE MICAS (NUEVO) ---
+  $("#precioMaterial").val("0");
+  $("#precioTratamiento").val("0");
+  $("#precioTinte").val("0");
+  const lblSubtotal = document.getElementById("displaySubtotalMicas");
+  if(lblSubtotal) lblSubtotal.textContent = "$0.00";
+  
+  // Limpiar selects (volver a "Seleccionar...")
+  $("#material, #tratamiento, #tinte").val("").trigger('change');
 
-  // Matar fantasma del Carrito de Compras
   carritoVenta = [];
   dibujarCarrito();
-
+  
+  // Resto de tu lógica...
   $("#cajaEstadoEntrega").addClass("d-none");
   $("#checkArmazonPropio").prop("checked", false).trigger("change");
   $("#checkAplicarIva").prop("checked", false);
-
-  // 2. Valores por defecto (Fecha de hoy)
   const hoy = new Date().toISOString().split("T")[0];
   $("#fechaVisita").val(hoy);
-
-  // 3. Forzar inicio en el cotizador de Lentes
   $("#optLente").prop("checked", true);
   actualizarInterfazCotizador("LENTE");
+  $("#btnGuardarConsulta").removeClass("d-none");
+  $("#accionesPostGuardado").addClass("d-none");
 
-  // 4. UX: Botones
-  $("#btnGuardarConsulta").removeClass("d-none"); // Mostrar botón Guardar
-  $("#accionesPostGuardado").addClass("d-none"); // Ocultar botones Imprimir
-
-  // 5. Abrir Modal
   const modalEl = document.getElementById("modalConsulta");
   const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
   modal.show();
