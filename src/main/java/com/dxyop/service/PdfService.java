@@ -39,7 +39,7 @@ public class PdfService {
         return configRepo.findById(1L).orElse(new ConfiguracionGeneral());
     }
 
-    // --- MAGIA: LECTOR DE IMÁGENES BASE64 ---
+    // --- LECTOR DE IMÁGENES BASE64 ---
     private Image obtenerImagen(String base64, String defaultPath) {
         try {
             if (base64 != null && base64.startsWith("data:image")) {
@@ -142,7 +142,6 @@ public class PdfService {
             agregarFilaTotal(totalesTable, "Subtotal:", DF.format(subtotal), FONT_CUERPO);
             agregarFilaTotal(totalesTable, "IVA (" + porcentajeIva + "%):", "+ " + DF.format(montoIva), FONT_CUERPO);
             
-            // Línea separadora sutil para la suma
             PdfPCell lineaSuma = new PdfPCell(new Phrase(" "));
             lineaSuma.setBorder(Rectangle.BOTTOM);
             lineaSuma.setColspan(2);
@@ -184,7 +183,7 @@ public class PdfService {
         header.setWidthPercentage(100);
         header.setWidths(new float[] { 1, 3, 1 });
 
-        // LOGO IZQUIERDO (IPN)
+        // LOGO IZQUIERDO 
         Image logoIzq = obtenerImagen(config.getLogoRecetaIzq(), "images/logo_ipn.png");
         if(logoIzq != null) {
             logoIzq.scaleToFit(60, 60);
@@ -202,7 +201,7 @@ public class PdfService {
         cellDatos.setHorizontalAlignment(Element.ALIGN_CENTER);
         header.addCell(cellDatos);
 
-        // LOGO DERECHO (Optometría)
+        // LOGO DERECHO 
         Image logoDer = obtenerImagen(config.getLogoRecetaDer(), "images/logo_opto.png");
         if(logoDer != null) {
             logoDer.scaleToFit(60, 60);
@@ -273,7 +272,7 @@ public class PdfService {
             document.add(Chunk.NEWLINE);
         }
 
-        // 6. Pie de Página dinámico con Redes Sociales
+        // Pie de Página dinámico con Redes Sociales
         document.add(Chunk.NEWLINE);
         document.add(new LineSeparator());
         Paragraph footer = new Paragraph();
@@ -388,7 +387,7 @@ public class PdfService {
         document.add(Chunk.NEWLINE);
 
         PdfPTable tablaTotales = new PdfPTable(2);
-        tablaTotales.setWidthPercentage(45); // Un poco más ancha para que quepa bien el texto
+        tablaTotales.setWidthPercentage(45);
         tablaTotales.setHorizontalAlignment(Element.ALIGN_RIGHT);
 
         //DESGLOSE DE IVA DINÁMICO

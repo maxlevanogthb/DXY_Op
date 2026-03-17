@@ -2,7 +2,6 @@ package com.dxyop.service;
 
 import com.dxyop.dto.ConsultaDto;
 import com.dxyop.dto.DetalleVentaDto;
-//import com.dxyop.dto.PagoDto;
 import com.dxyop.model.Paciente;
 import com.dxyop.model.Consulta;
 import com.dxyop.model.DetalleVenta;
@@ -41,7 +40,6 @@ public class ConsultaService {
         return consultaRepository.findByPacienteIdOrderByFechaVisitaDesc(clienteId);
     }
 
-    // En la clase ConsultaService
     public List<Consulta> getHistorialCliente(Long clienteId) {
         return consultaRepository.findByPacienteIdOrderByFechaVisitaDesc(clienteId);
     }
@@ -68,7 +66,7 @@ public class ConsultaService {
     @Transactional
     public Consulta save(Long clienteId, Consulta consulta) {
 
-        // Vincular Cliente (Evitamos el NullPointer)
+        // Vincular Cliente
         Paciente cliente = clienteRepository.findById(clienteId)
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
         consulta.setPaciente(cliente);
@@ -89,7 +87,6 @@ public class ConsultaService {
                 }
 
                 // Congelar Precio y Datos (Snapshot)
-                // Si el usuario no escribió precio manual, usamos el del sistema
                 if (consulta.getPrecioArmazon() == null) {
                     consulta.setPrecioArmazon(productoDB.getPrecio().doubleValue());
                 }
@@ -123,12 +120,12 @@ public class ConsultaService {
             consulta.limpiarDetalles();
         }
         
-        // Relación con Cliente (Obligatorio)
+        // Relación con Cliente
         Paciente cliente = clienteRepository.findById(dto.getClienteId())
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
         consulta.setPaciente(cliente);
 
-        // Relación con Producto/Armazón (Opcional - Compatibilidad vieja)
+        // Relación con Producto/Armazón 
         if (dto.getProductoArmazonId() != null) {
             Producto producto = productoRepository.findById(dto.getProductoArmazonId()).orElse(null);
             consulta.setProductoArmazon(producto);
@@ -177,13 +174,11 @@ public class ConsultaService {
         consulta.setAlturaOblea(dto.getAlturaOblea());
         consulta.setDip(dto.getDip());
 
-        // --- DATOS FINANCIEROS NUEVOS (V2.0) ---
         consulta.setSubtotal(dto.getSubtotal());
         consulta.setAplicarIva(dto.getAplicarIva() != null ? dto.getAplicarIva() : false);
 
         boolean requiereLaboratorio = false;
         
-        // --- 4. EL NUEVO CARRITO DE COMPRAS (Detalles e Inventario) ---
         if (dto.getDetalles() != null && !dto.getDetalles().isEmpty()) {
             
             for (DetalleVentaDto detDto : dto.getDetalles()) {
@@ -229,7 +224,6 @@ public class ConsultaService {
             consulta.setPrecioArmazon(0.0);
         }
 
-        // --- ESTADO DE ENTREGA ---
         if (dto.getEstadoEntrega() != null) {
             consulta.setEstadoEntrega(dto.getEstadoEntrega());
         } else if (esNueva || consulta.getEstadoEntrega() == null) {
@@ -237,7 +231,6 @@ public class ConsultaService {
             else consulta.setEstadoEntrega("NO_APLICA"); 
         }
 
-        // --- 5. TOTALES Y PAGOS ---
         Double total = dto.getTotalPresupuesto() != null ? dto.getTotalPresupuesto() : 0.0;
         consulta.setTotalPresupuesto(total);
 
@@ -260,12 +253,9 @@ public class ConsultaService {
     }
 
     public void eliminarConsulta(Long id) {
-        // Buscamos si existe
         Consulta consulta = consultaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Consulta no encontrada"));
                 
-        // La borramos (Gracias al cascade = CascadeType.ALL que le pusimos antes a la entidad, 
-        // Postgres borrará automáticamente los detalles y pagos sin quejarse).
         consultaRepository.delete(consulta);
     }
 }

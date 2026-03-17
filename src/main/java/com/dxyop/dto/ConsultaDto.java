@@ -12,28 +12,27 @@ public class ConsultaDto {
     private List<DetalleVentaDto> detalles;
 
     private Long id;
-    private Long clienteId;         // ID del paciente
-    private Long productoArmazonId; // ID del producto del inventario (si seleccionó uno)
+    private Long clienteId;         
+    private Long productoArmazonId; 
 
     private LocalDate fechaVisita;
     private String razonVisita;
     private String antecedentesClinicos;
     private String diagnosticoOftalmologo;
-    // ---  RECETA MÉDICA PARA FARMACIA ---
     private String tratamientoMedico;
 
     // Agudeza Visual
-    private String avLejosOd; // Sin corrección
+    private String avLejosOd; 
     private String avLejosOi;
     private String avCercaOd;
     private String avCercaOi;
 
-    private String avActualLejosOd; // Actual
+    private String avActualLejosOd;
     private String avActualLejosOi;
     private String avActualCercaOd;
     private String avActualCercaOi;
 
-    private String avNuevaLejosOd; // Nueva (Faltaba este)
+    private String avNuevaLejosOd;
     private String avNuevaLejosOi;
     private String avNuevaCercaOd;
     private String avNuevaCercaOi;

@@ -103,33 +103,27 @@ body.sb-sidenav-toggled #sidebar-wrapper {
     transition: all 0.2s;
 }
 
-/* ===================================================
-   MODO OSCURO NATIVO - ADMIN DASHBOARD
-=================================================== */
+/*MODO OSCURO - ADMIN DASHBOARD*/
 [data-bs-theme="dark"] body {
     background-color: #121212 !important;
     color: #e0e0e0 !important;
 }
 
-/* Oscurecer la barra superior que estaba en "white" */
 [data-bs-theme="dark"] .navbar-custom {
     background-color: #1e1e1e !important;
     border-bottom: 1px solid #333 !important;
 }
 
-/* Oscurecer el contenedor de las tablas que estaba en "white" */
 [data-bs-theme="dark"] .table-responsive {
     background: #1e1e1e !important;
     box-shadow: 0 2px 10px rgba(0,0,0,0.5) !important;
 }
 
-/* Oscurecer los botones/filas al pasar el mouse (hover) */
 [data-bs-theme="dark"] .hover-shadow:hover {
     background-color: #2b2b2b !important;
     box-shadow: 0 .125rem .25rem rgba(0,0,0,.5) !important;
 }
 
-/* Ajustar el badge de graduación que era muy claro */
 [data-bs-theme="dark"] .badge-graduacion {
     background-color: rgba(var(--bs-primary-rgb), 0.15) !important;
     color: var(--bs-primary, #6ea8fe) !important;
@@ -139,24 +133,21 @@ body.sb-sidenav-toggled #sidebar-wrapper {
 [data-bs-theme="dark"] .form-control, 
 [data-bs-theme="dark"] .form-select, 
 [data-bs-theme="dark"] .input-group-text {
-    background-color: #2b2b2b; /* Gris medio, no negro total */
+    background-color: #2b2b2b; 
     border-color: #444; 
     color: #e0e0e0;
 }
 
 
-/* Textos descriptivos (Forzarlos a gris claro para que resalten) */
 [data-bs-theme="dark"] .text-secondary,
 [data-bs-theme="dark"] .text-black-50 {
     color: #adb5bd !important;
 }
 
-/* Cajas de texto descriptivas que no tengan clase específica */
 [data-bs-theme="dark"] .card-body p {
-    color: #d1d5db; /* Un gris muy legible */
+    color: #d1d5db;
 }
 
-/* Cabeceras claras (Amarillo y Celeste) necesitan texto negro (Excluyendo los badges transparentes) */
 [data-bs-theme="dark"] .bg-warning:not(.bg-opacity-10),
 [data-bs-theme="dark"] .bg-warning:not(.bg-opacity-10) *,
 [data-bs-theme="dark"] .bg-info:not(.bg-opacity-10),
@@ -164,15 +155,12 @@ body.sb-sidenav-toggled #sidebar-wrapper {
     color: #212529 !important;
 }
 
-/* Asegurar que los badges celestes (como la Graduación) brillen en la oscuridad */
 [data-bs-theme="dark"] .bg-info.bg-opacity-10 {
     color: #0dcaf0 !important; /* Cian brillante */
     border-color: rgba(13, 202, 240, 0.3) !important;
 }
 
-/* ===================================================
-   MODO OSCURO NATIVO - MÓDULO DE VENTAS
-   =================================================== */
+/* MODO OSCURO - MÓDULO DE VENTAS */
 
 /* Asegurar que las tarjetas de KPI tengan fondo oscuro y bordes discretos */
 [data-bs-theme="dark"] .card.border-start {
@@ -182,13 +170,13 @@ body.sb-sidenav-toggled #sidebar-wrapper {
 
 /* Modificar los fondos "opacity-10" para que resalten mejor en fondo oscuro */
 [data-bs-theme="dark"] .bg-success.bg-opacity-10 {
-    background-color: rgba(25, 135, 84, 0.2) !important; /* Verde un poco más fuerte */
+    background-color: rgba(25, 135, 84, 0.2) !important; 
 }
 [data-bs-theme="dark"] .bg-danger.bg-opacity-10 {
-    background-color: rgba(220, 53, 69, 0.2) !important; /* Rojo un poco más fuerte */
+    background-color: rgba(220, 53, 69, 0.2) !important; 
 }
 [data-bs-theme="dark"] .bg-warning.bg-opacity-10 {
-    background-color: rgba(255, 193, 7, 0.15) !important; /* Amarillo oscuro */
+    background-color: rgba(255, 193, 7, 0.15) !important; 
     color: #e0e0e0 !important; /* Forzar texto claro si estaba oscuro */
 }
 
@@ -199,7 +187,7 @@ body.sb-sidenav-toggled #sidebar-wrapper {
     --bs-table-border-color: #333;
 }
 [data-bs-theme="dark"] .table-striped > tbody > tr:nth-of-type(odd) > * {
-    --bs-table-accent-bg: rgba(255, 255, 255, 0.05); /* Rayas sutiles */
+    --bs-table-accent-bg: rgba(255, 255, 255, 0.05);
     color: #e0e0e0;
 }
 
@@ -224,16 +212,14 @@ body.sb-sidenav-toggled #sidebar-wrapper {
 [data-bs-theme="dark"] .nav-tabs .nav-link.active.text-danger { color: #dc3545 !important; }
 [data-bs-theme="dark"] .nav-tabs .nav-link.active.text-success { color: #198754 !important; }
 
-/* ===================================================
-   AJUSTES UNIVERSALES MODO OSCURO (Formularios y Alertas)
-   =================================================== */
+/*AJUSTES MODO OSCURO (Formularios y Alertas) */
 
 /* Ajustar los campos "readonly" (Ej. Precio Venta automático, Nombres previos) */
 [data-bs-theme="dark"] .form-control:disabled, 
 [data-bs-theme="dark"] .form-control[readonly] {
-    background-color: #1a1d20 !important; /* Gris súper oscuro, distinto al input normal */
+    background-color: #1a1d20 !important; 
     border-color: #333 !important;
-    color: #8c959f !important; /* Letra atenuada para que se note que no se puede editar */
+    color: #8c959f !important;
 }
 
 /* Arreglar el borde de las etiquetas anexas a los inputs (Ej. El símbolo de "$" o "%") */
@@ -241,31 +227,27 @@ body.sb-sidenav-toggled #sidebar-wrapper {
     border-color: #444 !important;
 }
 
-/* Modificar las Alertas Claras (Ej. "Nombre generado automáticamente") */
+/* Modificar las Alertas Claras */
 [data-bs-theme="dark"] .alert-light {
     background-color: #1a1d20 !important;
     border-color: #333 !important;
     color: #e0e0e0 !important;
 }
 
-/* Modificar el badge azul suave en detalles de productos */
 [data-bs-theme="dark"] .badge.bg-primary.bg-opacity-10 {
     background-color: rgba(var(--bs-primary-rgb), 0.2) !important;
     color: var(--bs-primary) !important;
     border: 1px solid rgba(var(--bs-primary-rgb), 0.4) !important;
 }
 
-/* ===================================================
-   EL MENÚ LATERAL (SIDEBAR) MODO OSCURO
-   =================================================== */
+/* EL MENÚ LATERAL (SIDEBAR) MODO OSCURO */
 
-/* 1. Fondo oscuro elegante para el menú lateral entero */
 [data-bs-theme="dark"] #sidebar-wrapper {
-    background-color: #121416 !important; /* Un gris casi negro, más profundo que el fondo */
+    background-color: #121416 !important; 
     border-right: 1px solid #333 !important;
 }
 
-/* 2. Textos de la cabecera (Óptica DXY) */
+/* 2. Textos de la cabecera */
 [data-bs-theme="dark"] #sidebar-wrapper .sidebar-heading {
     color: #f8f9fa !important;
     border-bottom: 1px solid #333 !important;
@@ -276,9 +258,9 @@ body.sb-sidenav-toggled #sidebar-wrapper {
     color: var(--bs-primary) !important; 
 }
 
-/* 3. Opciones del menú normales (Inactivas) */
+/* Opciones del menú normales (Inactivas) */
 [data-bs-theme="dark"] #sidebar-wrapper .list-group-item {
-    color: #adb5bd !important; /* Gris claro para que no canse la vista */
+    color: #adb5bd !important;
 }
 
 /* Efecto al pasar el mouse por encima de una opción */
@@ -287,18 +269,15 @@ body.sb-sidenav-toggled #sidebar-wrapper {
     color: #fff !important;
 }
 
-/* 4. Opción Seleccionada/Activa (¡Aquí ocurre la magia!) */
 [data-bs-theme="dark"] #sidebar-wrapper .list-group-item.active {
-    background-color: rgba(var(--bs-primary-rgb), 0.15) !important; /* Fondo translúcido de tu color */
-    color: var(--bs-primary) !important; /* Letras de tu color brillante */
-    border-left: 4px solid var(--bs-primary) !important; /* Línea izquierda indicadora */
+    background-color: rgba(var(--bs-primary-rgb), 0.15) !important; 
+    color: var(--bs-primary) !important; 
+    border-left: 4px solid var(--bs-primary) !important; 
 }
 
-/* ===================================================
-   SWEETALERT2 EN MODO OSCURO (Modales in situ)
-   =================================================== */
+/* SWEETALERT2 EN MODO OSCURO */
 [data-bs-theme="dark"] .swal2-popup {
-    background-color: #1e1e1e !important; /* Fondo oscuro tipo tarjeta */
+    background-color: #1e1e1e !important; 
     color: #e0e0e0 !important; /* Texto claro */
     border: 1px solid #333 !important;
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5) !important;
@@ -335,8 +314,6 @@ body.sb-sidenav-toggled #sidebar-wrapper {
 
 .cursor-pointer { cursor: pointer; }
 
-/* --- Arreglo de contraste para tabla de productos en modo oscuro --- */
-
 /* Asegura que el texto básico de las celdas sea claro en modo oscuro */
 [data-bs-theme="dark"] #tablaProductos tbody tr td {
     color: #f8f9fa; /* Usa el color claro por defecto de Bootstrap */
@@ -349,10 +326,10 @@ body.sb-sidenav-toggled #sidebar-wrapper {
 
 /* Mejora la visibilidad de los precios en la columna 4 */
 [data-bs-theme="dark"] #tablaProductos .text-end.align-middle.font-monospace .text-muted {
-    color: #ced4da !important; /* Aclara el precio de costo superior */
+    color: #ced4da !important; 
 }
 [data-bs-theme="dark"] #tablaProductos .text-end.align-middle.font-monospace .text-success {
-    color: #2fb344 !important; /* Usa un verde más brillante para el precio de venta */
+    color: #2fb344 !important;
 }
 
 /* Fuerza a que cualquier texto "oscuro" de la tabla se vuelva blanco en modo oscuro */
@@ -360,7 +337,6 @@ body.sb-sidenav-toggled #sidebar-wrapper {
     color: #f8f9fa !important;
 }
 
-/* --- Arreglo de capas para modales sobre barra de resumen --- */
 
 /* Asegura que el fondo oscuro del modal esté por encima de la barra */
 .modal-backdrop {
@@ -372,8 +348,7 @@ body.sb-sidenav-toggled #sidebar-wrapper {
     z-index: 1050 !important; /* Capa estándar de Bootstrap para el modal */
 }
 
-/* Este es el truco clave:
-   Le bajamos la prioridad visual a la barra de resumen 
+/* Le bajamos la prioridad visual a la barra de resumen 
    solo cuando un modal está abierto.
 */
 body.modal-open .sticky-summary,
@@ -381,7 +356,6 @@ body.modal-open .fixed-bottom-summary {
     z-index: 1030 !important; /* Ligeramente por debajo del modal-backdrop */
 }
 
-/* --- Castigo para los encabezados pegajosos de las tablas --- */
 body.modal-open th,
 body.modal-open thead,
 body.modal-open .sticky-top,
@@ -389,7 +363,7 @@ body.modal-open [style*="position: sticky"] {
     z-index: 0 !important; /* Obliga al encabezado a irse al fondo cuando hay un modal */
 }
 
-/* Por si acaso, elevamos el modal a una capa ridículamente alta */
+/* Elevado del modal a una capa alta */
 .modal {
     z-index: 9999 !important;
 }
@@ -397,21 +371,18 @@ body.modal-open [style*="position: sticky"] {
     z-index: 9998 !important;
 }
 
-/* --- Rescate de las Alertas (SweetAlert) --- */
 /* Asegura que los mensajes de éxito salgan por encima del modal 9999 */
 .swal2-container {
     z-index: 10000 !important;
 }
 
-/* --- Arreglo Global para tablas en Modo Oscuro --- */
-
 /* Asegura que el nombre del paciente y botones de acción se vean siempre */
 [data-bs-theme="dark"] .table tbody td, 
 [data-bs-theme="dark"] .table tbody td * {
-    color: #dee2e6 !important; /* Gris muy claro/blanco */
+    color: #dee2e6 !important;
 }
 
-/* El botón de estado de cuenta/pagos que era negro, ahora será gris acero */
+/* El botón de estado de cuenta/pagos será gris acero */
 [data-bs-theme="dark"] .btn-outline-dark {
     color: #f8f9fa !important;
     border-color: #f8f9fa !important;

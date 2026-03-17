@@ -18,7 +18,7 @@ public class EmailService {
     private ConfiguracionGeneralRepository configRepo;
 
     public void enviarCorreoConAdjunto(String para, String asunto, String cuerpoHtml, byte[] archivoPdf, String nombreArchivo) throws Exception {
-        // 1. Obtener credenciales de la BD
+        // Obtener credenciales de la BD
         ConfiguracionGeneral config = configRepo.findById(1L)
                 .orElseThrow(() -> new Exception("Falta configurar la información general."));
 
@@ -26,7 +26,7 @@ public class EmailService {
             throw new Exception("El correo o la contraseña no están configurados en el panel.");
         }
 
-        // 2. Configurar el Servidor SMTP dinámicamente (Usamos Gmail por defecto)
+        // Configurar el Servidor SMTP dinámicamente (Usamos Gmail por defecto)
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         mailSender.setHost("smtp.gmail.com");
         mailSender.setPort(587);
@@ -39,7 +39,7 @@ public class EmailService {
         props.put("mail.smtp.starttls.enable", "true");
         props.put("mail.debug", "false"); // Cambia a true si quieres ver logs en la consola
 
-        // 3. Crear el mensaje de correo
+        // Crear el mensaje de correo
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
@@ -50,10 +50,10 @@ public class EmailService {
         helper.setSubject(asunto);
         helper.setText(cuerpoHtml, true); // "true" indica que usamos diseño HTML
 
-        // 4. Adjuntar el archivo PDF
+        // Adjuntar el archivo PDF
         helper.addAttachment(nombreArchivo, new ByteArrayResource(archivoPdf));
 
-        // 5. ¡Enviar!
+        // Enviar
         mailSender.send(message);
 
         

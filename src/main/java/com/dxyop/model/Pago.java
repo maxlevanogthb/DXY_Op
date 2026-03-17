@@ -7,7 +7,6 @@ import lombok.ToString;
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
@@ -27,7 +26,7 @@ public class Pago {
     private String metodoPago;
 
     @Column(columnDefinition = "TEXT")
-    private String notas; // "Referencia #1234" o "Abono de mi tía"
+    private String notas; 
 
     @Column(name = "fecha_pago", nullable = false)
     private LocalDateTime fechaPago;
@@ -35,9 +34,9 @@ public class Pago {
     // RELACIÓN CON LA CONSULTA (Padre)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "consulta_id", nullable = false)
-    @JsonIgnore             // <--- ESCUDO PARA EL JSON
-    @ToString.Exclude       // <--- ESCUDO PARA LOMBOK
-    @EqualsAndHashCode.Exclude // <--- ESCUDO PARA LOMBOK
+    @JsonIgnore            
+    @ToString.Exclude       
+    @EqualsAndHashCode.Exclude 
     private Consulta consulta;
 
     @PrePersist

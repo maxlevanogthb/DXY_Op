@@ -16,7 +16,6 @@ public class OpcionLenteService {
         return repository.findByCategoriaOrderByPrecioBaseAsc(categoria);
     }
 
-    // Método para guardar (si haces un CRUD de configuración después)
     public OpcionLente save(OpcionLente opcion) {
         return repository.save(opcion);
     }
@@ -33,7 +32,6 @@ public class OpcionLenteService {
         return repository.findAll();
     }
 
-    // Guardar una lista completa de golpe (Optimizado para base de datos)
     public void saveAll(List<OpcionLente> opciones) {
         repository.saveAll(opciones);
     }

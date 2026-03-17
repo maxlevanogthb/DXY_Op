@@ -15,9 +15,6 @@ public class PacienteDto {
     private String telefono;
     private String email;
     
-    // ==========================================
-    // NUEVO: LA BANDERA DEL MINI-CRM
-    // ==========================================
     private boolean esPacienteOficial; 
     
     // FECHAS

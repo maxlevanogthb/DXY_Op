@@ -33,11 +33,10 @@ public class SecurityConfig {
                 .defaultSuccessUrl("/admin/citas", true)
                 .permitAll()
             )
-            // ----------------------------------------------
             .logout(logout -> logout
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/login?logout")
-                .deleteCookies("JSESSIONID") // Limpiar al salir
+                .deleteCookies("JSESSIONID") 
                 .permitAll()
             );
             

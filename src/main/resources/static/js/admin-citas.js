@@ -1,13 +1,8 @@
-// ==========================================
-// VARIABLES GLOBALES
-// ==========================================
+
 let calendario;
 const modalCita = new bootstrap.Modal(document.getElementById('citaModal'));
 let configGlobal = {};
 
-// ==========================================
-// INICIALIZACIÓN AL CARGAR LA PÁGINA
-// ==========================================
 document.addEventListener('DOMContentLoaded', function() {
     fetch('/api/configuracion')
         .then(res => res.json())
@@ -23,21 +18,20 @@ document.addEventListener('DOMContentLoaded', function() {
             cargarRazonesVisita();
         });
 
-    // --- NUEVO: INICIALIZAR FLATPICKR PARA SAFARI ---
+    // ---INICIALIZAR FLATPICKR PARA SAFARI ---
     flatpickr("#citaHoraInicio", {
         enableTime: true,
         noCalendar: true,
-        dateFormat: "H:i", // Formato 24 horas (ej. 14:30)
+        dateFormat: "H:i", 
         time_24hr: true
     });
 
     flatpickr("#citaHoraFin", {
         enableTime: true,
         noCalendar: true,
-        dateFormat: "H:i", // Formato 24 horas
+        dateFormat: "H:i", 
         time_24hr: true
     });
-    // -------------------------------------------------
 
     // Lógica para sumar la duración dinámica
     document.getElementById('citaHoraInicio').addEventListener('change', function() {
@@ -54,14 +48,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const inputFin = document.getElementById('citaHoraFin');
             inputFin.value = `${horasFormateadas}:${minutosFormateados}`;
             
-            // Y le avisamos a Flatpickr (si existe) que el valor cambió mágicamente
             if (inputFin._flatpickr) {
                 inputFin._flatpickr.setDate(`${horasFormateadas}:${minutosFormateados}`);
             }
         }
     });
 
-    // --- NUEVO: EVENTO DE AUTOCOMPLETADO DE PACIENTES ---
     inicializarBuscadorPacientes();
 });
 
@@ -112,7 +104,6 @@ function abrirModalNuevaCita(fechaClic = null) {
     document.getElementById('formCita').reset();
     document.getElementById('citaId').value = '';
     
-    // --- NUEVO: Limpiamos el ID oculto porque es una cita nueva ---
     document.getElementById('citaPacienteId').value = '';
     document.getElementById('sugerenciasPacientes').style.display = 'none';
 
@@ -137,7 +128,7 @@ function abrirModalEditarCita(evento) {
     document.getElementById('modalCitaTitulo').textContent = 'Editar Cita';
     
     document.getElementById('citaId').value = evento.id;
-    // --- NUEVO: Llenamos los datos reales del paciente ---
+
     document.getElementById('citaPacienteId').value = evento.extendedProps.pacienteId;
     document.getElementById('citaNombre').value = evento.extendedProps.nombrePaciente || '';
     document.getElementById('citaTelefono').value = evento.extendedProps.telefono || '';
@@ -185,16 +176,14 @@ function guardarCita() {
         return;
     }
 
-    // --- NUEVO: EL PAYLOAD PARA EL BACKEND ---
     const payload = {
         inicio: `${fecha}T${horaInicio}:00`,
         fin: `${fecha}T${horaFin}:00`,
         tipo: document.getElementById('citaTipo').value,
         estado: document.getElementById('citaEstado').value,
         notas: document.getElementById('citaNotas').value,
-        // Agrupamos al paciente como lo pide Java
         paciente: {
-            // Si hay ID, Spring Boot sabe que NO debe crear uno nuevo
+            // Si hay ID, Spring Boot sabe que no debe crear uno nuevo
             id: pacienteId ? parseInt(pacienteId) : null, 
             nombre: document.getElementById('citaNombre').value,
             telefono: document.getElementById('citaTelefono').value,
@@ -246,7 +235,7 @@ function eliminarCita(id) {
 }
 
 // ==========================================
-// NUEVO: BUSCADOR DE PACIENTES (A PRUEBA DE FALLOS CSS Y TEXTO)
+// NUEVO: BUSCADOR DE PACIENTES 
 // ==========================================
 function inicializarBuscadorPacientes() {
     let timerBusqueda;
@@ -287,7 +276,7 @@ function inicializarBuscadorPacientes() {
                         return nombreBD.includes(texto);
                     });
                     
-                    console.log(`Coincidencias encontradas: ${filtrados.length}`); // Chismoso 2.0
+                    console.log(`Coincidencias encontradas: ${filtrados.length}`); 
                     
                     divSugerencias.innerHTML = '';
                     
@@ -371,7 +360,7 @@ function actualizarTablaCitasDia(todosLosEventos) {
     tbody.innerHTML = '';
 
     // Filtramos solo las citas que son de HOY
-    const fechaHoyLocal = new Date().toLocaleDateString('sv-SE'); // Formato YYYY-MM-DD local
+    const fechaHoyLocal = new Date().toLocaleDateString('sv-SE'); 
     const citasHoy = todosLosEventos.filter(e => e.start.startsWith(fechaHoyLocal));
 
     // Ordenamos por hora de inicio
@@ -478,7 +467,7 @@ function cargarRazonesVisita(motivoASeleccionar = null) {
 
             selectTipo.innerHTML = opcionesHtml;
 
-            // ⭐ MAGIA UX: Si acabamos de crear un motivo, lo selecciona automáticamente
+            // Si acabamos de crear un motivo, lo selecciona automáticamente
             if (motivoASeleccionar) {
                 selectTipo.value = motivoASeleccionar;
             }
@@ -487,7 +476,7 @@ function cargarRazonesVisita(motivoASeleccionar = null) {
 }
 
 // ==========================================
-// CREACIÓN DE CATÁLOGO IN-SITU (VERSIÓN PRO)
+// CREACIÓN DE CATÁLOGO IN-SITU
 // ==========================================
 function crearMotivoInSitu() {
     Swal.fire({
@@ -519,7 +508,6 @@ function crearMotivoInSitu() {
         cancelButtonText: 'Cancelar',
         target: document.getElementById('citaModal'), // Evita conflicto con Bootstrap
         
-        // Así leemos los datos de nuestro HTML personalizado
         preConfirm: () => {
             const nombre = document.getElementById('swal-nombre').value.trim();
             const categoria = document.getElementById('swal-categoria').value;
@@ -554,7 +542,7 @@ function crearMotivoInSitu() {
                 Swal.fire({
                     toast: true, position: 'top-end', icon: 'success', 
                     title: 'Motivo agregado al catálogo', showConfirmButton: false, timer: 2000,
-                    target: document.getElementById('citaModal') // También lo anclamos por si acaso
+                    target: document.getElementById('citaModal') 
                 });
                 
                 // Recargamos el select y lo auto-seleccionamos

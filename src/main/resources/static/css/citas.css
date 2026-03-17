@@ -1,4 +1,4 @@
-/* 1. CONTENEDOR PRINCIPAL: Sombra más pronunciada */
+
 #calendario {
   background: #ffffff;
   padding: 20px;
@@ -6,31 +6,28 @@
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
 }
 
-/* 2. LÍNEAS DE LA CUADRÍCULA: Imposibles de ignorar */
 .fc-theme-standard td,
 .fc-theme-standard th,
 .fc-theme-standard .fc-scrollgrid {
-  border: 1px solid #adb5bd !important; /* Gris oscuro y sólido */
+  border: 1px solid #adb5bd !important;
 }
 
-/* 3. ENCABEZADOS DE LOS DÍAS: Azul fuerte tipo tabla corporativa */
 .fc-col-header-cell {
   background-color: #1e3a8a !important;
   border-color: #172554 !important;
 }
 .fc-col-header-cell-cushion {
-  color: #ffffff !important; /* Letras blancas para contraste total */
+  color: #ffffff !important;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
   padding: 12px !important;
 }
 
-/* 4. CABECERA DEL CALENDARIO: Título y botones */
 .fc-toolbar.fc-header-toolbar {
   margin-bottom: 1.5em !important;
   padding-bottom: 15px;
-  border-bottom: 3px solid #0d6efd; /* Una línea azul gruesa que enmarca el título */
+  border-bottom: 3px solid #0d6efd;
 }
 .fc-toolbar-title {
   color: #1e3a8a !important;
@@ -38,18 +35,16 @@
   text-transform: capitalize;
 }
 
-/* 5. EL DÍA DE "HOY": Resalte definitivo */
 .fc-day-today {
   background-color: #f8f9fa !important;
   box-shadow: inset 0 0 0 3px #1e3a8a !important;
 }
 .fc-daygrid-day-number {
   font-weight: bold;
-  color: #212529 !important; /* Números en casi negro */
+  color: #212529 !important;
   font-size: 1.1em;
 }
 
-/* 6. EVENTOS (LAS CITAS) */
 .fc-event {
   border: none !important;
   padding: 4px 6px !important;
@@ -63,23 +58,18 @@
   opacity: 0.9;
 }
 
-/* ===================================================
-   MODO OSCURO NATIVO - AGENDA CITAS
-=================================================== */
-/* Fondo general del calendario */
+/*  MODO OSCURO - AGENDA CITAS*/
 [data-bs-theme="dark"] #calendario {
   background: #1e1e1e !important;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* Líneas de la cuadrícula atenuadas */
 [data-bs-theme="dark"] .fc-theme-standard td,
 [data-bs-theme="dark"] .fc-theme-standard th,
 [data-bs-theme="dark"] .fc-theme-standard .fc-scrollgrid {
   border-color: #444 !important;
 }
 
-/* Cabeceras de los días (LUN, MAR...) en modo oscuro */
 [data-bs-theme="dark"] .fc-col-header-cell {
   background-color: #252525 !important;
   border-color: #333 !important;
@@ -88,7 +78,6 @@
   color: #e0e0e0 !important;
 }
 
-/* Título superior (Mes y Año) */
 [data-bs-theme="dark"] .fc-toolbar-title {
   color: #f8f9fa !important;
 }
@@ -96,7 +85,6 @@
   border-bottom: 3px solid var(--bs-primary, #0d6efd) !important;
 }
 
-/* Resalte del día de "HOY" */
 [data-bs-theme="dark"] .fc-day-today {
   background-color: rgba(255, 255, 255, 0.05) !important;
   box-shadow: inset 0 0 0 2px var(--bs-primary, #0d6efd) !important;
@@ -105,26 +93,20 @@
   color: #adb5bd !important;
 }
 
-/* ===================================================
-   MODO OSCURO NATIVO - AGENDA CITAS (FULLCALENDAR)
-   =================================================== */
+/* MODO OSCURO - AGENDA CITAS (FULLCALENDAR) */
 
-/* 1. Fondo general del calendario */
 [data-bs-theme="dark"] #calendario {
     background-color: var(--bs-body-bg) !important;
     box-shadow: 0 8px 25px rgba(0,0,0,0.5) !important;
 }
 
-/* 2. Líneas de la cuadrícula atenuadas */
 [data-bs-theme="dark"] .fc-theme-standard td, 
 [data-bs-theme="dark"] .fc-theme-standard th, 
 [data-bs-theme="dark"] .fc-theme-standard .fc-scrollgrid {
     border-color: var(--bs-border-color) !important;
 }
 
-/* 3. Cabeceras de los días (LUN, MAR...) en modo oscuro */
 [data-bs-theme="dark"] .fc-col-header-cell {
-    /* Usamos un gris muy oscuro en lugar del azul corporativo de día */
     background-color: #1a1d20 !important; 
     border-color: var(--bs-border-color) !important;
 }
@@ -132,15 +114,13 @@
     color: var(--bs-body-color) !important;
 }
 
-/* 4. Título superior (Mes y Año) */
 [data-bs-theme="dark"] .fc-toolbar-title {
-    color: var(--bs-primary) !important; /* Toma el color de tu tema! */
+    color: var(--bs-primary) !important;
 }
 [data-bs-theme="dark"] .fc-toolbar.fc-header-toolbar {
     border-bottom: 3px solid var(--bs-primary) !important;
 }
 
-/* 5. Resalte del día de "HOY" */
 [data-bs-theme="dark"] .fc-day-today {
     background-color: rgba(var(--bs-primary-rgb), 0.1) !important; 
     box-shadow: inset 0 0 0 2px var(--bs-primary) !important; 
@@ -149,7 +129,6 @@
     color: var(--bs-body-color) !important; 
 }
 
-/* 6. Quitar sombra dura de los eventos de noche */
 [data-bs-theme="dark"] .fc-event {
     box-shadow: none !important;
 }

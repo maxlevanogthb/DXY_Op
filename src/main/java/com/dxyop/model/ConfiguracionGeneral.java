@@ -15,44 +15,44 @@ public class ConfiguracionGeneral {
     @Id
     private Long id = 1L; // Forzamos a que siempre sea el registro 1
 
-    // 1. Datos del Negocio
+    // Datos del Negocio
     private String nombreComercial;
     private String rfc;
     private String telefonoPrincipal;
     private String direccionCorta;
 
-    // 2. Configuración de Agenda
+    // Configuración de Agenda
     private LocalTime horaApertura;
     private LocalTime horaCierre;
     private Integer duracionCitaMinutos;
 
-    // 3. Configuración de Ventas
+    // Configuración de Ventas
     private Double porcentajeImpuesto;
     private String mensajeTicket;
 
-    // 4. Redes Sociales
+    // Redes Sociales
     private String facebook;
     private String instagram;
 
-    // 5. Logos (Guardados en formato Base64)
+    // Logos (Guardados en formato Base64)
     @Column(columnDefinition = "TEXT")
-    private String logoSistema; // Para Login, Menú superior y Recibos
-
-    @Column(columnDefinition = "TEXT")
-    private String logoRecetaIzq; // Reemplaza al logo del IPN
+    private String logoSistema; 
 
     @Column(columnDefinition = "TEXT")
-    private String logoRecetaDer; // Reemplaza al logo de Optometría
+    private String logoRecetaIzq; 
 
-    // 6. Configuración de Correo (SMTP)
-    private String correoRemitente; // Ej. contacto@opticadxy.com o gmail
-    private String passwordCorreo;  // Contraseña de aplicación
+    @Column(columnDefinition = "TEXT")
+    private String logoRecetaDer; 
 
-    // 7. Textos de la Landing Page (Sitio Web)
-    private String textoHero; // Ej. "Cuidamos tu visión con experiencia..."
+    // Configuración de Correo (SMTP)
+    private String correoRemitente; 
+    private String passwordCorreo;  
+
+    // Textos de la Landing Page (Sitio Web)
+    private String textoHero; 
     
     @Column(columnDefinition = "TEXT")
-    private String subtituloHero; // <--- ESTO ES LO QUE FALTABA
+    private String subtituloHero;
     
     @Column(columnDefinition = "TEXT")
     private String descripcionNosotros;
@@ -60,6 +60,6 @@ public class ConfiguracionGeneral {
     private Double porcentajeComisionTarjeta;
 
     private String colorTema; // Guardará el código Hexadecimal (ej. "#0d6efd")
-    private Boolean modoOscuro; // Guardará true o false
+    private Boolean modoOscuro; 
     
 }

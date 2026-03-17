@@ -14,10 +14,10 @@ public class TipoProducto {
     private Long id;
     
     @Column(nullable = false, unique = true, length = 50)
-    private String nombre;  // "Armazón", "Mica Progresiva", "Tinte Gris"
+    private String nombre;  
     
     @Column(length = 100)
-    private String descripcion;  // "Armazones monturas"
+    private String descripcion;  
     
     @Column(length = 60)
     private String icono;  // "fas fa-glasses", "fas fa-palette"

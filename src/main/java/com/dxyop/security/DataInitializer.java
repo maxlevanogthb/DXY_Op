@@ -15,7 +15,6 @@ public class DataInitializer {
         return args -> {
             // Si la tabla de usuarios está vacía, creamos los usuarios base
             if (repository.count() == 0) {
-                // 1. El Super Administrador (El Doctor)
                 Usuario admin = new Usuario();
                 admin.setNombreCompleto("Doctor Administrador");
                 admin.setUsername("admin");
@@ -24,7 +23,7 @@ public class DataInitializer {
                 admin.setActivo(true);
                 repository.save(admin);
                 
-                // 2. La Recepcionista (Asistente)
+                // La Recepcionista (Asistente)
                 Usuario recepcion = new Usuario();
                 recepcion.setNombreCompleto("Asistente Recepción");
                 recepcion.setUsername("recepcion");

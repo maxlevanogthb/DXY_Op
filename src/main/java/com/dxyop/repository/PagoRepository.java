@@ -19,7 +19,7 @@ public interface PagoRepository extends JpaRepository<Pago, Long> {
     // Ver historial de pagos de una consulta específica
     List<Pago> findByConsultaIdOrderByFechaPagoDesc(Long consultaId);
     
-    // Sumar cuánto dinero entró hoy (Query nativo opcional para dashboard rápido)
+    // Sumar cuánto dinero entró hoy
     @Query("SELECT SUM(p.monto) FROM Pago p WHERE p.fechaPago BETWEEN :inicio AND :fin")
     Double sumarVentasPorRango(LocalDateTime inicio, LocalDateTime fin);
 

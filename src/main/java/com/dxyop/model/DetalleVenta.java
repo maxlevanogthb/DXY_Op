@@ -34,8 +34,6 @@ public class DetalleVenta {
     private Double precioUnitario;
     private Double subtotal; // cantidad * precioUnitario
 
-    // --- CAMPOS OPCIONALES (Solo si es un Lente) ---
-    // Guardamos esto aquí para saber qué llevó exactamente este item
     private String material;
     private String tratamiento;
     private String tinte;

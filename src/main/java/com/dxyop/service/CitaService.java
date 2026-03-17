@@ -23,7 +23,7 @@ public class CitaService {
     }
 
     public Cita save(Cita cita) {
-        // Aseguramos que siempre tenga una fecha de fin (si no la mandan, sumamos 30 mins)
+        // Aseguramos que siempre tenga una fecha de fin 
         if (cita.getFin() == null && cita.getInicio() != null) {
             cita.setFin(cita.getInicio().plusMinutes(30));
         }

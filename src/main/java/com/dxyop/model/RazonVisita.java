@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
-@Table(name = "razones_visita") // Crea una tabla nueva
+@Table(name = "razones_visita") 
 @Data
 public class RazonVisita {
     
@@ -13,13 +13,13 @@ public class RazonVisita {
     private Long id;
 
     @Column(nullable = false)
-    private String nombre; // Ej: "Primera Consulta"
+    private String nombre; 
 
-    private boolean activo = true; // Para borrado lógico
+    private boolean activo = true; 
 
     @Column(length = 50)
     private String categoria = "CONSULTA"; 
 
     @Column(length = 10)
-    private String colorHex = "#0d6efd"; // Azul por defecto
+    private String colorHex = "#0d6efd"; 
 }

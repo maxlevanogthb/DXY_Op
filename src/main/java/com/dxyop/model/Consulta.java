@@ -2,8 +2,8 @@ package com.dxyop.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.ToString; // <--- Nuevo
-import lombok.EqualsAndHashCode; // <--- Nuevo
+import lombok.ToString; 
+import lombok.EqualsAndHashCode; 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -20,15 +20,13 @@ public class Consulta {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // --- RELACIONES ---
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "paciente_id", nullable = false) // <--- ¡Corregido!
+    @JoinColumn(name = "paciente_id", nullable = false)
     @JsonIgnoreProperties({"consultas", "hibernateLazyInitializer", "handler"}) 
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Paciente paciente;
 
-    // --- DATOS GENERALES ---
     private LocalDate fechaVisita = LocalDate.now();
 
     @Column(name = "razon_visita")
@@ -40,23 +38,22 @@ public class Consulta {
     @Column(length = 1000)
     private String diagnosticoOftalmologo;
 
-    // ---  RECETA MÉDICA PARA FARMACIA ---
     @Column(columnDefinition = "TEXT")
     private String tratamientoMedico;
 
-    // --- 1. AGUDEZA VISUAL ---
+    // --- AGUDEZA VISUAL ---
     private String avLejosOd;
     private String avLejosOi;
     private String avCercaOd;
     private String avCercaOi;
 
-    // --- 2. AGUDEZA VISUAL ACTUAL ---
+    // --- AGUDEZA VISUAL ACTUAL ---
     private String avActualLejosOd;
     private String avActualLejosOi;
     private String avActualCercaOd;
     private String avActualCercaOi;
 
-    // --- 3. AGUDEZA VISUAL NUEVA ---
+    // --- AGUDEZA VISUAL NUEVA ---
     private String avNuevaLejosOd;
     private String avNuevaLejosOi;
     private String avNuevaCercaOd;
@@ -99,9 +96,9 @@ public class Consulta {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "producto_armazon_id")
-    @JsonIgnoreProperties({"consultas", "hibernateLazyInitializer", "handler"}) // <--- BLINDAJE APLICADO AQUÍ TAMBIÉN
-    @ToString.Exclude          // <--- IMPORTANTE
-    @EqualsAndHashCode.Exclude // <--- IMPORTANTE
+    @JsonIgnoreProperties({"consultas", "hibernateLazyInitializer", "handler"})
+    @ToString.Exclude        
+    @EqualsAndHashCode.Exclude
     private Producto productoArmazon;
 
     private String armazonModelo;
@@ -121,7 +118,6 @@ public class Consulta {
     @Column(updatable = false)
     private LocalDateTime fechaRegistro;
 
-    // --- ESTADO DE ENTREGA (Laboratorio / Proveedor) ---
     @Column(length = 20)
     private String estadoEntrega;
 
@@ -130,16 +126,15 @@ public class Consulta {
         this.fechaRegistro = LocalDateTime.now();
     }
 
-// --- NUEVA RELACIÓN DE PAGOS ---
     @OneToMany(mappedBy = "consulta", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnoreProperties("consulta") // <--- ESTE ES EL BLINDAJE EXTRA
+    @JsonIgnoreProperties("consulta") 
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private List<Pago> pagos = new ArrayList<>();
 
     @OneToMany(mappedBy = "consulta", cascade = CascadeType.ALL, orphanRemoval = true)
-    @ToString.Exclude // <--- NUEVO BLINDAJE
-    @EqualsAndHashCode.Exclude // <--- NUEVO BLINDAJE
+    @ToString.Exclude 
+    @EqualsAndHashCode.Exclude
     private List<DetalleVenta> detalles = new ArrayList<>();
 
     // Método de utilidad para agregar items y mantener la relación sincronizada

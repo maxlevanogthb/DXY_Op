@@ -24,21 +24,17 @@ function cargarTabla(categoria) {
     document.getElementById("categoriaActual").value = categoria;
     cancelarEdicionOpcion(); // Limpia y auto-asigna la comisión global
 
-    // --- MAGIA VISUAL INTELIGENTE ---
     const camposPrecio = document.querySelectorAll('.campo-precio');
     const colNombre = document.getElementById('colNombre');
     const colBotones = document.getElementById('colBotones');
     const thPrecios = document.getElementById('thPrecios');
     const inputNombre = document.getElementById('nuevoNombre');
 
-    // Comprobamos si la categoría actual es una de las que "No lleva precio"
     const sinPrecios = categoria === 'MARCA_ARMAZON' || categoria === 'MARCA_CONTACTO' || categoria === 'TIPO_ARMAZON';
 
     if (sinPrecios) {
-        // Ocultar columnas de precio
         camposPrecio.forEach(el => el.classList.add('d-none'));
         if (thPrecios) thPrecios.classList.add('d-none');
-        // Expandir Nombre y Botones
         if (colNombre) colNombre.className = 'col-md-9';
         if (colBotones) colBotones.className = 'col-md-3 d-flex gap-2';
         
@@ -54,7 +50,6 @@ function cargarTabla(categoria) {
         if (colBotones) colBotones.className = 'col-md-3 d-flex gap-2';
         inputNombre.placeholder = "Ej. Hi-Index 1.67";
     }
-    // ------------------------------------
 
     const tbody = document.getElementById("tablaCuerpo");
     tbody.innerHTML = '<tr><td colspan="3" class="text-center">Cargando...</td></tr>';
@@ -126,7 +121,7 @@ function guardarOpcion() {
 
     let costoVal = 0, comisionVal = 0, ventaVal = 0;
     
-    // Si la categoría SI lleva precios, validamos que los escriban
+    // Si la categoría si lleva precios, validamos que los escriban
     if (!sinPrecios) {
         costoVal = parseFloat(document.getElementById("nuevoCosto").value) || 0;
         comisionVal = parseFloat(document.getElementById("nuevoComision").value) || 0;

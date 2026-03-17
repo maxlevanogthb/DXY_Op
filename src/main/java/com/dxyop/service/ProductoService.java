@@ -22,17 +22,14 @@ public class ProductoService {
     }
 
     public List<Producto> getByTipo(String tipoNombre) {
-        // Busca productos donde el TipoProducto.nombre coincida
         return repository.findByTipoNombreAndActivoTrue(tipoNombre);
     }
 
     public Producto save(Producto producto) {
-        // Validaciones extra si fueran necesarias
         return repository.save(producto);
     }
 
     public void delete(Long id) {
-        // Soft delete (desactivar en lugar de borrar)
         repository.findById(id).ifPresent(p -> {
             p.setActivo(false);
             repository.save(p);

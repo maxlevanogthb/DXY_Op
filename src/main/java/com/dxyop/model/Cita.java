@@ -13,11 +13,9 @@ public class Cita {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // --- LA RELACIÓN CORREGIDA ---
-    // Ahora TODA cita tendrá un paciente (ya sea oficial o prospecto/lead)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "paciente_id", nullable = false) // Cambiado a paciente_id y obligatorio
-    private Paciente paciente; // Cambiado a paciente
+    @JoinColumn(name = "paciente_id", nullable = false) 
+    private Paciente paciente; 
 
     // Fechas y bloque de tiempo
     @Column(nullable = false)
@@ -30,10 +28,9 @@ public class Cita {
     @Column(nullable = false, length = 50)
     private String tipo;
 
-    // PENDIENTE, CONFIRMADA, ATENDIDA, CANCELADA, FALTA
     @Column(nullable = false, length = 20)
     private String estado = "PENDIENTE";
 
     @Column(columnDefinition = "TEXT")
-    private String notas; // "El paciente dice que se le rompió la patita del armazón"
+    private String notas; 
 }

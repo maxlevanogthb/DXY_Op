@@ -33,8 +33,6 @@ public class PagoService {
         Double aCuentaActual = consulta.getACuenta() != null ? consulta.getACuenta() : 0.0;
         long pagosEnHistorial = pagoRepository.countByConsultaId(consulta.getId());
 
-        // Si la consulta dice que tiene dinero (aCuenta > 0) PERO la tabla de pagos está vacía...
-        // Significa que es un registro antiguo que debemos "rescatar" antes de sumar el nuevo pago.
         if (pagosEnHistorial == 0 && aCuentaActual > 0) {
             System.out.println("MIGRANDO SALDO HISTÓRICO: $" + aCuentaActual);
             
@@ -49,9 +47,8 @@ public class PagoService {
             
             pagoRepository.saveAndFlush(pagoLegacy); 
         }
-        // =========================================================================
 
-        // Registramos el NUEVO pago (El que viene del formulario o del DTO)
+        // Registramos el NUEVO pago 
         Pago nuevoPago = new Pago();
         nuevoPago.setConsulta(consulta);
         nuevoPago.setMonto(dto.getMonto());
@@ -70,7 +67,7 @@ public class PagoService {
 
 
     private void actualizarEstadoFinanciero(Consulta consulta) {
-        // Sumamos TODO lo que hay en la tabla de pagos para esta consulta
+        // Sumamos lo que hay en la tabla de pagos para esta consulta
         List<Pago> historial = pagoRepository.findByConsultaIdOrderByFechaPagoDesc(consulta.getId());
         
         double totalPagadoReal = historial.stream()

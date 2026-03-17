@@ -13,26 +13,16 @@ import com.dxyop.model.Consulta;
 @Repository
 public interface ConsultaRepository extends JpaRepository<Consulta, Long> {
 
-    // ==========================================
-    // 1. CORREGIDO: De ClienteId a PacienteId
-    // ==========================================
+
     List<Consulta> findByPacienteIdOrderByFechaVisitaDesc(Long pacienteId);
 
-    // 2. REPORTE DE VENTAS POR FECHA
     List<Consulta> findByFechaVisitaBetween(LocalDate fechaInicio, LocalDate fechaFin);
 
-    // 3. COBRANZA / DEUDORES
     List<Consulta> findByRestanteGreaterThan(Double monto);
 
-    // ==========================================
-    // 4. CORREGIDO: attributePaths de "cliente" a "paciente"
-    // ==========================================
     @EntityGraph(attributePaths = {"paciente", "pagos"})
     List<Consulta> findByRestanteGreaterThanOrderByFechaVisitaDesc(Double montoMinimo);
 
-    // ==========================================
-    // 5. CORREGIDO: attributePaths de "cliente" a "paciente"
-    // ==========================================
     @EntityGraph(attributePaths = {"paciente", "pagos"})
     List<Consulta> findByRestanteLessThanEqualOrderByFechaVisitaDesc(Double montoMinimo);
 

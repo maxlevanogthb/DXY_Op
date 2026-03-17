@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 public class PagoDto {
     private Long consultaId;
     private Double monto;
-    private String metodoPago; // "Efectivo", "Tarjeta", etc.
+    private String metodoPago; 
     private String notas;
-    private LocalDateTime fechaPago; // Opcional, si es fecha retroactiva
+    private LocalDateTime fechaPago; 
 }

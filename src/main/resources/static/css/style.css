@@ -1,10 +1,7 @@
-    /* --- VARIABLES Y RESET --- */
     :root {
         --primary-color: #0056b3;
-        /* Azul profesional */
         --primary-dark: #004494;
         --accent-color: #28a745;
-        /* Verde salud/éxito */
         --text-color: #333333;
         --light-bg: #f4f8fb;
         --white: #ffffff;
@@ -403,7 +400,6 @@
         box-shadow: var(--shadow);
     }
 
-    /* --- TESTIMONIOS --- */
     .testimonials-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -539,7 +535,6 @@
         font-size: 0.9rem;
     }
 
-    /* --- RESPONSIVE MEDIA QUERIES --- */
     @media (max-width: 768px) {
         .hero-text h1 {
             font-size: 2.2rem;
@@ -547,10 +542,8 @@
 
         .nav-links {
             display: none;
-            /* Menú hamburguesa simple no implementado en JS puro para mantener simpleza, se puede añadir */
         }
 
-        /* Menú simple para móvil: mostrar verticalmente */
         .nav-links {
             position: absolute;
             top: 80px;
@@ -580,7 +573,6 @@
         }
     }
 
-    /* Estilos para el mensaje de éxito */
     .alert-success {
         background-color: #d4edda;
         color: #155724;

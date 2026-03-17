@@ -10,11 +10,7 @@ import java.util.List;
 @Repository
 public interface CitaRepository extends JpaRepository<Cita, Long> {
 
-    // Otros métodos que ya tenías...
     List<Cita> findByInicioBetween(LocalDateTime start, LocalDateTime end);
 
-    // ==========================================
-    // ¡CORREGIDO! Cambiamos ClienteId por PacienteId
-    // ==========================================
     List<Cita> findByPacienteIdOrderByInicioDesc(Long id); 
 }

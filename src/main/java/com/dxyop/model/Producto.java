@@ -26,14 +26,11 @@ public class Producto {
 
     @ManyToOne(fetch = FetchType.LAZY) 
     @JoinColumn(name = "tipo_id", nullable = false)
-    // 1. "productos": Asumiendo que TipoProducto tiene una lista de productos, la ignoramos.
-    // 2. "hibernateLazyInitializer", "handler": Evita errores al usar FetchType.LAZY
     @JsonIgnoreProperties({"productos", "hibernateLazyInitializer", "handler"}) 
-    @ToString.Exclude          // <--- Protege tus logs
-    @EqualsAndHashCode.Exclude // <--- Protege comparaciones
+    @ToString.Exclude          
+    @EqualsAndHashCode.Exclude
     private TipoProducto tipo;
 
-    // ---------------------------
 
     @Column(name = "sub_tipo")
     private String subTipo;
@@ -55,10 +52,10 @@ public class Producto {
 
     private boolean activo = true;
 
-    @Column(updatable = false) // Buena práctica: que no cambie al editar
+    @Column(updatable = false)
     private LocalDateTime fechaRegistro;
 
-    @PrePersist // Asegura que la fecha se ponga sola antes de guardar
+    @PrePersist 
     protected void onCreate() {
         this.fechaRegistro = LocalDateTime.now();
     }

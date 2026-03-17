@@ -21,10 +21,10 @@ public class OpcionLente {
     private String categoria;
 
     @Column(nullable = false)
-    private String nombre; // Ej: "Policarbonato", "Blue Ray"
+    private String nombre; 
 
     @Column(name = "precio_base")
-    private BigDecimal precioBase; // El precio sugerido
+    private BigDecimal precioBase; 
 
     @Column(name = "precio_costo")
     private Double precioCosto = 0.0;
@@ -43,7 +43,7 @@ public class OpcionLente {
         this.precioBase = precioBase;
     }
 
-    // --- Getters y Setters ---
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
