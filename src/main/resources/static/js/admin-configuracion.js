@@ -84,13 +84,12 @@ function inicializarTablaTipos() {
     language: {
       url: "https://cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json",
     },
-    pageLength: 10, // Ajustado a 10 por defecto, más común
+    pageLength: 10, // Ajustado a 10 por defecto
     responsive: true,
-    dom: "rtip", // Oculta el buscador nativo de DataTables para usar el tuyo personalizado
+    dom: "rtip", // Oculta el buscador nativo de DataTables
   });
 }
 
-// La nueva función es mucho más simple porque el select siempre tiene un valor
 function previewIcono() {
   const icono = $("#tipoIcono").val();
   $("#iconoPreview").html(`<i class="${icono} fa-2x text-primary"></i>`);
@@ -104,11 +103,10 @@ function abrirModalTipo(editar = false, tipoData = null) {
     return;
   }
 
-  form.reset(); // Limpia inputs
-  $("#tipoId").val(""); // Limpia ID oculto
+  form.reset(); 
+  $("#tipoId").val(""); 
 
   if (editar && tipoData) {
-    // Llenar datos para edición
     $("#tipoId").val(tipoData.id);
     $("#tipoNombre").val(tipoData.nombre);
     $("#tipoDescripcion").val(tipoData.descripcion || "");
@@ -139,11 +137,11 @@ function duplicarTipo(id) {
     .then((tipo) => {
       const duplicado = {
         ...tipo,
-        id: null, // Importante: ID nulo para crear uno nuevo
+        id: null, // ID nulo para crear uno nuevo
         nombre: `${tipo.nombre} (Copia)`,
       };
       abrirModalTipo(true, duplicado);
-      // Pequeño truco UX: enfocar el nombre para que el usuario lo cambie rápido
+      // enfocar el nombre para que el usuario lo cambie rápido
       setTimeout(() => $("#tipoNombre").focus().select(), 500);
     })
     .catch(() =>
@@ -158,19 +156,18 @@ function duplicarTipo(id) {
 function guardarTipo() {
   const form = document.getElementById("formTipo");
 
-  // Validación nativa HTML5
   if (!form.checkValidity()) {
     form.reportValidity();
     return;
   }
 
-  // MEJORA 2: Feedback visual y bloqueo de botón (Anti-spam click)
+  //Feedback visual y bloqueo de botón (Anti-spam click)
   const btnGuardar = document.querySelector(
     "#modalTipo .modal-footer .btn-success",
   );
   const textoOriginal = btnGuardar.innerText;
   btnGuardar.disabled = true;
-  btnGuardar.innerText = "Guardando..."; // O poner un spinner <i class="fas fa-spinner fa-spin"></i>
+  btnGuardar.innerText = "Guardando..."; 
 
   const id = $("#tipoId").val();
   const tipoData = {
@@ -201,7 +198,7 @@ function guardarTipo() {
           showConfirmButton: false,
         });
       } else {
-        // MEJORA 3: Intentar leer mensaje de error del backend
+        // Intentar leer mensaje de error del backend
         const errorText = await res.text();
         throw new Error(errorText || `Error HTTP ${res.status}`);
       }
@@ -211,7 +208,7 @@ function guardarTipo() {
       Swal.fire("Error", "No se pudo guardar: " + err.message, "error");
     })
     .finally(() => {
-      // Restaurar botón siempre, pase lo que pase
+      // Restaurar botón siempre
       btnGuardar.disabled = false;
       btnGuardar.innerText = textoOriginal;
     });
@@ -244,7 +241,7 @@ function eliminarTipo(id) {
 }
 
 // ==========================================
-// FUNCIONES: RAZONES DE VISITA (ACTUALIZADAS)
+// RAZONES DE VISITA
 // ==========================================
 
 function cargarTablaRazones() {
@@ -256,7 +253,7 @@ function cargarTablaRazones() {
       tbody.innerHTML = "";
 
       data.forEach((r) => {
-        // Lógica para mostrar insignias bonitas según la categoría
+        // Lógica para mostrar insignias
         const badgeCat = r.categoria === "CONSULTA"
             ? '<span class="badge bg-primary">Consulta</span>'
             : '<span class="badge bg-secondary">Cita</span>';
@@ -286,7 +283,7 @@ function cargarTablaRazones() {
 }
 
 function abrirModalRazon() {
-  // Limpiamos todos los campos antes de abrir (Modo Crear)
+  // Limpiamos todos los campos antes de abrir 
   if(document.getElementById("razonId")) document.getElementById("razonId").value = "";
   document.getElementById("razonNombre").value = "";
   document.getElementById("razonCategoria").value = "CONSULTA"; 
@@ -295,7 +292,6 @@ function abrirModalRazon() {
   if (modalRazonInstance) modalRazonInstance.show();
 }
 
-// ⭐ NUEVA FUNCIÓN: CARGAR DATOS EN EL MODAL ⭐
 function editarRazon(id) {
     fetch(`${API_RAZONES}/${id}`)
         .then(res => {
@@ -380,7 +376,7 @@ function eliminarRazon(id) {
 }
 
 // ==========================================
-// FUNCIONES: GESTIÓN DE USUARIOS
+// GESTIÓN DE USUARIOS
 // ==========================================
 
 function cargarTablaUsuarios() {
@@ -468,7 +464,7 @@ function eliminarUsuario(id) {
 }
 
 // ==========================================
-// FUNCIONES: CONFIGURACIÓN GENERAL
+// CONFIGURACIÓN GENERAL
 // ==========================================
 
 // Variables para almacenar las imágenes convertidas
@@ -482,7 +478,7 @@ function aplicarReglasApariencia() {
     
     if (!selectTema || !switchOscuro) return;
 
-    // 1. Si elige Gris Ejecutivo (#212529) -> Apagar y bloquear Modo Oscuro
+    // Si elige Gris Ejecutivo (#212529) -> Apagar y bloquear Modo Oscuro
     if (selectTema.value === '#212529') {
         switchOscuro.checked = false;
         switchOscuro.disabled = true;
@@ -490,11 +486,10 @@ function aplicarReglasApariencia() {
         switchOscuro.disabled = false;
     }
 
-    // 2. Si activa Modo Oscuro -> Bloquear la opción Gris Ejecutivo
+    // Si activa Modo Oscuro -> Bloquear la opción Gris Ejecutivo
     for (let i = 0; i < selectTema.options.length; i++) {
         if (selectTema.options[i].value === '#212529') {
             selectTema.options[i].disabled = switchOscuro.checked;
-            // Si estaba en gris y forzaron modo oscuro, cambiarlo a Azul
             if (switchOscuro.checked && selectTema.value === '#212529') {
                 selectTema.value = '#0d6efd'; 
             }
@@ -515,7 +510,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
-// Función mágica para leer la imagen y convertirla a texto Base64
+// leer la imagen y convertirla a texto Base64
 function convertirImagenABase64(event, previewId, variableGlobal) {
     const file = event.target.files[0];
     if (file) {
@@ -670,7 +665,7 @@ function togglePassword(inputId) {
 }
 
 // ====================================================================
-// FUNCIÓN DEL BOTÓN MÁGICO (ACTUALIZACIÓN MASIVA V2.0)
+// ACTUALIZACIÓN MASIVA V2.0
 // ====================================================================
 function ejecutarActualizacionMasiva() {
     Swal.fire({

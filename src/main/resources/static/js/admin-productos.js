@@ -441,14 +441,14 @@ async function editarProducto(id) {
         const res = await fetch(`${APIURL}/${id}`);
         const prod = await res.json();
 
-        // 1. Llenar campos básicos
+        // Llenar campos básicos
         $("#productoId").val(prod.id);
         $("#modelo").val(prod.modelo);
         $("#color").val(prod.color);
         $("#talla").val(prod.talla);
         $("#stock").val(prod.stock);
 
-        // 2. Lógica de Precios y Migración
+        // Lógica de Precios y Migración
         let costo = prod.precioCosto;
         let comision = prod.porcentajeComision;
         let ventaOriginal = prod.precioVenta || 0;
@@ -473,7 +473,7 @@ async function editarProducto(id) {
         // Adaptamos el formulario (Select vs Input) antes de seguir
         await adaptarFormularioPorCategoria();
 
-        // 4. Lógica Inteligente de la Marca
+        // Lógica Inteligente de la Marca
         const selectM = document.getElementById("marcaSelect");
         const inputM = document.getElementById("marcaInput");
         const btnM = document.getElementById("btnToggleMarca");
@@ -495,7 +495,7 @@ async function editarProducto(id) {
             }
         }
 
-        // 5. Subtipo (Estilo de Armazón)
+        // Subtipo (Estilo de Armazón)
         verificarSubtipo();
         if (prod.subTipo) {
             $("#subTipo").val(prod.subTipo);
@@ -505,7 +505,7 @@ async function editarProducto(id) {
         const opcionEstilo = $("#subTipo").find("option:selected");
         extraEstiloActual = parseFloat(opcionEstilo.data("extra")) || 0;
 
-        // 6. Finalizar UI
+        // Finalizar UI
         actualizarPreview();
         $("#modalTitulo").html('<i class="fas fa-edit me-2"></i>Editar Producto');
         
@@ -520,7 +520,7 @@ async function editarProducto(id) {
 
 
 async function guardarProducto() {
-  // 1. Validar que el formulario cumpla con los requerimientos de HTML
+  // Validar que el formulario cumpla con los requerimientos de HTML
   if (!$("#formProducto")[0].checkValidity()) {
     $("#formProducto")[0].reportValidity();
     return;
@@ -528,11 +528,11 @@ async function guardarProducto() {
 
   const id = $("#productoId").val();
 
-  // 2. Atrapar la Categoría Seleccionada (Soporta id="categoria" o id="tipo_id")
+  // Atrapar la Categoría Seleccionada (Soporta id="categoria" o id="tipo_id")
   const catSelect = document.getElementById("categoria") || document.getElementById("tipo_id");
   const textoCat = catSelect.options[catSelect.selectedIndex].text.toLowerCase();
 
-  // 3. Lógica Inteligente para la MARCA
+  // Lógica Inteligente para la MARCA
   const inputMarca = document.getElementById("marcaInput");
   const selectMarca = document.getElementById("marcaSelect");
   
@@ -554,7 +554,7 @@ async function guardarProducto() {
       return;
   }
 
-  // ⭐ 4. Guardar la marca nueva en la Base de Datos (Si aplica)
+  // Guardar la marca nueva en la Base de Datos (Si aplica)
   if (isNewMarca && (textoCat.includes("armaz") || textoCat.includes("contacto"))) {
       try {
           const catDestino = textoCat.includes("contacto") ? "MARCA_CONTACTO" : "MARCA_ARMAZON";
@@ -568,7 +568,7 @@ async function guardarProducto() {
       }
   }
 
-  // 5. Extraer el resto de textos de forma segura
+  // Extraer el resto de textos de forma segura
   const modelo = ($("#modelo").val() || "").trim();
   const color = ($("#color").val() || "").trim();
   const talla = ($("#talla").val() || "").trim();
@@ -576,11 +576,11 @@ async function guardarProducto() {
   // Generamos el nombre de producto inteligente
   const nombre = `${marcaFinal} ${modelo} ${color ? "- " + color : ""}`.trim();
 
-  // 6. Extraer datos financieros dependiendo del ROL (Admin vs Recepción)
+  // Extraer datos financieros dependiendo del ROL (Admin vs Recepción)
   const costoVal = $("#precioCosto").length > 0 ? parseFloat($("#precioCosto").val()) : 0;
   const comisionVal = $("#porcentajeComision").length > 0 ? parseFloat($("#porcentajeComision").val()) : 0;
 
-  // 7. Construir el objeto exactamente como lo espera tu backend en Java
+  // Construir el objeto exactamente como lo espera tu backend en Java
   const producto = {
     id: id ? parseInt(id) : null,
     nombre: nombre,
@@ -596,7 +596,7 @@ async function guardarProducto() {
     porcentajeComision: comisionVal,
   };
 
-  // 8. Enviar a la base de datos usando async/await
+  // Enviar a la base de datos usando async/await
   try {
       const res = await fetch(APIURL + (id ? "/" + id : ""), {
         method: id ? "PUT" : "POST",
@@ -636,7 +636,7 @@ function eliminarProducto(id) {
 }
 
 // ==========================================
-// E. CREACIÓN IN-SITU (ACCESOS RÁPIDOS)
+// CREACIÓN IN-SITU (ACCESOS RÁPIDOS)
 // ==========================================
 
 function crearTipoInSitu(modalId) {
@@ -833,10 +833,10 @@ function crearEstiloInSitu(modalId) {
 }
 
 // ==========================================
-// F. CÁLCULO BIDIRECCIONAL DE PRECIOS
+// CÁLCULO BIDIRECCIONAL DE PRECIOS
 // ==========================================
 
-// 1. De Costo/Comisión hacia Precio (Solo para ADMIN)
+// De Costo/Comisión hacia Precio (Solo para ADMIN)
 function calcularDesdeComision() {
   // Si el campo de costo no existe en el HTML (Recepción), no hacemos nada
   if ($("#precioCosto").length === 0) return;
@@ -856,7 +856,7 @@ function calcularDesdeComision() {
   }
 }
 
-// 2. De Precio hacia Comisión (Solo para ADMIN)
+// De Precio hacia Comisión (Solo para ADMIN)
 function calcularDesdePrecio() {
   if ($("#precioCosto").length === 0) return;
 
@@ -913,7 +913,7 @@ function crearMarcaInSitu(modalId) {
   });
 }
 
-// 3. Disparar los cálculos cuando el usuario escriba o cambie opciones
+// Disparar los cálculos cuando el usuario escriba o cambie opciones
 $(document).ready(function () {
   $("#precioCosto, #porcentajeComision").on("input", calcularDesdeComision);
   $("#precio").on("input", calcularDesdePrecio); 

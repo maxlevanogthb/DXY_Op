@@ -1,15 +1,10 @@
-// ==========================================
-// 1. CONSTANTES Y VARIABLES
-// ==========================================
+
 const API_PACIENTES = "/api/pacientes";
 let dataTable;
-let modalHistorialInstancia; // Instancia para el modal de historial
+let modalHistorialInstancia; 
 
-// ==========================================
-// 2. INICIALIZACIÓN
-// ==========================================
+
 document.addEventListener("DOMContentLoaded", () => {
-  // Inicializar Modal Historial (Bootstrap 5)
   const elHistorial = document.getElementById("modalHistorial");
   if (elHistorial) {
     modalHistorialInstancia = new bootstrap.Modal(elHistorial);
@@ -32,7 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ==========================================
-// 3. TABLA DE PACIENTES (DataTables)
+// TABLA DE PACIENTES (DataTables)
 // ==========================================
 function inicializarTablaPacientes() {
   if ($.fn.DataTable.isDataTable("#tablaPacientes")) {
@@ -144,7 +139,7 @@ function inicializarTablaPacientes() {
 }
 
 // ==========================================
-// 4. LÓGICA DE PACIENTES (CRUD)
+// LÓGICA DE PACIENTES 
 // ==========================================
 
 function abrirModalNuevo() {
@@ -245,10 +240,9 @@ function eliminarPaciente(id) {
 }
 
 // ==========================================
-// 7. UTILIDADES
+// UTILIDADES
 // ==========================================
 
-// Le agregamos el parámetro opcional (nombreSeleccionar)
 function cargarMotivosCategorizados(nombreSeleccionar = null) {
     fetch('/api/razones-visita')
         .then(res => res.json())
@@ -274,7 +268,6 @@ function cargarMotivosCategorizados(nombreSeleccionar = null) {
             const selectMotivo = document.getElementById('motivo');
             if (selectMotivo) {
                 selectMotivo.innerHTML = opcionesHtml;
-                // ⭐ MAGIA UX: Auto-seleccionar
                 if(nombreSeleccionar) selectMotivo.value = nombreSeleccionar;
             }
 
@@ -391,7 +384,6 @@ function eliminarConsultaDeHistorial(consultaId, pacienteId, nombrePaciente) {
                     // Recargar la tabla que está debajo (el historial del paciente)
                     abrirHistorial(pacienteId, nombrePaciente);
                     
-                    // Opcional: Recargar la tabla principal si quieres actualizar la fecha de "Última visita"
                     if (typeof dataTable !== "undefined") dataTable.ajax.reload(null, false);
                     
                 } else {

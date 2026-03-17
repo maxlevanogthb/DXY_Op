@@ -1,7 +1,4 @@
-// ==========================================
-// 1. CONSTANTES Y VARIABLES
-// ==========================================
-// Ahora tenemos dos rutas: una general para el CRUD y otra para la tabla
+// Dos rutas: una general para el CRUD y otra para la tabla
 const API_PACIENTES = '/api/pacientes';
 const API_PROSPECTOS = '/api/pacientes/prospectos';
 const API_RAZONES = '/api/razones-visita';
@@ -13,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ==========================================
-// 2. TABLA DE PROSPECTOS (DataTables)
+// TABLA DE PROSPECTOS (DataTables)
 // ==========================================
 function inicializarTabla() {
     if ($.fn.DataTable.isDataTable('#tablaClientes')) {
@@ -48,7 +45,6 @@ function inicializarTabla() {
                 data: 'fechaRegistro',
                 render: data => {
                     if (!data) return '-';
-                    // Blindaje por si Java lo manda diferente
                     let anio, mes, dia;
                     if (Array.isArray(data)) {
                         anio = data[0]; mes = data[1].toString().padStart(2, '0'); dia = data[2].toString().padStart(2, '0');
@@ -92,14 +88,13 @@ function inicializarTabla() {
 }
 
 // ==========================================
-// 3. LÓGICA DE PROSPECTOS (CRUD)
+// LÓGICA DE PROSPECTOS
 // ==========================================
 function abrirModalNuevo() {
     document.getElementById('formCliente').reset();
     document.getElementById('clienteId').value = '';
     document.getElementById('modalTitulo').innerText = 'Nuevo Cliente Potencial';
     
-    // Asignamos la fecha de hoy
     document.getElementById('fecha').value = new Date().toISOString().split("T")[0];
     
     new bootstrap.Modal(document.getElementById('clienteModal')).show();
@@ -116,7 +111,7 @@ function editarCliente(id) {
             document.getElementById('email').value = cliente.email;
             document.getElementById('motivo').value = cliente.motivo;
             document.getElementById('fecha').value = cliente.fechaRegistro; 
-            // document.getElementById('mensaje').value = cliente.mensaje; // Descomentar si tienes este campo
+            // document.getElementById('mensaje').value = cliente.mensaje; 
 
             document.getElementById('modalTitulo').innerText = 'Editar Cliente Potencial';
             new bootstrap.Modal(document.getElementById('clienteModal')).show();
@@ -133,7 +128,7 @@ function guardarCliente() {
         motivo: document.getElementById('motivo').value,
         fechaRegistro: document.getElementById('fecha').value,
         // mensaje: document.getElementById('mensaje').value,
-        // ⭐ ESTO ES CLAVE: Le decimos a Java que este es un prospecto
+        // Le decimos a Java que este es un prospecto
         esPacienteOficial: false 
     };
 
@@ -180,9 +175,6 @@ function eliminarCliente(id) {
     });
 }
 
-// ==========================================
-// 4. LA MAGIA DE CONVERSIÓN (Refactorizado)
-// ==========================================
 function convertirPaciente(id) {
     Swal.fire({
         title: '¿Convertir a Paciente Oficial?',
@@ -193,11 +185,10 @@ function convertirPaciente(id) {
         confirmButtonText: 'Sí, convertir'
     }).then(result => {
         if (result.isConfirmed) {
-            // ¡Mira qué limpio quedó! Una sola petición al nuevo endpoint.
+            // Una sola petición al nuevo endpoint.
             fetch(`${API_PACIENTES}/${id}/convertir`, { method: 'PATCH' })
             .then(res => {
                 if (res.ok) {
-                    // Al recargar la tabla, el paciente desaparecerá mágicamente de esta vista
                     dataTable.ajax.reload();
                     Swal.fire('¡PERFECTO!', 'Paciente convertido exitosamente.', 'success');
                 } else {

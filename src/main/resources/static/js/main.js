@@ -31,29 +31,27 @@ function selectProduct(productName) {
 }
 
 // Envío de formulario
-// Reemplaza tu función submitForm ACTUAL con esta:
 async function submitForm(event) {
     event.preventDefault();
     
     const btn = document.querySelector('.submit-btn');
     const originalText = btn.innerText;
     
-    // Tu animación de carga (mantenida)
     btn.innerText = "Enviando...";
     btn.disabled = true;
     btn.style.opacity = "0.7";
     
-    // NUEVA: Recoger datos del formulario
+    // Recoger datos del formulario
     const formData = {
         nombre: document.getElementById('nombre').value,
         telefono: document.getElementById('telefono').value,
-        email: document.getElementById('email').value, // Se actualiza en consulta
-        motivo: document.getElementById('motivo').value, // Motivo de cita
+        email: document.getElementById('email').value, 
+        motivo: document.getElementById('motivo').value,
         mensaje: document.getElementById('mensaje').value
     };
     
     try {
-        // NUEVA: ENVIAR A TU API /api/pacientes
+        // ENVIAR A TU API /api/pacientes
         const response = await fetch('/api/potenciales', {
             method: 'POST',
             headers: { 
@@ -63,7 +61,6 @@ async function submitForm(event) {
         });
         
         if (response.ok) {
-            // Tu UX de éxito (mantenida)
             document.getElementById('bookingForm').reset();
             btn.innerText = originalText;
             btn.disabled = false;
@@ -73,7 +70,6 @@ async function submitForm(event) {
             successMsg.innerHTML = "¡Registro Exitoso!";
             successMsg.style.display = 'block';
             
-            // Ocultar mensaje (mantenido)
             setTimeout(() => {
                 successMsg.style.display = 'none';
             }, 5000);
@@ -81,7 +77,6 @@ async function submitForm(event) {
             throw new Error('Error del servidor');
         }
     } catch (error) {
-        // Manejo de errores (UX suave)
         btn.innerText = originalText;
         btn.disabled = false;
         btn.style.opacity = "1";

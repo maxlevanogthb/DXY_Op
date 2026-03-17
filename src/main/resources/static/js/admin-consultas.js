@@ -8,7 +8,6 @@ let carritoVenta = [];
 let configGeneral = { porcentajeImpuesto: 16 };
 
 document.addEventListener("DOMContentLoaded", () => {
-  // --- ÁRBITRO PARA MODALES (Evita bloqueo de inputs) ---
   // Esto permite que se pueda escribir en SweetAlert aunque esté sobre un modal de Bootstrap
   const modalConsultaEl = document.getElementById("modalConsulta");
   if (modalConsultaEl) {
@@ -18,7 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- NUEVA LÓGICA: CARGAR CONFIGURACIÓN ---
+  // ---CARGAR CONFIGURACIÓN ---
   fetch("/api/configuracion")
     .then((res) => res.json())
     .then((data) => {
@@ -33,24 +32,23 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     })
     .catch((err) => console.warn("Error cargando configuración", err));
-  // 1. Inicializar Modal si existe
   const el = document.getElementById("modalHistorial");
   if (el) {
     modalHistorialInstancia = new bootstrap.Modal(el);
   }
 
-  // 2. Cargar datos en segundo plano
+  // Cargar datos en segundo plano
   cargarDatosBuscador();
   cargarCatalogosLentes();
 
-  // 3. Listeners Generales de Precios
+  // Listeners Generales de Precios
   const inputsPrecio = document.querySelectorAll(".precio-calc");
   inputsPrecio.forEach((input) => {
     input.addEventListener("input", calcularTotales);
     input.addEventListener("change", calcularTotales);
   });
 
-  // 4. Listeners de Micas (CORREGIDO: Suma en cualquier orden)
+  // Listeners de Micas 
   ["material", "tratamiento", "tinte"].forEach((id) => {
     const elId = document.getElementById(id);
     if (elId) {
@@ -68,13 +66,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // 5. Listeners Buscador en Cascada
+  // Listeners Buscador en Cascada
   $("#busqMarca").on("change", filtrarModelos);
   $("#busqModelo").on("change", filtrarColores);
   $("#busqColor").on("change", filtrarTallas);
   $("#busqTalla").on("change", seleccionarProductoFinal);
 
-  // 6. Listeners Botonera Cotizador
+  // Listeners Botonera Cotizador
   const radiosTipo = document.querySelectorAll('input[name="tipoProducto"]');
   radiosTipo.forEach((radio) => {
     radio.addEventListener("change", function () {
@@ -93,7 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // Limpiamos los campos
       limpiarCamposFinales();
       $("#armazonModelo").val("Armazón Propio del Paciente");
-      $("#armazonModelo").prop("readonly", false); // Permitir editar por si acaso
+      $("#armazonModelo").prop("readonly", false); 
     } else {
       $("#contenedorBuscadorInventario").removeClass("d-none");
       $("#contenedorArmazonPropio").addClass("d-none");
@@ -121,7 +119,7 @@ document.addEventListener("DOMContentLoaded", () => {
     },
   );
 
-  // 7. Listener de Pagos
+  // Listener de Pagos
   $("#aCuenta").on("input change", dibujarCarrito);
   $("#checkAplicarIva").on("change", dibujarCarrito);
 });
@@ -130,13 +128,13 @@ document.addEventListener("DOMContentLoaded", () => {
 // LÓGICA DE NUEVA CONSULTA (Hoja Clínica)
 // ==========================================
 function abrirModalConsulta(idPaciente, nombrePaciente) {
-  // 1. Limpiar rastro de texto
+  // Limpiar rastro de texto
   $("#formConsulta")[0].reset();
   $("#consulta_id").val("");
   $("#consulta_clienteId").val(idPaciente);
   $("#tratamientoMedico").val("");
 
-  // 2. LIMPIEZA DE DINERO (Resetear Fantasmas)
+  // LIMPIEZA DE DINERO 
   $(
     "#precioMaterial, #precioTratamiento, #precioTinte, #precioArmazon, #precioConsulta, #precioServicio",
   ).val("0");
@@ -145,11 +143,11 @@ function abrirModalConsulta(idPaciente, nombrePaciente) {
   if (document.getElementById("displaySubtotalMicas"))
     document.getElementById("displaySubtotalMicas").textContent = "$0.00";
 
-  // 3. Vaciar Carrito
+  // Vaciar Carrito
   carritoVenta = [];
   dibujarCarrito();
 
-  // 4. Resetear Interfaz
+  // Resetear Interfaz
   $("#cajaEstadoEntrega").addClass("d-none");
   $("#checkArmazonPropio").prop("checked", false).trigger("change");
   $("#checkAplicarIva").prop("checked", false);
@@ -169,10 +167,9 @@ function abrirModalConsulta(idPaciente, nombrePaciente) {
 }
 
 // ==========================================
-// A. CÁLCULOS (PREVIEW DEL ITEM ACTUAL)
+// CÁLCULOS (PREVIEW DEL ITEM ACTUAL)
 // ==========================================
 function calcularTotales() {
-  // Obtenemos valores o 0 si están vacíos
   const pMaterial =
     parseFloat(document.getElementById("precioMaterial")?.value) || 0;
   const pTratamiento =
@@ -188,7 +185,7 @@ function calcularTotales() {
 }
 
 // ==========================================
-// B. BUSCADOR DE INVENTARIO INTELIGENTE
+// BUSCADOR DE INVENTARIO INTELIGENTE
 // ==========================================
 async function cargarDatosBuscador() {
   try {
@@ -196,7 +193,6 @@ async function cargarDatosBuscador() {
     catalogoGlobal = await resProd.json();
     console.log(`Inventario cargado: ${catalogoGlobal.length} productos.`);
 
-    // ¡LA MAGIA ESTÁ AQUÍ!
     // Iniciamos la interfaz SOLO cuando los datos ya se descargaron
     const tipoInicial =
       $('input[name="tipoProducto"]:checked').val() || "LENTE";
@@ -206,7 +202,6 @@ async function cargarDatosBuscador() {
   }
 }
 
-// Función auxiliar para buscar independientemente de si dice "Armazon", "Armazón" o "Lente"
 // Función auxiliar para buscar exactamente lo que corresponde a cada pestaña
 function coincideCategoria(producto, filtroPrincipal) {
   if (!filtroPrincipal) return true;
@@ -222,7 +217,7 @@ function coincideCategoria(producto, filtroPrincipal) {
   const subTipoNombre =
     producto && producto.subTipo ? String(producto.subTipo).toLowerCase() : "";
 
-  // 1. Pestaña "Lentes" -> Debe mostrar "Armazones" (pero ignorar lentes de contacto)
+  // Pestaña "Lentes" -> Debe mostrar "Armazones" (pero ignorar lentes de contacto)
   if (catFiltro === "lente") {
     return (
       tipoNombre.includes("armaz") ||
@@ -230,12 +225,12 @@ function coincideCategoria(producto, filtroPrincipal) {
     );
   }
 
-  // 2. Pestaña "L. Contacto" -> Muestra solo lentes de contacto
+  // Pestaña "L. Contacto" -> Muestra solo lentes de contacto
   if (catFiltro === "contacto") {
     return tipoNombre.includes("contacto");
   }
 
-  // 3. Pestaña "Gotas/Líq" -> Muestra gotas o soluciones
+  // Pestaña "Gotas/Líq" -> Muestra gotas o soluciones
   if (catFiltro === "gotas") {
     return (
       tipoNombre.includes("gota") ||
@@ -244,12 +239,12 @@ function coincideCategoria(producto, filtroPrincipal) {
     );
   }
 
-  // 4. Default (Accesorios, Reparaciones, etc.)
+  // Default (Accesorios, Reparaciones, etc.)
   return tipoNombre.includes(catFiltro) || subTipoNombre.includes(catFiltro);
 }
 
 function filtrarMarcas() {
-  const tipoCategoria = $("#busqTipo").val(); // LENTE, CONTACTO, ACCESORIO
+  const tipoCategoria = $("#busqTipo").val(); 
 
   resetSelect("busqMarca", "Marca...");
   resetSelect("busqModelo", "Modelo...");
@@ -441,7 +436,7 @@ function limpiarCamposFinales() {
 }
 
 // ==========================================
-// C. CATÁLOGOS MICAS
+// CATÁLOGOS MICAS
 // ==========================================
 function cargarCatalogosLentes() {
   const llenarSelect = (categoria, selectId) => {
@@ -471,15 +466,14 @@ function cargarCatalogosLentes() {
 }
 
 // ==========================================
-// D. LÓGICA DE INTERFAZ DEL COTIZADOR
+// LÓGICA DE INTERFAZ DEL COTIZADOR
 // ==========================================
 function actualizarInterfazCotizador(tipo) {
   $("#panelMicas").addClass("d-none");
   $("#panelInventario").addClass("d-none");
   $("#panelConsulta").addClass("d-none");
-  $("#panelServicios").addClass("d-none"); // Nuevo panel
+  $("#panelServicios").addClass("d-none"); 
 
-  // Limpiar UI de Armazón Propio
   $("#opcionArmazonPropio").addClass("d-none");
   $("#checkArmazonPropio").prop("checked", false).trigger("change");
 
@@ -503,7 +497,7 @@ function actualizarInterfazCotizador(tipo) {
         '<i class="fas fa-glasses me-1"></i> SELECCIONAR ARMAZÓN',
       );
       $("#busqTipo").val("LENTE");
-      $("#opcionArmazonPropio").removeClass("d-none"); // Muestra el switch
+      $("#opcionArmazonPropio").removeClass("d-none"); 
       filtrarMarcas();
       break;
 
@@ -570,7 +564,7 @@ $(document).ready(function () {
 });
 
 // ==========================================
-// E. CARRITO DE COMPRAS (Validación Estricta)
+// CARRITO DE COMPRAS (Validación Estricta)
 // ==========================================
 function agregarItemAlCarrito() {
   const tipo = $('input[name="tipoProducto"]:checked').val();
@@ -620,7 +614,7 @@ function agregarItemAlCarrito() {
     const precioInv = parseFloat($("#precioArmazon").val()) || 0;
     let descripcion = $("#armazonModelo").val();
 
-    // 🔴 VALIDACIÓN 1: Armazón
+    // VALIDACIÓN 1: Armazón
     if (
       !esPropio &&
       (!descripcion || descripcion === "" || descripcion === "-")
@@ -651,7 +645,7 @@ function agregarItemAlCarrito() {
           (parseFloat($("#precioTinte").val()) || 0)
         : 0;
 
-    // 🔴 VALIDACIÓN 2: Micas obligatorias para Lentes
+    // VALIDACIÓN 2: Micas obligatorias para Lentes
     if (tipo === "LENTE") {
       if (!mat) {
         Swal.fire(
@@ -752,7 +746,7 @@ function dibujarCarrito() {
   }
 
   const aplicarIva = $("#checkAplicarIva").is(":checked");
-  // Extraemos el IVA de tu configuración de BD, o usamos 16% por defecto
+  // Extraemos el IVA de tu configuración de BD
   const porcentajeIva = configGeneral.porcentajeImpuesto || 0;
 
   let montoIva = 0;
@@ -799,7 +793,7 @@ function eliminarItemCarrito(index) {
 }
 
 // ==========================================
-// F. GUARDAR Y CARGAR DATOS (BACKEND)
+//GUARDAR Y CARGAR DATOS 
 // ==========================================
 function guardarConsulta() {
   const clienteId = $("#consulta_clienteId").val();
@@ -924,7 +918,6 @@ function guardarConsulta() {
         dataTable.ajax.reload(null, false);
       }
 
-      // Limpiamos carrito para futuras operaciones sin recargar
       carritoVenta = [];
       dibujarCarrito();
     })
@@ -952,19 +945,19 @@ function cargarConsultaParaEditar(consultaId) {
     .then((data) => {
       Swal.close();
 
-      // 1. Limpiar formulario
+      // Limpiar formulario
       $("#formConsulta")[0].reset();
 
-      // 2. Asignar IDs (Con protección por si cliente es nulo)
+      // Asignar IDs 
       $("#consulta_id").val(data.id);
       if (data.paciente && data.paciente.id) {
         $("#consulta_clienteId").val(data.paciente.id);
       } else if (data.cliente && data.cliente.id) {
-        // Por si tu JSON lo manda como "cliente" en lugar de "paciente"
+        // Por si JSON lo manda como "cliente" en lugar de "paciente"
         $("#consulta_clienteId").val(data.cliente.id);
       }
 
-      // 3. Datos Generales
+      // Datos Generales
       $("#fechaVisita").val(data.fechaVisita || "");
       $("#razonVisita").val(data.razonVisita || "");
       $("#antecedentesClinicos").val(data.antecedentesClinicos || "");
@@ -975,7 +968,7 @@ function cargarConsultaParaEditar(consultaId) {
       $("#cajaEstadoEntrega").removeClass("d-none");
       $("#estadoEntrega").val(data.estadoEntrega || "NO_APLICA");
 
-      // 4. Datos de Refracción y Agudeza Visual (Se quedan igual)
+      // Datos de Refracción y Agudeza Visual 
       $("#avSinLejosOD").val(data.avLejosOd || "");
       $("#avSinLejosOI").val(data.avLejosOi || "");
       $("#avSinCercaOD").val(data.avCercaOd || "");
@@ -1014,7 +1007,7 @@ function cargarConsultaParaEditar(consultaId) {
       $("#alturaOblea").val(data.alturaOblea || "");
       $("#dip").val(data.dip || "");
 
-      // 5. Reconstruimos el Carrito
+      // Reconstruimos el Carrito
       if (data.detalles && data.detalles.length > 0) {
         carritoVenta = data.detalles;
       } else {
@@ -1035,7 +1028,7 @@ function cargarConsultaParaEditar(consultaId) {
         }
       }
 
-      // ⭐ 6. NUEVOS DATOS FINANCIEROS (V2.0) ⭐
+      // DATOS FINANCIEROS (V2.0)
       // Aseguramos que el switch se prenda si la base de datos dice "true"
       $("#checkAplicarIva").prop("checked", data.aplicarIva === true);
       $("#aCuenta").val(data.aCuenta || 0);
@@ -1043,14 +1036,13 @@ function cargarConsultaParaEditar(consultaId) {
       // Dibujar Carrito (esto también dispara el cálculo de totales e IVA en pantalla)
       dibujarCarrito();
 
-      // 7. Configuración Final de Interfaz
+      // Configuración Final de Interfaz
       $("#btnGuardarConsulta").removeClass("d-none");
       $("#accionesPostGuardado").removeClass("d-none");
 
       new bootstrap.Modal(document.getElementById("modalConsulta")).show();
     })
     .catch((error) => {
-      // ⭐ AHORA SÍ VEREMOS EL ERROR REAL EN CONSOLA Y PANTALLA ⭐
       console.error("ERROR CRÍTICO AL CARGAR CONSULTA:", error);
       Swal.fire({
         icon: "error",
@@ -1061,7 +1053,7 @@ function cargarConsultaParaEditar(consultaId) {
 }
 
 // ==========================================
-// G. IMPRESIÓN Y RUTINAS TABLA PACIENTES
+// IMPRESIÓN Y RUTINAS TABLA PACIENTES
 // ==========================================
 function imprimirDocumento(tipo) {
   window.open(
@@ -1081,7 +1073,6 @@ function abrirHistorial(clienteId, nombrePaciente) {
   const tbody = document.getElementById("tablaHistorialBody");
   const msg = document.getElementById("sinHistorialMsg");
 
-  // Aumentamos el colspan a 6 por la nueva columna de estado
   tbody.innerHTML =
     '<tr><td colspan="6" class="text-center py-3 text-secondary"><i class="fas fa-spinner fa-spin me-2"></i>Cargando historial...</td></tr>';
   msg.classList.add("d-none");
@@ -1109,7 +1100,7 @@ function abrirHistorial(clienteId, nombrePaciente) {
         ).toLocaleDateString();
         const total = parseFloat(c.totalPresupuesto || 0).toFixed(2);
 
-        // --- 1. LÓGICA DE ESTADO DE ENTREGA ---
+        // --- LÓGICA DE ESTADO DE ENTREGA ---
         let badgeEstado =
           '<span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary">No Aplica</span>';
 
@@ -1124,7 +1115,7 @@ function abrirHistorial(clienteId, nombrePaciente) {
             '<span class="badge bg-success bg-opacity-10 text-success border border-success"><i class="fas fa-check me-1"></i>Entregado</span>';
         }
 
-        // --- 2. CREACIÓN DE LA FILA ---
+        // --- CREACIÓN DE LA FILA ---
         const tr = document.createElement("tr");
         tr.innerHTML = `
             <td class="align-middle">${fecha}</td>
@@ -1158,7 +1149,6 @@ function abrirHistorial(clienteId, nombrePaciente) {
       });
     })
     .catch(() => {
-      // Aumentamos el colspan a 6 aquí también
       tbody.innerHTML =
         '<tr><td colspan="6" class="text-center text-danger py-3"><i class="fas fa-exclamation-triangle me-2"></i>Error al cargar el historial</td></tr>';
     });
@@ -1211,7 +1201,7 @@ function enviarReciboPorCorreo(idConsulta) {
 }
 
 // ==========================================
-// H. CREACIÓN IN-SITU: CATÁLOGOS CLÍNICOS (Micas)
+// CREACIÓN IN-SITU: CATÁLOGOS CLÍNICOS (Micas)
 // ==========================================
 function crearLenteInSitu(
   categoriaClinica,
@@ -1224,7 +1214,7 @@ function crearLenteInSitu(
   Swal.fire({
     title: `Nuevo ${nombreBonito}`,
     width: "600px",
-    target: document.getElementById(modalId), // ¡Aquí es donde la magia ocurre!
+    target: document.getElementById(modalId),
     html: `
             <div class="text-start mt-3">
                 <div class="mb-3">
@@ -1322,7 +1312,7 @@ function crearLenteInSitu(
             title: "Agregado al catálogo",
             showConfirmButton: false,
             timer: 2000,
-            target: document.getElementById(modalId), // También anclamos el toast al modal
+            target: document.getElementById(modalId), 
           });
 
           const selectElement = document.getElementById(selectId);
@@ -1347,7 +1337,7 @@ function crearLenteInSitu(
 }
 
 // ==========================================
-// I. CREACIÓN IN-SITU: PRODUCTOS RÁPIDOS (CATEGORÍAS Y ESTILOS DINÁMICOS)
+// CREACIÓN IN-SITU: PRODUCTOS RÁPIDOS (CATEGORÍAS Y ESTILOS DINÁMICOS)
 // ==========================================
 function crearProductoRapidoInSitu() {
   const tabActiva = $('input[name="tipoProducto"]:checked').val() || "LENTE";
@@ -1499,7 +1489,6 @@ function crearProductoRapidoInSitu() {
         inpCat.oninput = checkEstilo;
         checkEstilo(); // Iniciar validación
 
-        // Botones Toggles "+"
         document.getElementById("btn-toggle-cat").onclick = () => {
           selCat.classList.toggle("d-none");
           inpCat.classList.toggle("d-none");
@@ -1609,7 +1598,7 @@ function crearProductoRapidoInSitu() {
             catId = dataCat.id; // Asignamos el nuevo ID
           }
 
-          // 2. Guardar Marca Nueva
+          // Guardar Marca Nueva
           if (
             isNewMarca &&
             (tabActiva === "LENTE" || tabActiva === "CONTACTO")
@@ -1627,7 +1616,7 @@ function crearProductoRapidoInSitu() {
             });
           }
 
-          // 3. Guardar Estilo Nuevo (Solo si es armazón)
+          // Guardar Estilo Nuevo (Solo si es armazón)
           if (catNombre.includes("armaz") && isNewEstilo && estiloFinal) {
             await fetch("/api/opciones-lente", {
               method: "POST",
@@ -1673,7 +1662,7 @@ function crearProductoRapidoInSitu() {
         })
           .then((res) => res.json())
           .then((nuevoProd) => {
-            // 1. OBTENER NOMBRE DE CATEGORÍA (Blindado)
+            // OBTENER NOMBRE DE CATEGORÍA (Blindado)
             const catSelect = document.getElementById("swal-prod-cat");
             const catInputNuevo = document.getElementById("swal-new-cat");
             let nomCat = "Producto";
@@ -1689,11 +1678,10 @@ function crearProductoRapidoInSitu() {
             if (!nuevoProd.tipo) nuevoProd.tipo = {};
             nuevoProd.tipo.nombre = nomCat;
 
-            // 2. Guardamos en memoria global y refrescamos los selectores
+            // Guardamos en memoria global y refrescamos los selectores
             catalogoGlobal.push(nuevoProd);
             filtrarMarcas();
 
-            // 3. SELECCIÓN AUTOMÁTICA (El efecto dominó)
             setTimeout(() => {
               $("#busqMarca").val(nuevoProd.marca).trigger("change");
               $("#busqModelo").val(nuevoProd.modelo).trigger("change");
@@ -1706,7 +1694,6 @@ function crearProductoRapidoInSitu() {
               $("#busqTalla").val(nuevoProd.id).trigger("change");
             }, 200);
 
-            // 4. ACTUALIZAR INTERFAZ FINAL
             Swal.fire({
               toast: true,
               position: "top-end",
@@ -1714,7 +1701,7 @@ function crearProductoRapidoInSitu() {
               title: "Producto creado y seleccionado",
               showConfirmButton: false,
               timer: 2000,
-              target: document.getElementById("modalConsulta"), // Para que no se tape
+              target: document.getElementById("modalConsulta"),
             });
 
             $("#selectProducto").val(nuevoProd.id);
@@ -1722,7 +1709,6 @@ function crearProductoRapidoInSitu() {
             $("#armazonModelo").val(descFinal);
             $("#precioArmazon").val(nuevoProd.precioVenta);
 
-            // Forzamos el recalculo para limpiar los "fantasmas" de los 400 pesos
             calcularTotales();
           });
       }
@@ -1754,7 +1740,6 @@ function quitarComisionProducto() {
     // Establecemos el valor editable del input al costo base (0% comisión)
     $("#precioArmazon").val(producto.precioCosto.toFixed(2));
 
-    // 🌟 Animación visual UX: Un parpadeo amarillo para que el doctor note el descuento
     $("#precioArmazon")
       .addClass("bg-warning text-dark")
       .removeClass("text-success");

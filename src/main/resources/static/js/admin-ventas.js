@@ -1,6 +1,4 @@
-// ==========================================
-// 0. CONFIGURACIÓN DINÁMICA CHART.JS (MODO OSCURO)
-// ==========================================
+
 const esModoOscuro = localStorage.getItem("dxy_dark") === "true";
 const colorTexto = esModoOscuro ? "#e0e0e0" : "#666";
 const colorLineas = esModoOscuro ? "#444444" : "#e0e0e0";
@@ -12,11 +10,11 @@ if (typeof Chart !== "undefined") {
 }
 
 // ==========================================
-// 1. CONSTANTES Y VARIABLES GLOBALES
+// CONSTANTES Y VARIABLES GLOBALES
 // ==========================================
 const API_PENDIENTES = "/api/consultas/pendientes";
 const API_FINALIZADAS = "/api/consultas/finalizadas";
-const API_PAGOS = "/api/pagos"; // Para guardar y consultar corte de caja
+const API_PAGOS = "/api/pagos"; 
 
 let tablaPendientes;
 let tablaFinalizadas;
@@ -34,7 +32,7 @@ const formatter = new Intl.NumberFormat("es-MX", {
 });
 
 // ==========================================
-// 2. INICIALIZACIÓN
+// INICIALIZACIÓN
 // ==========================================
 document.addEventListener("DOMContentLoaded", () => {
   // Inicializar Modales de Bootstrap
@@ -64,7 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ==========================================
-// 3. TABLA DE CUENTAS POR COBRAR (PENDIENTES)
+// TABLA DE CUENTAS POR COBRAR (PENDIENTES)
 // ==========================================
 function inicializarTablaPendientes() {
   if ($.fn.DataTable.isDataTable("#tablaPendientes")) {
@@ -74,7 +72,7 @@ function inicializarTablaPendientes() {
   tablaPendientes = $("#tablaPendientes").DataTable({
     ajax: { url: API_PENDIENTES, dataSrc: "" },
     columns: [
-      // 1. FECHA
+      // FECHA
       {
         data: "fechaVisita",
         render: (data) => {
@@ -83,19 +81,19 @@ function inicializarTablaPendientes() {
           return `${d}/${m}/${y}`;
         },
       },
-      // 2. CLIENTE (Cambiado de 'cliente' a 'paciente')
+      // CLIENTE (Cambiado de 'cliente' a 'paciente')
       {
         data: "paciente",
         render: (data) =>
           `<span class="fw-bold text-primary">${data ? data.nombre : "General"}</span>`,
       },
-      // 3. TOTAL VENTA
+      // TOTAL VENTA
       {
         data: "totalPresupuesto",
         className: "text-end",
         render: (data) => formatter.format(data),
       },
-      // 4. ÚLTIMO ABONO (LÓGICA ESPECIAL)
+      // ÚLTIMO ABONO 
       {
         data: "pagos", // Accedemos a la lista de pagos
         className: "text-center bg-warning bg-opacity-10",
@@ -103,7 +101,7 @@ function inicializarTablaPendientes() {
           if (!pagos || pagos.length === 0) {
             return '<span class="badge bg-secondary text-white small">Sin abonos</span>';
           }
-          // Ordenamos por fecha descendente (el más nuevo primero) en JS por seguridad
+          // Ordenamos por fecha descendente 
           const ultimo = pagos.sort(
             (a, b) => new Date(b.fechaPago) - new Date(a.fechaPago),
           )[0];
@@ -117,13 +115,13 @@ function inicializarTablaPendientes() {
                     `;
         },
       },
-      // 5. DEUDA ACTUAL
+      // DEUDA ACTUAL
       {
         data: "restante",
         className: "text-end fw-bold text-danger",
         render: (data) => formatter.format(data),
       },
-      // 6. ACCIONES
+      // ACCIONES
       {
         data: null,
         className: "text-center",
@@ -147,7 +145,7 @@ function inicializarTablaPendientes() {
 }
 
 // ==========================================
-// 4. TABLA DE VENTAS FINALIZADAS
+// TABLA DE VENTAS FINALIZADAS
 // ==========================================
 function inicializarTablaFinalizadas() {
   if ($.fn.DataTable.isDataTable("#tablaFinalizadas")) {
@@ -168,7 +166,7 @@ function inicializarTablaFinalizadas() {
         data: "paciente",
         render: (data) => `<span class="fw-bold">${data.nombre}</span>`,
       },
-      { data: "razonVisita" }, // Ej: Venta de Lentes, Reparación
+      { data: "razonVisita" }, // Venta de Lentes, Reparación
       {
         data: "totalPresupuesto", // En finalizadas, el total cobrado es el presupuesto
         className: "text-end fw-bold text-success",
@@ -191,7 +189,7 @@ function inicializarTablaFinalizadas() {
 }
 
 // ==========================================
-// 5. LÓGICA DE CORTE DE CAJA V2.0 (HOY)
+// LÓGICA DE CORTE DE CAJA V2.0 
 // ==========================================
 function cargarCorteCaja() {
   fetch(`${API_PAGOS}/hoy`)
@@ -249,7 +247,6 @@ function cargarCorteCaja() {
         });
       }
 
-      // --- MAGIA FINANCIERA V2.0 ---
       const ingresoNeto = ingresosBrutos - ivaRecaudado;
       const comisionGlobal = configGeneral.porcentajeComisionTarjeta || 0;
 
@@ -257,12 +254,12 @@ function cargarCorteCaja() {
       const costoMercancia = ingresoNeto / (1 + comisionGlobal / 100);
       const gananciaNeta = ingresoNeto - costoMercancia;
 
-      // 1. Actualizar Tarjetas Top (Dashboard)
+      // Actualizar Tarjetas Top (Dashboard)
       $("#kpiIngresoBruto").text(formatter.format(ingresosBrutos));
       $("#kpiIva").text(formatter.format(ivaRecaudado));
       $("#kpiGananciaNeta").text(formatter.format(gananciaNeta));
 
-      // 2. Actualizar Desglose al pie de la tabla (Corte de Caja)
+      // Actualizar Desglose al pie de la tabla (Corte de Caja)
       $("#cajaCosto").text("-" + formatter.format(costoMercancia));
       $("#cajaIvaR").text("-" + formatter.format(ivaRecaudado));
       $("#cajaGanancia").text("+" + formatter.format(gananciaNeta));
@@ -271,7 +268,7 @@ function cargarCorteCaja() {
 }
 
 // ==========================================
-// 6. MODAL: REGISTRAR ABONO
+// MODAL: REGISTRAR ABONO
 // ==========================================
 function abrirModalAbono(consultaId, clienteNombre, total, deuda) {
   $("#abono_consultaId").val(consultaId);
@@ -283,7 +280,7 @@ function abrirModalAbono(consultaId, clienteNombre, total, deuda) {
 
   $("#abono_monto").val("");
   $("#abono_notas").val("");
-  $("#abono_monto").attr("max", deuda); // HTML5 Validation
+  $("#abono_monto").attr("max", deuda); 
 
   modalAbono.show();
   setTimeout(() => $("#abono_monto").focus(), 500);
@@ -357,7 +354,7 @@ function guardarAbono() {
 }
 
 // ==========================================
-// 7. MODAL: VER HISTORIAL DETALLADO
+// MODAL: VER HISTORIAL DETALLADO
 // ==========================================
 function verHistorial(consultaId, clienteNombre, totalVenta) {
   $("#historial_cliente").text(`Cliente: ${clienteNombre}`);
@@ -370,7 +367,6 @@ function verHistorial(consultaId, clienteNombre, totalVenta) {
 
   modalHistorial.show();
 
-  // Fetch al endpoint específico que creamos
   fetch(`${API_PAGOS}/consulta/${consultaId}`)
     .then((res) => {
       if (res.status === 204) return []; // Sin contenido
@@ -436,14 +432,14 @@ function verHistorial(consultaId, clienteNombre, totalVenta) {
 }
 
 // ==========================================
-// 8. LÓGICA DEL DASHBOARD (GRÁFICAS Y KPIS)
+// LÓGICA DEL DASHBOARD (GRÁFICAS Y KPIS)
 // ==========================================
 
 function cargarDashboard() {
   fetch("/api/dashboard/kpis")
     .then((res) => res.json())
     .then((data) => {
-      // --- 1. LLENAR LAS TARJETAS (KPIs) ---
+      // --- LLENAR LAS TARJETAS (KPIs) ---
       const formatoMoneda = new Intl.NumberFormat("es-MX", {
         style: "currency",
         currency: "MXN",
@@ -472,7 +468,7 @@ function cargarDashboard() {
           formatoMoneda.format(data.cuentasPorCobrar || 0);
       }
 
-      // --- 2. DIBUJAR GRÁFICA DE BARRAS (Últimos 7 días) ---
+      // --- DIBUJAR GRÁFICA DE BARRAS (Últimos 7 días) ---
       const ctxIngresos = document
         .getElementById("graficaIngresos")
         .getContext("2d");
@@ -484,7 +480,7 @@ function cargarDashboard() {
             {
               label: "Ingresos Diarios ($)",
               data: data.datosDias, // Sumas diarias desde Java
-              backgroundColor: "rgba(13, 110, 253, 0.7)", // Azul Bootstrap
+              backgroundColor: "rgba(13, 110, 253, 0.7)",
               borderColor: "rgba(13, 110, 253, 1)",
               borderWidth: 1,
               borderRadius: 4,
@@ -494,7 +490,7 @@ function cargarDashboard() {
         options: { responsive: true, scales: { y: { beginAtZero: true } } },
       });
 
-      // --- 3. DIBUJAR GRÁFICA DE DONA (Ventas por Categoría) ---
+      // --- DIBUJAR GRÁFICA DE DONA (Ventas por Categoría) ---
       const ctxCat = document
         .getElementById("graficaCategorias")
         .getContext("2d");
@@ -505,7 +501,6 @@ function cargarDashboard() {
           datasets: [
             {
               data: data.datosCat.length > 0 ? data.datosCat : [1], // Montos desde Java
-              // Paleta de colores atractiva
               backgroundColor: [
                 "#198754",
                 "#0dcaf0",
@@ -523,7 +518,7 @@ function cargarDashboard() {
         },
       });
 
-      // --- 4. LLENAR TABLA DE TOP DEUDORES ---
+      // --- LLENAR TABLA DE TOP DEUDORES ---
       const tbodyDeudores = document.getElementById("tablaDeudoresBody");
       if (!tbodyDeudores) return; // Evita errores si no encuentra la tabla
 
@@ -531,7 +526,7 @@ function cargarDashboard() {
 
       if (data.topDeudores && data.topDeudores.length > 0) {
         data.topDeudores.forEach((d) => {
-          // 1. LÓGICA DE WHATSAPP
+          // LÓGICA DE WHATSAPP
           const telString = String(d.telefono || "");
           const telLimpio = telString.replace(/\D/g, "");
 
@@ -545,7 +540,7 @@ function cargarDashboard() {
                            </a>`
             : "";
 
-          // 2. LÓGICA DE CORREO ELECTRÓNICO
+          // LÓGICA DE CORREO ELECTRÓNICO
           const btnEmail = d.email
             ? `<button type="button" onclick="enviarRecordatorioDashboard('${d.email}', '${d.paciente}', '${d.restante}')" class="btn btn-sm btn-primary shadow-sm ms-1" title="Enviar Recordatorio por Correo">
                  <i class="fas fa-envelope"></i>
@@ -557,7 +552,7 @@ function cargarDashboard() {
               ? '<span class="badge bg-secondary">Sin contacto</span>'
               : "";
 
-          // 3. DIBUJAR LA FILA
+          // DIBUJAR LA FILA
           const tr = document.createElement("tr");
           tr.innerHTML = `
                         <td class="fw-bold ps-4">${d.paciente}</td>
@@ -590,7 +585,7 @@ function cargarDashboard() {
 }
 
 // ==========================================
-// 9. FUNCIÓN PARA ENVIAR CORREO DESDE DASHBOARD
+// FUNCIÓN PARA ENVIAR CORREO DESDE DASHBOARD
 // ==========================================
 function enviarRecordatorioDashboard(email, paciente, deuda) {
   Swal.fire({
