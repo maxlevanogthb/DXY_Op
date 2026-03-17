@@ -14,12 +14,11 @@ public class ConfiguracionController {
     
     private final TipoProductoService tipoService;
     
-     @GetMapping  // GET /admin/config
+     @GetMapping  
     public String index() {
         return "admin/configuracion";
     }
     
-    // ⭐ API Tipos (mantiene compatibilidad)
     @GetMapping("/api/tipos-producto")
     @ResponseBody
     public List<TipoProducto> getTipos() {
@@ -44,9 +43,8 @@ public class ConfiguracionController {
         return tipoService.getById(id);
     }
     
-    // ⭐ FUTURO: Otras configs
     @GetMapping("/razones")
     public String razones() {
-        return "admin/configuracion-razones";  // Próximo HTML
+        return "admin/configuracion-razones"; 
     }
 }

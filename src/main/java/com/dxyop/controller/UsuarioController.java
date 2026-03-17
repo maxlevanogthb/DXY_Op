@@ -4,7 +4,7 @@ import com.dxyop.model.Usuario;
 import com.dxyop.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder; // <--- NUEVO
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,7 +15,7 @@ import java.util.List;
 public class UsuarioController {
 
     private final UsuarioRepository repository;
-    private final PasswordEncoder passwordEncoder; // <--- INYECTAMOS EL ENCRIPTADOR
+    private final PasswordEncoder passwordEncoder;
 
     @GetMapping
     public List<Usuario> getAll() {
@@ -24,7 +24,6 @@ public class UsuarioController {
 
     @PostMapping
     public ResponseEntity<Usuario> create(@RequestBody Usuario usuario) {
-        // Encriptamos la contraseña antes de guardarla en la Base de Datos
         usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
         return ResponseEntity.ok(repository.save(usuario));
     }

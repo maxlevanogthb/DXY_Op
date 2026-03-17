@@ -14,10 +14,6 @@ public class AdminController {
 
     private final PacienteService service;
 
-    // ==========================================
-    // REDIRECCIÓN PRINCIPAL (VERSIÓN 2.0)
-    // Cuando el usuario entra a "/admin", lo mandamos directo a la Agenda
-    // ==========================================
     @GetMapping({"", "/"})
     public String adminIndex() {
         return "redirect:/admin/citas"; 

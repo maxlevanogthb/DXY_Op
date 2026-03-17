@@ -34,12 +34,9 @@ public class CorreoController {
 
             Consulta consulta = consultaRepo.findById(idConsulta)
                     .orElseThrow(() -> new Exception("Consulta no encontrada"));
-
-            // 1. Generar el PDF usando el servicio que ya tienes
             ByteArrayOutputStream pdfStream = pdfService.generarRecibo(consulta);
             byte[] pdfBytes = pdfStream.toByteArray();
 
-            // 2. Preparar los textos del correo
             String asunto = "Recibo de Compra - Folio #" + consulta.getId();
             String cuerpoHtml = "<div style='font-family: Arial, sans-serif; padding: 20px;'>"
                     + "<h2 style='color: #0d6efd;'>¡Hola " + consulta.getPaciente().getNombre() + "!</h2>"
@@ -49,7 +46,6 @@ public class CorreoController {
                     + "<p style='font-size: 12px; color: #6c757d;'>Este es un correo automático, por favor no responda a esta dirección.</p>"
                     + "</div>";
 
-            // 3. Enviar el correo
             emailService.enviarCorreoConAdjunto(
                     correoDestino, 
                     asunto, 

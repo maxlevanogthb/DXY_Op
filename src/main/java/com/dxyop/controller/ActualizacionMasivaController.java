@@ -20,18 +20,16 @@ public class ActualizacionMasivaController {
 
     private final ProductoService productoService;
     private final OpcionLenteService opcionLenteService;
-    private final ConfiguracionGeneralService configService; // ⭐ Lo inyectamos aquí
+    private final ConfiguracionGeneralService configService; 
 
     @PostMapping("/api/configuracion/aplicar-comision-masiva")
     public ResponseEntity<?> aplicarComisionMasiva() {
         try {
-            // ⭐ 1. AHORA SÍ TRAEMOS LA COMISIÓN REAL DESDE TU BASE DE DATOS ⭐
             ConfiguracionGeneral config = configService.obtenerConfiguracion();
             Double comisionGlobal = (config != null && config.getPorcentajeComisionTarjeta() != null) 
                                     ? config.getPorcentajeComisionTarjeta() 
                                     : 0.0;
 
-            // 2. ACTUALIZAR PRODUCTOS
             List<Producto> productos = productoService.getAllActivos(); 
             for (Producto p : productos) {
                 if (p.getPrecioCosto() == null || p.getPrecioCosto() <= 0) {
@@ -43,7 +41,6 @@ public class ActualizacionMasivaController {
             }
             productoService.saveAll(productos); 
 
-            // 3. ACTUALIZAR CATÁLOGOS CLÍNICOS
             List<OpcionLente> opciones = opcionLenteService.getAllOpciones(); 
             for (OpcionLente o : opciones) {
                 if (o.getPrecioCosto() == null || o.getPrecioCosto() <= 0) {

@@ -18,13 +18,13 @@ public class ProductoController {
     private final ProductoService service;
     private final ProductoRepository repository;
 
-    // 1. Obtener todos
+    //Obtener todos
     @GetMapping
     public List<Producto> getAll() {
         return service.getAllActivos();
     }
 
-    // 2. Obtener uno por ID (FALTABA ESTE, necesario para editar)
+    // Obtener uno por ID 
     @GetMapping("/{id}")
     public ResponseEntity<Producto> getById(@PathVariable Long id) {
         Producto prod = service.getById(id);
@@ -32,13 +32,13 @@ public class ProductoController {
         return ResponseEntity.ok(prod);
     }
 
-    // 3. Filtrar por nombre de tipo (ej: /api/productos/tipo/armazon)
+    // Filtrar por nombre de tipo (ej: /api/productos/tipo/armazon)
     @GetMapping("/tipo/{tipoNombre}")
     public List<Producto> getByTipo(@PathVariable String tipoNombre) {
         return service.getByTipo(tipoNombre);
     }
 
-    // 4. Guardar / Editar
+    // Guardar / Editar
     @PostMapping
     public Producto create(@RequestBody Producto producto) {
         return service.save(producto);
@@ -46,11 +46,10 @@ public class ProductoController {
 
     @PutMapping("/{id}")
     public Producto update(@PathVariable Long id, @RequestBody Producto producto) {
-        producto.setId(id); // Asegurar que sea update
+        producto.setId(id); 
         return service.save(producto);
     }
 
-    // 5. Eliminar (Desactivar)
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         service.delete(id);

@@ -47,14 +47,12 @@ public class CatalogoController {
         // Buscamos productos que coincidan con el tipo y tengan al menos 1 en stock
         return productoRepository.findBySubTipoAndStockGreaterThan(tipo, 0);
     }
-
-    // 3. GUARDAR NUEVA OPCIÓN
+    
     @PostMapping("/opcion")
     public OpcionLente guardarOpcion(@RequestBody OpcionLente opcion) {
         return opcionRepository.save(opcion);
     }
 
-    // 4. ELIMINAR OPCIÓN
     @DeleteMapping("/opcion/{id}")
     public void eliminarOpcion(@PathVariable Long id) {
         opcionRepository.deleteById(id);

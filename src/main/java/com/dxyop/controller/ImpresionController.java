@@ -24,9 +24,8 @@ public class ImpresionController {
 
     private final PagoRepository pagoRepository;
     private final ConsultaRepository consultaRepository;
-    private final PdfService pdfService; // <--- Inyectamos tu servicio
+    private final PdfService pdfService;
 
-    // IMPRIMIR RECIBO (Usando tu PdfService)
     @GetMapping("/recibo/{id}")
     public ResponseEntity<byte[]> descargarRecibo(@PathVariable Long id) {
         try {
@@ -52,14 +51,12 @@ public class ImpresionController {
         }
     }
 
-    // IMPRIMIR RECETA (Usando tu PdfService)
     @GetMapping("/receta/{id}")
     public ResponseEntity<byte[]> descargarReceta(@PathVariable Long id) {
         try {
             Consulta consulta = consultaRepository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Consulta no encontrada"));
 
-            // Generar PDF usando tu código
             ByteArrayOutputStream out = pdfService.generarReceta(consulta);
 
             HttpHeaders headers = new HttpHeaders();
@@ -80,14 +77,11 @@ public class ImpresionController {
     @GetMapping("/estado-cuenta/{id}")
     public ResponseEntity<byte[]> descargarEstadoCuenta(@PathVariable Long id) {
         try {
-            // 1. Buscamos la consulta
             Consulta consulta = consultaRepository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Consulta no encontrada"));
 
-            // 2. IMPORTANTE: Buscamos la lista de pagos de esa consulta
             List<Pago> historialPagos = pagoRepository.findByConsultaIdOrderByFechaPagoDesc(id);
 
-            // 3. Generamos el PDF pasando ambos datos
             ByteArrayOutputStream out = pdfService.generarEstadoCuenta(consulta, historialPagos);
 
             HttpHeaders headers = new HttpHeaders();

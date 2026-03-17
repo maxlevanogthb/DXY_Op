@@ -20,16 +20,14 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/consultas")
-@RequiredArgsConstructor // ¡Esto inyecta todos los campos 'final'!
+@RequiredArgsConstructor 
 public class ConsultaController {
 
-    // --- DEPENDENCIAS (Todas 'final' para que Lombok las inyecte) ---
     private final ConsultaService service;
     private final ConsultaRepository consultaRepository;
     private final ConsultaService consultaService;
     private final PdfService pdfService;
 
-    // --- 1. OBTENER HISTORIAL (Reemplaza al método antiguo conflictivo) ---
     @GetMapping("/cliente/{clienteId}")
     public ResponseEntity<List<Consulta>> getHistorialPorCliente(@PathVariable Long clienteId) {
         List<Consulta> historial = service.getHistorialCliente(clienteId);
@@ -39,7 +37,6 @@ public class ConsultaController {
         return ResponseEntity.ok(historial);
     }
 
-    // --- 2. OBTENER UNA CONSULTA POR ID (Evitando el Lazy Loading) ---
     @GetMapping("/{id}")
     public ResponseEntity<Consulta> getById(@PathVariable Long id) {
         Consulta consulta = service.getById(id);
@@ -47,7 +44,6 @@ public class ConsultaController {
             return ResponseEntity.notFound().build();
         }
         
-        // Despertamos los detalles y los pagos antes de mandar el JSON al Frontend
         if(consulta.getDetalles() != null) {
             consulta.getDetalles().size(); 
         }
@@ -58,14 +54,11 @@ public class ConsultaController {
         return ResponseEntity.ok(consulta);
     }
 
-    // --- 3. CREAR NUEVA CONSULTA (Usando DTO y el Service correcto) ---
     @PostMapping
     public ResponseEntity<?> create(@RequestBody ConsultaDto dto) {
         try {
-            // Aseguramos que el ID venga nulo para que el Service sepa que es nueva
             dto.setId(null); 
             
-            // Delegamos TODA la lógica de guardado (incluyendo carrito y receta) a tu Service
             Consulta guardada = service.guardarConsulta(dto);
             
             return ResponseEntity.ok(guardada);
@@ -75,14 +68,11 @@ public class ConsultaController {
         }
     }
 
-    // --- 4. ACTUALIZAR CONSULTA (Usando DTO y el Service correcto) ---
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody ConsultaDto dto) {
         try {
-            // Aseguramos que el DTO traiga el ID correcto de la URL
             dto.setId(id);
             
-            // Delegamos TODA la lógica de actualización (incluyendo borrar el carrito viejo) a tu Service
             Consulta actualizada = service.guardarConsulta(dto);
             
             return ResponseEntity.ok(actualizada);
@@ -92,7 +82,6 @@ public class ConsultaController {
         }
     }
 
-    // --- 5. PDF: RECIBO ---
     @GetMapping("/{id}/recibo")
     public ResponseEntity<byte[]> generarReciboPdf(@PathVariable Long id) {
         try {
@@ -116,7 +105,6 @@ public class ConsultaController {
         }
     }
 
-    // --- 6. PDF: RECETA ---
     @GetMapping("/{id}/receta")
     public ResponseEntity<byte[]> generarRecetaPdf(@PathVariable Long id) {
         try {
@@ -140,18 +128,13 @@ public class ConsultaController {
         }
     }
 
-    // Obtener SOLO deudores
     @GetMapping("/pendientes")
     public ResponseEntity<List<Consulta>> getPendientes() {
-        // Buscamos deudas mayores a 50 centavos
         return ResponseEntity.ok(consultaService.getConsultasPendientes());
-        // Asegúrate de crear este método puente en tu Service llamando al repository
     }
 
-    // Obtener SOLO pagadas (Historial de ventas cerradas)
     @GetMapping("/finalizadas")
     public ResponseEntity<List<Consulta>> getFinalizadas() {
-        // Buscamos deudas menores o iguales a 50 centavos (pagado)
         return ResponseEntity.ok(consultaRepository.findByRestanteLessThanEqualOrderByFechaVisitaDesc(0.5));
     }
 

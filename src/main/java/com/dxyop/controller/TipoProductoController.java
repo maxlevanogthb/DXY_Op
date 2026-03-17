@@ -46,23 +46,18 @@ public class TipoProductoController {
     @PutMapping("/tipos-producto/{id}")
     public ResponseEntity<TipoProducto> actualizarTipoProducto(@PathVariable Long id, @RequestBody TipoProducto detallesActualizados) {
         
-        // 1. Buscamos el registro usando tu Service
         TipoProducto tipoExistente = service.getById(id);
         
-        // 2. Verificamos si existe
         if (tipoExistente != null) {
             
-            // 3. Actualizamos estrictamente los campos editables según tu modelo
             tipoExistente.setNombre(detallesActualizados.getNombre());
             tipoExistente.setDescripcion(detallesActualizados.getDescripcion());
             tipoExistente.setIcono(detallesActualizados.getIcono());
             
-            // 4. Guardamos usando tu Service
             TipoProducto tipoGuardado = service.save(tipoExistente);
             
             return ResponseEntity.ok(tipoGuardado);
         } else {
-            // Si no lo encuentra, devuelve un 404 Not Found
             return ResponseEntity.notFound().build();
         }
     }

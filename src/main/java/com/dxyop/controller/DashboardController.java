@@ -34,31 +34,31 @@ public class DashboardController {
         LocalDate inicioMesDate = LocalDate.now().withDayOfMonth(1);
         LocalDate finMesDate = LocalDate.now();
 
-        // 1. Ingresos del Mes (Suma de Pagos reales)
+        // Ingresos del Mes (Suma de Pagos reales)
         Double ingresos = pagoRepository.sumarVentasPorRango(inicioMes, finMes);
         kpis.put("ingresosMes", ingresos != null ? ingresos : 0.0);
 
-        // 2. Cuentas por Cobrar (Todo el dinero en la calle)
+        // Cuentas por Cobrar (Todo el dinero en la calle)
         Double cuentasCobrar = consultaRepository.sumarCuentasPorCobrar();
         kpis.put("cuentasPorCobrar", cuentasCobrar != null ? cuentasCobrar : 0.0);
 
-        // 3. Pacientes Atendidos en el mes
+        // Pacientes Atendidos en el mes
         Long pacientesAtendidos = consultaRepository.contarConsultasPorRango(inicioMesDate, finMesDate);
         kpis.put("pacientesAtendidos", pacientesAtendidos != null ? pacientesAtendidos : 0L);
 
-        // 4. Trabajos Pendientes en laboratorio
+        // Trabajos Pendientes en laboratorio
         Long pendientes = consultaRepository.contarTrabajosPendientes();
         kpis.put("trabajosPendientes", pendientes != null ? pendientes : 0L);
 
-        // EXTRA: Inventario en peligro (Productos con stock de 2 o menos)
+        //Productos con stock de 2 o menos
         Long stockCritico = productoRepository.contarProductosBajoStock(2);
         kpis.put("stockCritico", stockCritico != null ? stockCritico : 0L);
 
-        // --- 5. DATOS PARA LA GRÁFICA DE BARRAS (Últimos 7 días) ---
+        // ---DATOS PARA LA GRÁFICA DE BARRAS (Últimos 7 días) ---
         java.util.List<String> labelsDias = new java.util.ArrayList<>();
         java.util.List<Double> datosDias = new java.util.ArrayList<>();
         
-        // Formateador para poner "Lun", "Mar", etc. (Opcional, pero se ve mejor)
+        // Formateador para poner "Lun", "Mar", etc.
         java.time.format.DateTimeFormatter formatoDia = java.time.format.DateTimeFormatter.ofPattern("EEE dd", new java.util.Locale("es", "MX"));
 
         for (int i = 6; i >= 0; i--) {
@@ -68,26 +68,23 @@ public class DashboardController {
             
             Double sumaDia = pagoRepository.sumarVentasPorRango(inicioDia, finDia);
             
-            labelsDias.add(dia.format(formatoDia)); // Ej: "mié 18"
+            labelsDias.add(dia.format(formatoDia)); 
             datosDias.add(sumaDia != null ? sumaDia : 0.0);
         }
         kpis.put("labelsDias", labelsDias);
         kpis.put("datosDias", datosDias);
 
-        // --- 6. DATOS PARA LA GRÁFICA DE DONA (Ventas por Categoría del Mes) ---
         java.util.List<Object[]> categorias = consultaRepository.sumarVentasPorCategoria(inicioMesDate);
         java.util.List<String> labelsCat = new java.util.ArrayList<>();
         java.util.List<Double> datosCat = new java.util.ArrayList<>();
         
         for (Object[] row : categorias) {
-            labelsCat.add((String) row[0]); // El nombre de la categoría (LENTE, ACCESORIO)
-            datosCat.add((Double) row[1]);  // El subtotal sumado
+            labelsCat.add((String) row[0]); 
+            datosCat.add((Double) row[1]);  
         }
         kpis.put("labelsCat", labelsCat);
         kpis.put("datosCat", datosCat);
 
-        // --- 7. TABLA DE TOP DEUDORES ---
-        // Buscamos los 5 que deben más de $0.00
         java.util.List<com.dxyop.model.Consulta> topDeudoresRaw = consultaRepository.findTop5ByRestanteGreaterThanOrderByRestanteDesc(0.0);
         java.util.List<Map<String, Object>> topDeudores = new java.util.ArrayList<>();
         

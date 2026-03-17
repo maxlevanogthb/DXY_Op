@@ -15,18 +15,15 @@ import java.util.stream.Collectors;
 @CrossOrigin(origins = "*") 
 public class PacienteController {
 
-    // Renombramos el servicio
     private final PacienteService service; 
 
-    // Para el autocompletado del Calendario (Busca entre TODOS)
     @GetMapping
     public List<PacienteDto> getAll() {
         return service.getAllPacientes().stream()
-                .map(this::convertirADto) // Usamos un método auxiliar para no repetir código
+                .map(this::convertirADto)
                 .collect(Collectors.toList());
     }
 
-    // Para tu tabla del Módulo de Pacientes
     @GetMapping("/oficiales")
     public List<PacienteDto> getOficiales() {
         return service.getPacientesOficiales().stream()
@@ -34,7 +31,6 @@ public class PacienteController {
                 .collect(Collectors.toList());
     }
 
-    // Para tu tabla del Módulo de Clientes Potenciales
     @GetMapping("/prospectos")
     public List<PacienteDto> getProspectos() {
         return service.getProspectos().stream()
@@ -42,7 +38,6 @@ public class PacienteController {
                 .collect(Collectors.toList());
     }
 
-    // MÉTODO AUXILIAR
     private PacienteDto convertirADto(Paciente paciente) {
         PacienteDto dto = new PacienteDto();
         dto.setId(paciente.getId());
@@ -82,9 +77,6 @@ public class PacienteController {
         return ResponseEntity.ok().build();
     }
 
-    // ==========================================
-    // Convertir Lead a Paciente
-    // ==========================================
     @PatchMapping("/{id}/convertir")
     public ResponseEntity<Paciente> convertirAPacienteOficial(@PathVariable Long id) {
         Paciente paciente = service.getPacienteById(id);
@@ -92,7 +84,6 @@ public class PacienteController {
             return ResponseEntity.notFound().build();
         }
         
-        // ¡Se hizo la magia! Pasa a ser paciente oficial
         paciente.setEsPacienteOficial(true);
         
         return ResponseEntity.ok(service.savePaciente(paciente));

@@ -30,7 +30,7 @@ public class PagoController {
         }
     }
 
-    // Obtener ventas de HOY (para el corte de caja)
+    // Obtener ventas de HOY
     @GetMapping("/hoy")
     public ResponseEntity<List<Pago>> getVentasHoy() {
         return ResponseEntity.ok(pagoService.obtenerVentasDelDia());
@@ -39,7 +39,6 @@ public class PagoController {
     @GetMapping("/consulta/{consultaId}")
     public ResponseEntity<List<Pago>> getHistorialPorConsulta(@PathVariable Long consultaId) {
         try {
-            // Usamos el repositorio que ya configuramos para buscar por ID y ordenar por fecha (el más reciente primero)
             List<Pago> historial = pagoRepository.findByConsultaIdOrderByFechaPagoDesc(consultaId);
             
             if (historial.isEmpty()) {

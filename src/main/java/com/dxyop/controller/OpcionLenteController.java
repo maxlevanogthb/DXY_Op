@@ -24,9 +24,6 @@ public class OpcionLenteController {
         return service.save(opcion);
     }
 
-    // ==========================================
-    // NUEVOS MÉTODOS PARA EDITAR Y ELIMINAR
-    // ==========================================
     @GetMapping("/{id}")
     public ResponseEntity<OpcionLente> getById(@PathVariable Long id) {
         OpcionLente opcion = service.getById(id);
