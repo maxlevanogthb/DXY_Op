@@ -30,7 +30,7 @@ public class PdfService {
     private static final DateTimeFormatter FORMATO_FECHA_HORA = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     private static final String NOMBRE_PROFESIONAL = "L.O. Marco Antonio Levano Tovar";
-    private static final String CEDULA_PROFESIONAL = "xxxxxxxxxxxxxx";
+    //private static final String CEDULA_PROFESIONAL = "xxxxxxxxxxxxxx";
 
     @Autowired
     private ConfiguracionGeneralRepository configRepo;
@@ -195,7 +195,9 @@ public class PdfService {
         Paragraph datosProf = new Paragraph();
         datosProf.add(new Phrase(NOMBRE_PROFESIONAL + "\n", FONT_SUBTITULO));
         datosProf.add(new Phrase("Optometrista\n", FONT_CUERPO));
-        datosProf.add(new Phrase("CÉDULA PROFESIONAL: " + CEDULA_PROFESIONAL, FONT_CUERPO_BOLD));
+        String cedula = config.getCedulaProfesional() != null && !config.getCedulaProfesional().isEmpty() 
+                        ? config.getCedulaProfesional() : "Pendiente";
+        datosProf.add(new Phrase("CÉDULA PROFESIONAL: " + cedula, FONT_CUERPO_BOLD));
         PdfPCell cellDatos = new PdfPCell(datosProf);
         cellDatos.setBorder(Rectangle.NO_BORDER);
         cellDatos.setHorizontalAlignment(Element.ALIGN_CENTER);

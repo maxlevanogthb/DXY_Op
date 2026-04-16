@@ -13,53 +13,56 @@ import java.time.LocalTime;
 public class ConfiguracionGeneral {
 
     @Id
-    private Long id = 1L; // Forzamos a que siempre sea el registro 1
+    private Long id = 1L;
 
-    // Datos del Negocio
     private String nombreComercial;
     private String rfc;
     private String telefonoPrincipal;
     private String direccionCorta;
 
-    // Configuración de Agenda
     private LocalTime horaApertura;
     private LocalTime horaCierre;
     private Integer duracionCitaMinutos;
 
-    // Configuración de Ventas
     private Double porcentajeImpuesto;
     private String mensajeTicket;
 
-    // Redes Sociales
     private String facebook;
     private String instagram;
 
-    // Logos (Guardados en formato Base64)
     @Column(columnDefinition = "TEXT")
-    private String logoSistema; 
-
-    @Column(columnDefinition = "TEXT")
-    private String logoRecetaIzq; 
+    private String logoSistema;
 
     @Column(columnDefinition = "TEXT")
-    private String logoRecetaDer; 
+    private String logoRecetaIzq;
 
-    // Configuración de Correo (SMTP)
-    private String correoRemitente; 
-    private String passwordCorreo;  
+    @Column(columnDefinition = "TEXT")
+    private String logoRecetaDer;
 
-    // Textos de la Landing Page (Sitio Web)
-    private String textoHero; 
-    
+    private String correoRemitente;
+    private String passwordCorreo;
+
+    private String textoHero;
+
+    @Column(name = "cedula_profesional")
+    private String cedulaProfesional;
+
     @Column(columnDefinition = "TEXT")
     private String subtituloHero;
-    
+
     @Column(columnDefinition = "TEXT")
     private String descripcionNosotros;
 
     private Double porcentajeComisionTarjeta;
 
     private String colorTema; // Guardará el código Hexadecimal (ej. "#0d6efd")
-    private Boolean modoOscuro; 
-    
+    private Boolean modoOscuro;
+
+    public String getCedulaProfesional() {
+        return cedulaProfesional;
+    }
+
+    public void setCedulaProfesional(String cedulaProfesional) {
+        this.cedulaProfesional = cedulaProfesional;
+    }
 }

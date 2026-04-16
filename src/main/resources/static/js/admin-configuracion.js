@@ -536,6 +536,7 @@ function cargarConfiguracionGeneral() {
         .then(data => {
             document.getElementById('confNombre').value = data.nombreComercial || '';
             document.getElementById('confRfc').value = data.rfc || '';
+            document.getElementById('confCedula').value = data.cedulaProfesional || '';
             document.getElementById('confTelefono').value = data.telefonoPrincipal || '';
             document.getElementById('confDireccion').value = data.direccionCorta || '';
             document.getElementById('confFacebook').value = data.facebook || '';
@@ -597,6 +598,7 @@ function guardarConfiguracionGeneral() {
     const configData = {
         nombreComercial: document.getElementById('confNombre').value,
         rfc: document.getElementById('confRfc').value,
+        cedulaProfesional: document.getElementById('confCedula').value,
         telefonoPrincipal: document.getElementById('confTelefono').value,
         direccionCorta: document.getElementById('confDireccion').value,
         facebook: document.getElementById('confFacebook').value,

@@ -145,14 +145,14 @@
                                 </button>
                             </li>
                             <li class="nav-item ms-3 border-start ps-3 border-secondary">
-                                <button class="nav-link px-3 shadow-sm btn-outline-info" data-bs-toggle="pill" type="button"
-                                    onclick="cargarTabla('MARCA_ARMAZON')">
+                                <button class="nav-link px-3 shadow-sm btn-outline-info" data-bs-toggle="pill"
+                                    type="button" onclick="cargarTabla('MARCA_ARMAZON')">
                                     <i class="fas fa-tags me-1"></i>Marcas (Armazón)
                                 </button>
                             </li>
                             <li class="nav-item">
-                                <button class="nav-link px-3 shadow-sm btn-outline-info" data-bs-toggle="pill" type="button"
-                                    onclick="cargarTabla('MARCA_CONTACTO')">
+                                <button class="nav-link px-3 shadow-sm btn-outline-info" data-bs-toggle="pill"
+                                    type="button" onclick="cargarTabla('MARCA_CONTACTO')">
                                     <i class="fas fa-eye me-1"></i>Marcas (Contacto)
                                 </button>
                             </li>
@@ -397,11 +397,16 @@
                                         placeholder="Ej. Óptica DXY">
                                 </div>
                                 <div class="row mb-3">
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                         <label class="form-label small fw-bold text-muted">RFC / ID Fiscal</label>
                                         <input type="text" id="confRfc" class="form-control" placeholder="Opcional">
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
+                                        <label class="form-label small fw-bold text-primary">Cédula Prof.</label>
+                                        <input type="text" id="confCedula" class="form-control border-primary"
+                                            placeholder="Ej. 12345678">
+                                    </div>
+                                    <div class="col-md-4">
                                         <label class="form-label small fw-bold text-muted">Teléfono Clínica</label>
                                         <input type="tel" id="confTelefono" class="form-control">
                                     </div>
